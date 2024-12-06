@@ -54,6 +54,15 @@ class GraphProcessor:
         self._seed = 0
         self._num_max_agvs = 0
         self._graph = None
+        if(config.level_of_simulation == 1):
+            #random in the list
+            #import os
+            # Lấy thư mục hiện hành
+            #current_directory = os.getcwd()
+            # In ra thư mục hiện hành
+            #print("Thư mục hiện hành là:", current_directory)
+            #pdb.set_trace()
+            self.read_xls()
 
 #===============================================================================
 
@@ -297,6 +306,59 @@ class GraphProcessor:
             if(node.id == id):
                 return node
         return None
+    
+    def process_number(self, num):
+        import math
+        if num < 5:
+            return 0
+        else:
+            return math.ceil(num)
+    
+    def read_xls(self):
+        #import pandas as pd
+        from openpyxl import load_workbook
+        import math
+        
+        # Đọc file Excel
+        #pdb.set_trace()
+        file_name = 'completion_times.xlsx'
+        workbook = load_workbook(file_name, data_only=True)
+        sheet = workbook.active
+        
+        # Find the last column with a value in the first row
+        last_column_with_value = sheet.max_column
+        for col in range(sheet.max_column, 0, -1):
+            if sheet.cell(row=1, column=col).value is not None:
+                last_column_with_value = col
+                break
+        # Lấy số lượng cột và hàng
+        max_column = sheet.max_column
+        max_row = sheet.max_row
+        # Lấy dữ liệu từ 3 cột cuối cùng
+        last_three_columns = []
+        for row in sheet.iter_rows(min_row=1, max_row=max_row, min_col=last_column_with_value-2, max_col=last_column_with_value):
+            row_data = []
+            for cell in row:
+                if cell.value is not None:
+                    #print(cell.value)
+                    row_data.append(cell.value)
+            if row_data:
+                #print(row_data)
+                last_three_columns.append(row_data)
+        #df = pd.read_excel('completion_times.xlsx', engine='openpyxl')
+        # Get the last 3 columns
+        #last_three_columns = df.iloc[:, -3:]
+        # Initialize an empty list to store the processed numbers
+        self.processed_numbers = []
+        
+        for row in last_three_columns:
+            for num in row:
+                if isinstance(num, (int, float)):  # Kiểm tra nếu là số
+                    self.processed_numbers.append(self.process_number(num))
+                else:
+                    #print(num)
+                    pass
+        
 
 #======================================================================================
 
@@ -317,10 +379,14 @@ class GraphProcessor:
         
         result = self._handle_special_cases(next_id, start_time, end_time, result)
         
-        if config.sfm:
+        if config.level_of_simulation == 2:
             result = self._calculate_sfm_runtime(space_start_node, space_end_node, agv, start_time, result)
+        elif config.level_of_simulation == 1 or config.level_of_simulation == 0:
+            result = self._calculate_final_result(result, start_time, end_time)
+        #else config.level_of_simulation == 0:
+        #    pass
         
-        result = self._calculate_final_result(result, start_time, end_time)
+        
         
         return self._handle_collisions(result, next_id, agv, M)
 
@@ -380,7 +446,32 @@ class GraphProcessor:
 
     def _calculate_final_result(self, result, start_time, end_time):
         if result == -1:
-            return 3 if (end_time - start_time <= 3) else 2 * (end_time - start_time) - 3
+            import random
+            import time
+            import math
+            
+            # Get the current time
+            current_time = time.localtime()
+            # Extract the components of the current time
+            second = current_time.tm_sec
+            minute = current_time.tm_min
+            hour = current_time.tm_hour
+            day = current_time.tm_mday
+            month = current_time.tm_mon
+            year = current_time.tm_year
+            
+            seed = second + minute * 60 + hour * 3600 + day * 86400 + month * 2592000 + year * 31104000
+            
+            # Seed the random number generator
+            random.seed(seed)
+            # Generate a random number with the given max value
+            max_value = len(self.processed_numbers) if config.level_of_simulation == 1 else 300
+            index = random.randint(0, max_value)
+            if index >= len(self.processed_numbers):
+                pdb.set_trace()
+            value = self.processed_numbers[index] if config.level_of_simulation == 1 else max_value
+            return math.ceil((1 + value/100)*(end_time - start_time))
+            #return 3 if (end_time - start_time <= 3) else 2 * (end_time - start_time) - 3
         return result
 
     def _handle_collisions(self, result, next_id, agv, M):
