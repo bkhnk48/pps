@@ -18,43 +18,50 @@ class DimacsFileReader:
         self.zero_nodes_dict = {}
         self.arc_descriptors_dict = {}
         self.earliness_tardiness_dict = {}
+        #self.graph_version = graph_version
 
     def read_dimacs_file(self, file_path):
-        self.problem_info = {}
-        node_descriptors = []
-        arc_descriptors = []
+        # DIMACS format: p <problem_type> <num_nodes> <num_arcs>
+        self.problem_info = {}  # Create a dictionary to store problem information
+
+        # DIMACS format: n <node_id> <flow>
+        node_descriptors = []  # Create a list to store node descriptors
+
+        # DIMACS format: a <src> <dst> <low> <cap> <cost>
+        arc_descriptors = []  # Create a list to store arc descriptors
+
+        # Store comment for earliness-tardiness problem
         comment_lines = []
 
         with open(file_path, 'r') as file:
             for line in file:
+                # split with delimiter ' '
                 line = line.strip().split(' ')
+
+                #print(line)
+
                 if line[0] == 'c':
-                    self.handle_comment(line, comment_lines)
+                    # store comment line
+                    comment_lines.append(line)
                 elif line[0] == 'p':
-                    self.handle_problem_line(line)
+                    # Parse problem line
+                    _, problem_type, num_nodes, num_arcs = line
+                    self.problem_info['type'] = problem_type
+                    self.problem_info['num_nodes'] = int(num_nodes)
+                    self.problem_info['num_arcs'] = int(num_arcs)
                 elif line[0] == 'n':
-                    self.handle_node_descriptor(line, node_descriptors)
+                    # Parse node descriptor line
+                    _, node_id, flow = line
+                    node_descriptors.append((int(node_id), int(flow)))
                 elif line[0] == 'a':
-                    self.handle_arc_descriptor(line, arc_descriptors)
+                    # Parse arc descriptor line
+                    _, src, dst, low, cap, cost = line
+                    arc_descriptors.append((int(src), int(dst), int(low), int(cap), int(cost)))
+                else:
+                    # Ignore other lines
+                    continue
 
         return node_descriptors, arc_descriptors, comment_lines
-
-    def handle_comment(self, line, comment_lines):
-        comment_lines.append(line)
-
-    def handle_problem_line(self, line):
-        _, problem_type, num_nodes, num_arcs = line
-        self.problem_info['type'] = problem_type
-        self.problem_info['num_nodes'] = int(num_nodes)
-        self.problem_info['num_arcs'] = int(num_arcs)
-
-    def handle_node_descriptor(self, line, node_descriptors):
-        _, node_id, flow = line
-        node_descriptors.append((int(node_id), int(flow)))
-
-    def handle_arc_descriptor(self, line, arc_descriptors):
-        _, src, dst, low, cap, cost = line
-        arc_descriptors.append((int(src), int(dst), int(low), int(cap), int(cost)))
 
     # function to divide the node into supply and demand
     def divide_node(self, node_descriptors_dict, arc_descriptors_dict):
@@ -153,22 +160,23 @@ class ForecastingModel:
     
     @graph.setter
     def graph(self, value):
+        #if(self.id == 'AGV4' and False):
+        #    pdb.set_trace()
         self._graph = value
     
 
     def create_model(self):
+
+        # Create indexed dictionaries for variables
         self.vars_dict_index_i = {}
         self.vars_dict_index_j = {}
-        
-        self.create_arc_variables()
-        self.create_earliness_tardiness_variables()
-        
-        self.all_vars = self.model.getVars()
-        self.all_vars_dict = {var.name: var for var in self.all_vars}
-        
-        self.cost_dict = self.create_cost_dictionary()
 
-    def create_arc_variables(self):
+        # sort the arc_descriptors_dict by src from smallest to largest, then by dst from smallest to largest
+        """
+        for each arc((i, j), (low, cap, cost))
+        create a variable x{supply_node}_{i}_{j}
+        sorted by i from smallest to largest, then by j from smallest to largest
+        """
         for supply_node in self.supply_nodes_dict:
             for (i, j), _ in self.arc_descriptors_dict.items():
                 var_name = f"x{supply_node}_{i}_{j}"
@@ -177,12 +185,12 @@ class ForecastingModel:
 
                 self.model.addVar(vtype="B", name=var_name)
 
-    def create_earliness_tardiness_variables(self):
-        if self.earliness_tardiness_dict:
-            self.z_vars = {}
-            self.z_vars_tw = {}
-            z_vars_TW_E = {}
-            z_vars_TW_T = {}
+        # create variable for earliness and tardiness
+        if self.earliness_tardiness_dict != {}:
+            self.z_vars = {}  # {supply_node: z_var}
+            self.z_vars_tw = {}  # {(supply_node, demand_node): z_var_tw_e, z_var_tw_t}
+            z_vars_TW_E = {}  # {(supply_node, demand_node): z_var}
+            z_vars_TW_T = {}  # {(supply_node, demand_node): z_var}
 
             for supply_node in self.supply_nodes_dict:
                 z_var_name = f"z{supply_node}"
@@ -196,70 +204,122 @@ class ForecastingModel:
             for supply_node in self.supply_nodes_dict:
                 for demand_node, (earliness, tardiness) in self.earliness_tardiness_dict.items():
                     self.z_vars_tw[(supply_node, demand_node)] = (
-                        z_vars_TW_E[(supply_node, demand_node)], 
-                        z_vars_TW_T[(supply_node, demand_node)]
-                    )
+                    z_vars_TW_E[(supply_node, demand_node)], z_vars_TW_T[(supply_node, demand_node)])
 
-    def create_cost_dictionary(self):
-        cost_dict = {}
+        self.all_vars = self.model.getVars()
+        self.all_vars_dict = {var.name: var for var in self.all_vars}
+
+        # generate cost dictionary
+        self.cost_dict = {}
         for (i, j), (low, cap, cost) in self.arc_descriptors_dict.items():
             for supply_node in self.supply_nodes_dict:
                 var_name = f"x{supply_node}_{i}_{j}"
-                cost_dict[var_name] = cost
-        return cost_dict
+                self.cost_dict[var_name] = cost
 
     def add_constraints(self):
-        self.add_capacity_constraints()
-        self.add_supply_node_constraints()
-        self.add_demand_node_constraints()
-        self.add_zero_node_constraints()
-        self.add_supply_node_traffic_flow_constraints()
-        self.add_demand_node_traffic_flow_constraints()
-        self.add_earliness_tardiness_constraints()
-
-    def add_capacity_constraints(self):
-        """ Constraint 1: Limit the flow of each arc to its capacity """
+        # Constraint 1:
+        """
+        Theory of constraint 1:
+        Limit the flow of each arc to its capacity
+        """
         for (i, j), (low, cap, cost) in self.arc_descriptors_dict.items():
-            lst = [self.all_vars_dict[f"x{supply_node}_{i}_{j}"] for supply_node in self.supply_nodes_dict]
+            lst = []
+            for supply_node in self.supply_nodes_dict:
+                var_name = f"x{supply_node}_{i}_{j}"
+                lst.append(self.all_vars_dict[var_name])
             self.model.addCons(quicksum(lst) <= cap)
 
-    def add_supply_node_constraints(self):
-        """ Constraint 2: Sum of all arcs out of each supply node must equal 1 """
+        # Constraint 2:
+        """
+        Theory of constraint 2:
+        For each supply node, the sum of all arcs out of the supply node must be equal to 1
+        """
         for supply_node in self.supply_nodes_dict:
-            arc_out = [f"x{supply_node}_{i}_{j}" for (i, j), (low, cap, cost) in self.arc_descriptors_dict.items() if i == supply_node]
+            arc_out = []
+            for (i, j), (low, cap, cost) in self.arc_descriptors_dict.items():
+                if i == supply_node:
+                    # (f"x{supply_node}_{i}_{j}")
+                    arc_out.append(f"x{supply_node}_{i}_{j}")
             self.model.addCons(quicksum(self.all_vars_dict[var] for var in arc_out) == 1)
 
-    def add_demand_node_constraints(self):
-        """ Constraint 3: Sum of all arcs into each demand node must equal 1 """
+        # Constraint 3:
+        """
+        Theory of constraint 3:
+        For each demand node, the sum of all arcs into the demand node must be equal to 1
+        """
         for demand_node in self.demand_nodes_dict:
-            arc_in = [f"x{supply_node}_{i}_{j}" for supply_node in self.supply_nodes_dict for (i, j), (low, cap, cost) in self.arc_descriptors_dict.items() if j == demand_node]
+            arc_in = []
+            for supply_node in self.supply_nodes_dict:
+                for (i, j), (low, cap, cost) in self.arc_descriptors_dict.items():
+                    if j == demand_node:
+                        # print(f"x{supply_node}_{i}_{j}")
+                        arc_in.append(f"x{supply_node}_{i}_{j}")
             self.model.addCons(quicksum(self.all_vars_dict[var] for var in arc_in) == 1)
 
-    def add_zero_node_constraints(self):
-        """ Constraint 4: Flow into zero nodes must equal flow out of zero nodes """
+        # Constraint 4:
+        """
+        Theory of constraint 4:
+        For each zero node, the sum of all arcs into the zero node must be equal to the sum of all arcs out of the zero node
+        """
         for zero_node in self.zero_nodes_dict:
+            #print(f"\nAdding Constraint for zero node {zero_node}")
             for supply_node in self.supply_nodes_dict:
-                arc_in = [f"x{supply_node}_{i}_{j}" for (i, j), (low, cap, cost) in self.arc_descriptors_dict.items() if j == zero_node]
-                arc_out = [f"x{supply_node}_{i}_{j}" for (i, j), (low, cap, cost) in self.arc_descriptors_dict.items() if i == zero_node]
-                self.model.addCons(quicksum(self.all_vars_dict[var] for var in arc_in) == quicksum(self.all_vars_dict[var] for var in arc_out))
+                arc_in = []
+                arc_out = []
+                for (i, j), (low, cap, cost) in self.arc_descriptors_dict.items():
+                    if j == zero_node:
+                        arc_in.append(f"x{supply_node}_{i}_{j}")
+                        #print(f"Append {f'x{supply_node}_{i}_{j}'} to arc_in")
+                    if i == zero_node:
+                        arc_out.append(f"x{supply_node}_{i}_{j}")
+                        #print(f"Append {f'x{supply_node}_{i}_{j}'} to arc_out")
+                self.model.addCons(quicksum(self.all_vars_dict[var] for var in arc_in) == quicksum(
+                    self.all_vars_dict[var] for var in arc_out))
+                #print(f"Add constraint for zero node {zero_node} and supply node {supply_node}")
 
-    def add_supply_node_traffic_flow_constraints(self):
-        """ Constraint 5: Traffic flow for supply nodes """
+        # Constraint 5: supply node traffic flow
         for supply_node in self.supply_nodes_dict:
-            arc_in = [f"x{vehicle_node}_{i}_{j}" for (i, j), (low, cap, cost) in self.arc_descriptors_dict.items() for vehicle_node in self.supply_nodes_dict if j == supply_node]
-            arc_out = [f"x{vehicle_node}_{i}_{j}" for (i, j), (low, cap, cost) in self.arc_descriptors_dict.items() for vehicle_node in self.supply_nodes_dict if i == supply_node]
-            self.model.addCons(1 + quicksum(self.all_vars_dict[var] for var in arc_in) == quicksum(self.all_vars_dict[var] for var in arc_out))
+            #print(f"\nAdding Constraint for supply node {supply_node}")
+            arc_in = {}
+            arc_out = {}
+            arc_in.setdefault(supply_node, [])
+            arc_out.setdefault(supply_node, [])
+            for (i, j), (low, cap, cost) in self.arc_descriptors_dict.items():
+                for vehicle_node in self.supply_nodes_dict:
+                    if i == supply_node:
+                        arc_out[supply_node].append(f"x{vehicle_node}_{i}_{j}")
+                        #print(f"Append {f'x{vehicle_node}_{i}_{j}'} to arc_out")
+                    if j == supply_node:
+                        arc_in[supply_node].append(f"x{vehicle_node}_{i}_{j}")
+                        #print(f"Append {f'x{vehicle_node}_{i}_{j}'} to arc_in")
 
-    def add_demand_node_traffic_flow_constraints(self):
-        """ Constraint 6: Traffic flow for demand nodes """
+            self.model.addCons(1 + quicksum(self.all_vars_dict[var] for var in arc_in[supply_node]) == quicksum(
+                self.all_vars_dict[var] for var in arc_out[supply_node]))
+            #print(f"Add constraint for supply node {supply_node}")
+
+        # Constraint 6: for demand node traffic flow
         for demand_node in self.demand_nodes_dict:
-            arc_in = [f"x{supply_node}_{i}_{j}" for (i, j), (low, cap, cost) in self.arc_descriptors_dict.items() for supply_node in self.supply_nodes_dict if j == demand_node]
-            arc_out = [f"x{supply_node}_{i}_{j}" for (i, j), (low, cap, cost) in self.arc_descriptors_dict.items() for supply_node in self.supply_nodes_dict if i == demand_node]
-            self.model.addCons(quicksum(self.all_vars_dict[var] for var in arc_in) == 1 + quicksum(self.all_vars_dict[var] for var in arc_out))
+            #print(f"\nAdding Constraint for demand node {demand_node}")
+            arc_in = {}
+            arc_out = {}
+            arc_in.setdefault(demand_node, [])
+            arc_out.setdefault(demand_node, [])
+            for (i, j), (low, cap, cost) in self.arc_descriptors_dict.items():
+                for supply_node in self.supply_nodes_dict:
+                    if i == demand_node:
+                        arc_out[demand_node].append(f"x{supply_node}_{i}_{j}")
+                        #print(f"Append {f'x{supply_node}_{i}_{j}'} to arc_out")
+                    if j == demand_node:
+                        arc_in[demand_node].append(f"x{supply_node}_{i}_{j}")
+                        #print(f"Append {f'x{supply_node}_{i}_{j}'} to arc_in")
 
-    def add_earliness_tardiness_constraints(self):
-        """ Constraint 7: Handle earliness and tardiness variables """
-        if self.earliness_tardiness_dict:
+            self.model.addCons(quicksum(self.all_vars_dict[var] for var in arc_in[demand_node]) == 1 + quicksum(
+                self.all_vars_dict[var] for var in arc_out[demand_node]))
+            #print(f"Add constraint for demand node {demand_node}")
+
+        # Constraint 7:
+        if self.earliness_tardiness_dict != {}:
+
             for supply_node in self.supply_nodes_dict:
                 z_var = self.z_vars[supply_node]
                 supply_node_vars = [var for var in self.all_vars if f"x{supply_node}_" in var.name]
@@ -267,16 +327,18 @@ class ForecastingModel:
 
             for (supply_node, demand_node), (z_var_tw_e, z_var_tw_t) in self.z_vars_tw.items():
                 z_var = self.z_vars[supply_node]
-                z_vars_src_dst = {var.name: var for var in self.all_vars if f"x{supply_node}_" in var.name and var.name.endswith(str(demand_node))}
+                z_vars_src_dst = {}
+                for var in self.all_vars:
+                    parts = var.name.split("_")
+                    #print(parts)
+                    if (f"x{supply_node}_" in var.name) and (parts[-1] == str(demand_node)):
+                        z_vars_src_dst[var.name] = var
                 earliness, tardiness = self.earliness_tardiness_dict[demand_node]
                 vars_sum = quicksum(z_vars_src_dst.values())
                 self.model.addCons(z_var_tw_t >= 0)
                 self.model.addCons(z_var_tw_e >= 0)
                 self.model.addCons(z_var_tw_t >= (z_var - tardiness) * vars_sum)
                 self.model.addCons(z_var_tw_e >= (earliness * vars_sum) - z_var)
-
-
-
 
     def solve(self):
         config.totalSolving += 1
@@ -307,6 +369,19 @@ class ForecastingModel:
 
     def output_solution(self):
         if self.model.getStatus() == "optimal":
+            #print("Run time:", time.time() - time_start, "SEC\n")
+            #print("Solver time:", self.solve_time)
+            #print("Total time:", self.total_time)
+            #print("Reading time:", self.reading_time)
+            #print("Presolving time:", self.presolving_time)
+            #print("Optimal value:", self.model.getObjVal())
+            #print("Solution:")
+            # Lấy tất cả các biến từ mô hình
+            #vars = self.model.getVars()
+            # In giá trị của tất cả các biến
+            #for var in vars:
+            #    if self.model.getVal(var) > 0:
+            #        print(f"{var.name} = {self.model.getVal(var)}")
             pass
         else:
             print("No solution found")
@@ -342,83 +417,91 @@ class ForecastingModel:
             else:
                 f.write("No solution found")
 
-    def create_traces(self, filepath, graph_version):
-        """ Main function to create and write traces based on optimal solution. """
-        self.check_time_limit()
-        
-        if self.model.getStatus() == "optimal":
-            tmp_traces = self.parse_variables_to_traces()
-            
-            if self.graph.graph_processor.print_out:
-                self.print_traces_summary(tmp_traces)
-
-            traces = self.sort_and_construct_traces(tmp_traces)
-            self.write_traces_to_file(traces, filepath)
-
-    def check_time_limit(self):
-        """ Checks and logs if the process has taken too long. """
+    def create_traces(self, filepath, graph_version):  # sourcery skip: low-code-quality
         import time
-        milliseconds = int(round(time.time())) 
-        seconds = milliseconds / (1000 * 1000)
-        if (seconds > 60 * 100):
+        milliseconds = int(round(time.time()))
+        seconds = milliseconds / (1000*1000)
+        if(seconds > 60*100):
             print(seconds/(60*100))
+        if self.model.getStatus() == "optimal":
+            #pdb.set_trace()
+            vars = self.model.getVars()
 
-    def parse_variables_to_traces(self):
-        """ Parse variables to build initial traces. """
-        vars = self.model.getVars()
-        tmp_traces = {}
+            # parse both var.name and arc_descriptors_dict to get the traces
+            tmp_traces = {} # format {agvID: [(i, j): cost, (i, j): cost, ...]}
+            for var in vars:
+                if self.model.getVal(var) > 0 and var.name.startswith("x"):
+                    # split x{agvID}_{i}_{j} to get i and j
+                    parts = var.name.split("_")
+                    #print(parts)
+                    agvID = parts[0]
+                    #print(agvID)
+                    i = int(parts[1])
+                    #print(i)
+                    j = int(parts[2])
+                    #print(j)
+                    cost = int(self.cost_dict[var.name])
+                    #print(cost)
+                    tmp_traces.setdefault(agvID, [])
+                    tmp_traces[agvID].append((i, j, cost))
 
-        for var in vars:
-            if self.model.getVal(var) > 0 and var.name.startswith("x"):
-                parts = var.name.split("_")
-                agvID, i, j = parts[0], int(parts[1]), int(parts[2])
-                cost = int(self.cost_dict[var.name])
-                tmp_traces.setdefault(agvID, []).append((i, j, cost))
+            # sort the traces by (i, j) eg: [(1, 4): 10, (3, 2): 20, (4, 3): 30] to [(1, 4): 10, (4, 3): 30, (3, 2): 20]
+            # i of the next element must be equal to j of the previous element
+            #pdb.set_trace()
+            if(self.graph.graph_processor.printOut):
+                print("====>")
+                for key in tmp_traces.keys():
+                    print(f'\t {key}: {tmp_traces[key]}', end='')
+                    last = tmp_traces[key][-1][0]
+                    M = self.graph.graph_processor.M
+                    real_last = last % M if last % M != 0 else M
+                    first = tmp_traces[key][0][0]
+                    if first in self.graph.nodes:
+                        if self.graph.nodes[first].agv is not None:
+                            print(f'{self.graph.nodes[first].agv.id} gonna reach', end='')
+                    print(f' Last = {real_last}')
+            #print(f"====> {tmp_traces}")
 
-        return tmp_traces
+            #pdb.set_trace()
+            # sort from smallest to largest i
+            for agvID in tmp_traces:
+                tmp_traces[agvID].sort(key=lambda x: x[0])
 
-    def print_traces_summary(self, tmp_traces):
-        """ Print a summary of traces for debugging and verification purposes. """
-        print("====>")
-        for key in tmp_traces.keys():
-            print(f"\t {key}: {tmp_traces[key]}", end='')
-            last = tmp_traces[key][-1][0]
-            M = self.graph.graph_processor.M
-            real_last = last % M if last % M != 0 else M
-            first = tmp_traces[key][0][0]
-            if first in self.graph.nodes and self.graph.nodes[first].agv is not None:
-                print(f"{self.graph.nodes[first].agv.id} gonna reach", end='')
-            print(f" Last = {real_last}")
+            traces = {}
+            for agvID in tmp_traces:
+                traces.setdefault(agvID, [])
+                # add the first element to the traces
+                traces[agvID].append(tmp_traces[agvID][0])
 
-    def sort_and_construct_traces(self, tmp_traces):
-        """ Sort traces and construct final trace paths. """
-        # Sort initial traces by starting node `i`
-        for agvID in tmp_traces:
-            tmp_traces[agvID].sort(key=lambda x: x[0])
+            # sort by compare previous j with current i, if they are equal, append to the same list
+            for agvID in tmp_traces:
+                for i in range(len(tmp_traces[agvID])):
+                    for arc in tmp_traces[agvID]:
+                        if i < len(traces[agvID]):
+                            try:
+                                if traces[agvID][i][1] == arc[0]:
+                                    traces[agvID].append(arc)
+                                    break
+                            except IndexError as e:
+                                print(f"IndexError: {e}")
+                                pdb.set_trace()
 
-        traces = {agvID: [tmp_traces[agvID][0]] for agvID in tmp_traces}
+            #print(traces)
+            # write the traces to file
+            cost = 0
+            with open(filepath, "w") as file:
+                # empty file
+                for agvID in traces:
+                    #print(traces[agvID])
+                    for trace in traces[agvID]:
+                        file.write(f"a {trace[0]} {trace[1]}    {cost}  +  {trace[2]}  =  {cost + trace[2]}\n")
+                        cost += trace[2]
+        else:
+            #pdb.set_trace()
+            #print("No solution found")
+            pass
+        #print(f"version of graph : {graph_version}")
 
-        for agvID in tmp_traces:
-            for i in range(len(tmp_traces[agvID])):
-                for arc in tmp_traces[agvID]:
-                    if i < len(traces[agvID]):
-                        try:
-                            if traces[agvID][i][1] == arc[0]:
-                                traces[agvID].append(arc)
-                                break
-                        except IndexError as e:
-                            print(f"IndexError: {e}")
-
-        return traces
-
-    def write_traces_to_file(self, traces, filepath):
-        """ Write the final traces to the specified file. """
-        cost = 0
-        with open(filepath, "w") as file:
-            for agvID in traces:
-                for trace in traces[agvID]:
-                    file.write(f"a {trace[0]} {trace[1]}    {cost}  +  {trace[2]}  =  {cost + trace[2]}\n")
-                    cost += trace[2]
 
     def get_problem_info(self):
         return self.problem_info
