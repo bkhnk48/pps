@@ -36,20 +36,24 @@ def choose_solver():
             print("Invalid choice. Defaulting to Network X.")
             config.solver_choice = 'networkx'
 
+
 def choose_time_measurement():
     # choose to run sfm or not
     if(config.count == 1):
-        print("Choose to run sfm or not:")
-        print("1 - Run sfm")
-        print("0 - Not run sfm")
-        choice = input("Enter your choice (1 or 0): ")
-        if choice == '1':
-            config.sfm = True
-        elif choice == '0':
-            config.sfm = False
+        print("Choose level of Time Measurement:")
+        print("0 - Fully Random")
+        print("1 - Random in a list")
+        print("2 - SFM")
+        choice = input("Enter your choice (0 to 2): ")
+        if choice == '0':
+            config.level_of_simulation = 0
+        elif choice == '1':
+            config.level_of_simulation = 1
+        elif choice == '2':
+            config.level_of_simulation = 2
         else:
             print("Invalid choice. Defaulting to run sfm.")
-            config.sfm = True
+            config.level_of_simulation = 2
 
 allAGVs = set()
 TASKS = set()
