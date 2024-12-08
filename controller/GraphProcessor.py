@@ -697,7 +697,14 @@ class GraphProcessor:
     def process_new_edges(self, new_edges):
         """Xử lý và cập nhật các cạnh mới vào đồ thị."""
         for edge in new_edges:
+            #if edge == "a 57600 58232 0 1 10 Exceed" or edge == "a 792 1432 0 1 10":#liệu đây có làm arr bị None???
+            #    pdb.set_trace()
             arr = self.graph.parse_string(edge)
+            if arr is not None:
+                if arr[0] is None:
+                    pdb.set_trace()
+            else:
+                pdb.set_trace()            
             source_id, dest_id = arr[0], arr[1]
             self.add_edge_to_graph(source_id, dest_id, arr)
 
