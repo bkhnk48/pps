@@ -362,10 +362,10 @@ class Graph:
     
     def parse_string(self, input_string):
         parts = input_string.split()
-        if len(parts) != 6 or parts[0] != "a":
+        if len(parts) < 6 or parts[0] != "a":
             return None  # Chuỗi không đúng định dạng
         try:
-            ID1, ID2, L, U, C = map(int, parts[1:])
+            ID1, ID2, L, U, C = map(int, parts[1:6])
             return [ID1, ID2, L, U, C]
         except ValueError:
             return None  # Không thể chuyển thành số nguyên
