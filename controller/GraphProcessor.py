@@ -428,11 +428,13 @@ class GraphProcessor:
 
     def _handle_special_cases(self, next_id, start_time, end_time, result):
         try:
+            if(next_id == 26306):
+                pdb.set_trace()
             if isinstance(self.graph.nodes[next_id], TimeWindowNode):
                 return end_time - start_time if result == -1 else result
         except KeyError:
             for e in self.ts_edges:
-                if e[0] % self.number_of_nodes_in_space_graph == start_id % self.number_of_nodes_in_space_graph:
+                if e[0] % self.graph.number_of_nodes_in_space_graph == start_id % self.graph.number_of_nodes_in_space_graph:
                     result = e[4] if result == -1 else result
             return abs(end_time - start_time) if result == -1 else result
         return result
@@ -468,6 +470,7 @@ class GraphProcessor:
             max_value = len(self.processed_numbers) if config.level_of_simulation == 1 else 300
             index = random.randint(0, max_value)
             if index >= len(self.processed_numbers):
+                index = index % len(self.processed_numbers)
                 pdb.set_trace()
             value = self.processed_numbers[index] if config.level_of_simulation == 1 else max_value
             return math.ceil((1 + value/100)*(end_time - start_time))
@@ -697,7 +700,7 @@ class GraphProcessor:
     def process_new_edges(self, new_edges):
         """Xử lý và cập nhật các cạnh mới vào đồ thị."""
         for edge in new_edges:
-            #if edge == "a 57600 58232 0 1 10 Exceed" or edge == "a 792 1432 0 1 10":#liệu đây có làm arr bị None???
+            #if edge == "a 599 1239 0 1 10": #or edge == "a 792 1432 0 1 10":#liệu đây có làm arr bị None???
             #    pdb.set_trace()
             arr = self.graph.parse_string(edge)
             if arr is not None:
