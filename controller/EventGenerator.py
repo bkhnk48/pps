@@ -416,5 +416,10 @@ class StartEvent(Event):
         if(debug):
             pdb.set_trace()
         next_node = self.graph.nodes[self.agv.current_node]
+        #if(self.agv.id == 'AGV23'):
+        #    pdb.set_trace()
         new_event = next_node.goToNextNode(self)
+        if(new_event.end_time < 0):
+            pdb.set_trace()
+            new_event = next_node.goToNextNode(self)
         simulator.schedule(new_event.end_time, new_event.process)
