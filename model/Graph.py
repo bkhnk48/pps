@@ -406,6 +406,10 @@ class Graph:
             #    pdb.set_trace()
             
             started_nodes = self.getAllNewStartedNodes()
+            if(len(started_nodes) != len(self.graph_processor.get_targets())):
+                pdb.set_trace()
+                started_nodes = self.getAllNewStartedNodes()
+                targets = self.graph_processor.get_targets()
 
             for start_node in started_nodes:
                 file.write(f"n {start_node} 1\n")
