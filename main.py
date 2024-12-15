@@ -52,8 +52,8 @@ def choose_time_measurement():
         elif choice == '2':
             config.level_of_simulation = 2
         else:
-            print("Invalid choice. Defaulting to run sfm.")
-            config.level_of_simulation = 2
+            print("Invalid choice. Defaulting to run fully random.")
+            config.level_of_simulation = 0
 
 allAGVs = set()
 TASKS = set()
@@ -111,6 +111,9 @@ while(config.count < 2):
         config.haltingAGVs = 0
         config.totalSolving = 0
         config.timeSolving = 0
+        #pdb.set_trace()
+        if config.solver_choice == 'networkx':
+            config.solver_choice = 'solver'
         AGV.reset()
         simulator.reset()
     
