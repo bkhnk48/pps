@@ -377,7 +377,7 @@ class GraphProcessor:
             result = 0
             self._update_agv_path(agv, next_id)
         
-        result = self._handle_special_cases(next_id, start_time, end_time, result)
+        result = self._handle_special_cases(start_id, next_id, start_time, end_time, result)
         
         if config.level_of_simulation == 2:
             result = self._calculate_sfm_runtime(space_start_node, space_end_node, agv, start_time, result)
@@ -426,10 +426,10 @@ class GraphProcessor:
         if agv is not None:
             agv.path.add(node_id)
 
-    def _handle_special_cases(self, next_id, start_time, end_time, result):
+    def _handle_special_cases(self, start_id, next_id, start_time, end_time, result):
         try:
-            if(next_id == 26306):
-                pdb.set_trace()
+            #if(next_id == 26306):
+            #    pdb.set_trace()
             if isinstance(self.graph.nodes[next_id], TimeWindowNode):
                 return end_time - start_time if result == -1 else result
         except KeyError:
@@ -469,10 +469,11 @@ class GraphProcessor:
             # Generate a random number with the given max value
             max_value = len(self.processed_numbers) if config.level_of_simulation == 1 else 300
             index = random.randint(0, max_value)
-            if index >= len(self.processed_numbers):
-                index = index % len(self.processed_numbers)
-                pdb.set_trace()
-            value = self.processed_numbers[index] if config.level_of_simulation == 1 else max_value
+            if(config.level_of_simulation == 1):
+                if index >= len(self.processed_numbers):
+                    index = index % len(self.processed_numbers)
+                    pdb.set_trace()
+            value = self.processed_numbers[index] if config.level_of_simulation == 1 else index
             return math.ceil((1 + value/100)*(end_time - start_time))
             #return 3 if (end_time - start_time <= 3) else 2 * (end_time - start_time) - 3
         return result
