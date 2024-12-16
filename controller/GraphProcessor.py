@@ -381,8 +381,7 @@ class GraphProcessor:
         
         if config.level_of_simulation == 2:
             result = self._calculate_sfm_runtime(space_start_node, space_end_node, agv, start_time, result)
-        elif config.level_of_simulation == 1 or config.level_of_simulation == 0:
-            result = self._calculate_final_result(result, start_time, end_time)
+        result = self._calculate_final_result(result, start_time, end_time)
         #else config.level_of_simulation == 0:
         #    pass
         
