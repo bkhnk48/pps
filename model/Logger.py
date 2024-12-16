@@ -35,7 +35,7 @@ class Logger:
 #print(f'Giá trị lớn nhất trong cột {columnName}: {get_max_value(fileName, columnName)}')
 
 
-    def log(self, fileName, map, totalAGVs, H, d, solution, reachingTarget, halting, objectiveValue, runTime, solving):
+    def log(self, fileName, map, totalAGVs, H, d, solution, reachingTarget, halting, objectiveValue, runTime, solving, pedestrians_mode):
         # Kiểm tra xem fileName có đuôi .csv chưa, nếu chưa thì thêm vào
         if not fileName.endswith('.csv'):
             fileName += '.csv'
@@ -51,13 +51,13 @@ class Logger:
             if not file_exists:
                 writer.writerow(['No', 'Map', 'Total AGVs', 'Horizontal Time', 'Time step', 'Solution', 
                                  'Num of Reaching Target AGVs', 'Num of Halting AGVs', 
-                                 'Objective Value', 'Running Time(s)', '# Of Solving'])
+                                 'Objective Value', 'Running Time(s)', '# Of Solving', 'Pedestrian simulation mode'])
                 
             initialIndex = self.get_max_value(fileName, 'No') + 1
 
             # Thêm dòng dữ liệu mới
             writer.writerow([initialIndex, map, totalAGVs, H, d, solution, reachingTarget, halting, 
-                             objectiveValue, runTime, solving])
+                             objectiveValue, runTime, solving, pedestrians_mode])
 
 # Ví dụ sử dụng
 #logger = Logger()
