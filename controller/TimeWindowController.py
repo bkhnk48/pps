@@ -54,5 +54,6 @@ class TimeWindowController:
                     edge = [node.id, target_node.id, 0, 1, C]
                     adj_edges[node.id].append((target_node.id, node.create_edge(target_node, M, -1, edge)))
         elif (time >= self.H):
-            pdb.set_trace()
+            #pdb.set_trace()
+            pass
             
