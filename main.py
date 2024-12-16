@@ -21,21 +21,23 @@ def choose_solver():
     print("2 - Use parallel network-simplex")
     print("3 - Use NetworkX")
     choice = 3
-    if(config.count == 2):
+    if(config.count % 2 == 0):
         choice = 1
         config.solver_choice = 'solver'
     else:
-        choice = input("Enter your choice (1 or 2 or 3): ")
-        if choice == '1':
-            config.solver_choice = 'solver'
-        elif choice == '2':
-            config.solver_choice = 'network-simplex'
-        elif choice == '3':
-            config.solver_choice = 'networkx'
+        if(config.count <= 1):
+            choice = input("Enter your choice (1 or 2 or 3): ")
+            if choice == '1':
+                config.solver_choice = 'solver'
+            elif choice == '2':
+                config.solver_choice = 'network-simplex'
+            elif choice == '3':
+                config.solver_choice = 'networkx'
+            else:
+                print("Invalid choice. Defaulting to Network X.")
+                config.solver_choice = 'networkx'
         else:
-            print("Invalid choice. Defaulting to Network X.")
             config.solver_choice = 'networkx'
-
 
 def choose_time_measurement():
     # choose to run sfm or not
@@ -55,6 +57,18 @@ def choose_time_measurement():
             print("Invalid choice. Defaulting to run fully random.")
             config.level_of_simulation = 0
 
+def choose_test_automation():
+    if(config.count == 1):
+        print("Choose level of Test automation:")
+        print("0 - Manual")
+        print("1 - Automation")
+        choice = input("Enter your choice (0 or 1): ")
+        if choice == '0':
+            config.test_automation = 0
+        else:
+            print("Defaulting to run Automation")
+            config.test_automation = 1
+
 allAGVs = set()
 TASKS = set()
 
@@ -71,6 +85,7 @@ while(config.count < 2):
         dm.half_cleanup()
     choose_solver()
     choose_time_measurement()
+    choose_test_automation()
     graph_processor = GraphProcessor()
     start_time = time.time()
     graph_processor.use_in_main(config.count != 1)
@@ -134,5 +149,5 @@ while(config.count < 2):
         print("Thời gian chạy: {:02}:{:02}:{:02}".format(int(hours), int(minutes), int(seconds)))
         logger.log("Log.csv", config.filepath, config.numOfAGVs, config.H, \
             config.d, config.solver_choice, config.reachingTargetAGVs, config.haltingAGVs, \
-                config.totalCost, elapsed_time, config.timeSolving)
+                config.totalCost, elapsed_time, config.timeSolving, config.level_of_simulation)
         reset(simulator)
