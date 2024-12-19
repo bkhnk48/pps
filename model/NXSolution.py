@@ -15,12 +15,20 @@ class NetworkXSolution:
     def read_dimac_file(self, file_path):
         G = nx.DiGraph()
         #pdb.set_trace()
+        countDemands = 0
+        posList = []
+        negList = []
         with open(file_path, 'r') as file:
             for line in file:
                 parts = line.split()
                 if parts[0] == 'n':
                     ID = parts[1]
                     demand = (-1)*int(parts[2])
+                    countDemands += 1
+                    if demand > 0:
+                        posList.append(demand)
+                    else:
+                        negList.append(demand)
                     G.add_node(ID, demand = demand)
                 elif parts[0] == 'a':
                     ID1 = (parts[1])
@@ -30,6 +38,11 @@ class NetworkXSolution:
                     G.add_edge(ID1, ID2, weight=C, capacity=U)
         import time
         start_time = time.time()
+        #print("=============> Demands ", countDemands)
+        #if(countDemands == 8):
+        #    pdb.set_trace()
+        #    print(posList)
+        #    print(negList)
         self.flowCost, self.flowDict = nx.network_simplex(G)
         end_time = time.time()
         config.timeSolving += (end_time - start_time)
