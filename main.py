@@ -28,16 +28,17 @@ def choose_solver():
         if(config.count <= 1):
             choice = input("Enter your choice (1 or 2 or 3): ")
             if choice == '1':
-                config.solver_choice = 'solver'
+                 config.solver_choice = 'solver'
             elif choice == '2':
-                config.solver_choice = 'network-simplex'
+                 config.solver_choice = 'network-simplex'
             elif choice == '3':
-                config.solver_choice = 'networkx'
+                 config.solver_choice = 'networkx'
             else:
-                print("Invalid choice. Defaulting to Network X.")
-                config.solver_choice = 'networkx'
+                 print("Invalid choice. Defaulting to Network X.")
+                 config.solver_choice = 'networkx'
         else:
-            config.solver_choice = 'networkx'
+            config.solver_choice = 'networkx'    
+
 
 def choose_time_measurement():
     # choose to run sfm or not
@@ -54,8 +55,8 @@ def choose_time_measurement():
         elif choice == '2':
             config.level_of_simulation = 2
         else:
-            print("Invalid choice. Defaulting to run fully random.")
-            config.level_of_simulation = 0
+            print("Invalid choice. Defaulting to run SFM.")
+            config.level_of_simulation = 2
 
 def choose_test_automation():
     if(config.count == 1):
@@ -77,17 +78,24 @@ y = {}
 
 config.count = 0
 logger = Logger()
-while(config.count < 2):
+while(config.count < 2*12 and config.numOfAGVs <= 10):
     #pdb.set_trace()
     config.count = config.count + 1
     if config.count > 1:
         print(f"{bcolors.WARNING}Start half cleanup{bcolors.ENDC}")
         dm.half_cleanup()
+        if(config.count % 2 == 0):
+            print("Start using solver at: ", config.count)
+        #    pdb.set_trace()
+        config.numOfAGVs = config.numOfAGVs + 2*(config.count % 2)
     choose_solver()
     choose_time_measurement()
     choose_test_automation()
     graph_processor = GraphProcessor()
     start_time = time.time()
+    #print("main.py:96, ", config.count)
+    #if(config.count == 3):
+    #    pdb.set_trace()
     graph_processor.use_in_main(config.count != 1)
     end_time = time.time()
     graph_processor.print_out = False
