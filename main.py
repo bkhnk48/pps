@@ -42,7 +42,7 @@ def choose_solver():
 
 def choose_time_measurement():
     # choose to run sfm or not
-    if(config.count == 1):
+    if(config.count == 1 and config.test_automation == 0):
         print("Choose level of Time Measurement:")
         print("0 - Fully Random")
         print("1 - Random in a list")
@@ -56,6 +56,14 @@ def choose_time_measurement():
             config.level_of_simulation = 2
         else:
             print("Invalid choice. Defaulting to run SFM.")
+            config.level_of_simulation = 2
+    else:
+        #config.level_of_simulation = ((config.count - 1) // 2) % 3
+        if(config.count == 1 or config.count == 2):
+            config.level_of_simulation = 0
+        elif(config.count == 3 or config.count == 4):
+            config.level_of_simulation = 1
+        elif(config.count == 5 or config.count == 6):
             config.level_of_simulation = 2
 
 def choose_test_automation():
@@ -78,7 +86,7 @@ y = {}
 
 config.count = 0
 logger = Logger()
-while(config.count < 2*12 and config.numOfAGVs <= 10):
+while(config.count < 2*2):#12 and config.numOfAGVs <= 10):
     #pdb.set_trace()
     config.count = config.count + 1
     if config.count > 1:
@@ -86,11 +94,13 @@ while(config.count < 2*12 and config.numOfAGVs <= 10):
         dm.half_cleanup()
         if(config.count % 2 == 0):
             print("Start using solver at: ", config.count)
+        else:
+            print("Start using NetworkX at: ", config.count)
         #    pdb.set_trace()
-        config.numOfAGVs = config.numOfAGVs + 2*(config.count % 2)
+        #config.numOfAGVs = config.numOfAGVs + 2*(config.count % 2)
     choose_solver()
-    choose_time_measurement()
     choose_test_automation()
+    choose_time_measurement()
     graph_processor = GraphProcessor()
     start_time = time.time()
     #print("main.py:96, ", config.count)
