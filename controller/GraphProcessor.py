@@ -381,6 +381,7 @@ class GraphProcessor:
         
         if config.level_of_simulation == 2:
             result = self._calculate_sfm_runtime(space_start_node, space_end_node, agv, start_time, result)
+        #elif config.level_of_simulation == 1 or config.level_of_simulation == 0:
         result = self._calculate_final_result(result, start_time, end_time)
         #else config.level_of_simulation == 0:
         #    pass
@@ -1405,6 +1406,8 @@ class GraphProcessor:
 
     def get_initial_conditions(self, target_node):
         if isinstance(self.ID, list):
+            if(len(self.ID) == 0):
+                pdb.set_trace()
             ID = self.ID[0]
             earliness = self.earliness[0]
             tardiness = self.tardiness[0]
@@ -1797,9 +1800,9 @@ class GraphProcessor:
         if(use_config_data):
             self.d = config.d
         else:
-            self.d = input("Nhap time unit (default: 1): ")
+            self.d = input("Nhap time unit (default: 10): ")
             if(self.d == ''):
-                self.d = 1
+                self.d = 10
             else:
                 self.d = int(self.d)
             config.d = self.d
@@ -1814,8 +1817,18 @@ class GraphProcessor:
             self.tardiness = config.tardiness
             self.started_nodes = config.started_nodes
             num_of_agvs = config.numOfAGVs
+            if(config.numOfAGVs > len(config.ID)):
+                num_of_additional_agvs = config.numOfAGVs - len(config.ID)
+                for _ in range(num_of_additional_agvs):
+                    [s, d, e, t] = self.generate_numbers_student(self.M, self.H, 12, 100)
+                    self.started_nodes.append(s)
+                    self.ID.append(d)
+                    config.ID.append(d)
+                    self.earliness.append(e)
+                    self.tardiness.append(t)
         else:
-            self.num_max_agvs = input("Nhap so luong AGV toi da di chuyen trong toan moi truong (default: 4):")
+            self.num_max_agvs = input("Nhap so luong AGV toi da di chuyen trong toan moi truong (default: 2):")
+            #pdb.set_trace()
             if(self.num_max_agvs == ''):
                 self.num_max_agvs = 2
             else:
