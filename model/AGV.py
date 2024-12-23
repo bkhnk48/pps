@@ -27,7 +27,8 @@ class AGV:
         AGV._all_instances.add(self)
         
     def destroy(self):
-        print(f"Huy doi tuong {self.id} trong ham huy __del__ cua AGV.py")
+        remaining_AGVs = len(AGV._all_instances) - 1
+        print(f"Huy doi tuong {self.id} trong ham huy __del__ cua AGV.py. Con lai {remaining_AGVs} AGV(s)")
         AGV._all_instances.discard(self)
         
     @property
