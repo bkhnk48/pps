@@ -1819,8 +1819,8 @@ class GraphProcessor:
         self.generate_adj_matrix()
         
         num_of_agvs = 0
-        if(config.count == 5):
-            pdb.set_trace()
+        #if(config.count == 5):
+        #    pdb.set_trace()
         if(use_config_data):
             self.num_max_agvs = config.num_max_agvs
             self.ID = config.ID
@@ -1850,6 +1850,15 @@ class GraphProcessor:
                     if(config.numOfAGVs > len(self.tardiness)):
                         self.tardiness.append(t)
                         config.tardiness.append(t)
+            elif(config.numOfAGVs < len(config.ID)):
+                config.ID = config.ID[:(config.numOfAGVs)]
+                config.earliness = config.earliness[:(config.numOfAGVs)]
+                config.tardiness = config.tardiness[:(config.numOfAGVs)]
+                config.started_nodes = config.started_nodes[:(config.numOfAGVs)]
+                self.earliness = self.earliness[:(config.numOfAGVs)]
+                self.tardiness = self.tardiness[:(config.numOfAGVs)]
+                self.started_nodes = self.started_nodes[:(config.numOfAGVs)]
+                #pdb.set_trace()
         else:
             if(config.min_horizontal_time == -1 and config.max_horizontal_time == -1 and\
                 config.step_horizontal_time == -1 and config.min_AGVs == -1\
