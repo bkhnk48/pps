@@ -163,8 +163,6 @@ while(config.count < default_num_loops and \
         (config.numOfAGVs >= config.min_AGVs or config.min_AGVs == -1)):
     #pdb.set_trace()
     StartEvent.static_index = 0
-    if(config.count == 6):
-        pdb.set_trace()
     config.level_of_simulation = (config.count // num_of_solvers) % num_of_all_ped_sim
     config.count = config.count + 1
     if config.count > 1:
@@ -268,9 +266,9 @@ while(config.count < default_num_loops and \
             if(not check_file_existence()): #and (config.level_of_simulation == 2)):
                 continue
         start_time = time.time()
-        #simulator.ready()
-        #schedule_events(events)
-        #simulator.run()
+        simulator.ready()
+        schedule_events(events)
+        simulator.run()
         end_time = time.time()
         # Tính toán thời gian chạy
         elapsed_time = end_time - start_time
