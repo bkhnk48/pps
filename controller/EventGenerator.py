@@ -403,6 +403,7 @@ class TimeWindowsEvent(Event):
         self.getNext()
     
 class StartEvent(Event):
+    static_index = 0
     def __init__(self, start_time, end_time, agv, graph, graph_processor):
         super().__init__(start_time, end_time, agv, graph, graph_processor)
         print(self)
@@ -414,7 +415,8 @@ class StartEvent(Event):
         self.getNext()
         
     def __str__(self):
-        return f"StartEvent for {self.agv.id} to kick off its route from {self.agv.current_node} at {self.start_time}"
+        StartEvent.static_index = StartEvent.static_index + 1
+        return f"{StartEvent.static_index}) StartEvent for {self.agv.id} to kick off its route from {self.agv.current_node} at {self.start_time}"
     
     def getNext(self, debug = False):
         self.solve()
