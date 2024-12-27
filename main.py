@@ -11,11 +11,34 @@ import sys
 import pdb
 import time
 from datetime import datetime
+import os
+import platform
 
 
 from model.hallway_simulator_module.HallwaySimulator import DirectoryManager
 dm = DirectoryManager()
 dm.full_cleanup()
+
+def check_file_existence():
+    # Đường dẫn cho từng hệ điều hành
+    mac_path = 'model/hallway_simulator_module/sim/arm64/app'
+    linux_path = 'model/hallway_simulator_module/sim/x86_64/app'
+
+    # Kiểm tra hệ điều hành
+    if platform.system() == 'Darwin':  # macOS
+        file_path = mac_path
+    elif platform.system() == 'Linux':  # Linux
+        file_path = linux_path
+    else:
+        print("Non support OS.")
+        return False
+
+    # Kiểm tra sự tồn tại của file
+    if os.path.isfile(file_path):
+        return True
+    else:
+        print(f"File {file_path} not found!")
+        return False
 
 def choose_solver():
     print("Choose the method for solving:")
@@ -86,7 +109,7 @@ def choose_time_measurement():
         print("1 - Random in a list")
         print("2 - SFM")
         print("3 - Ideal moving")
-        choice = input("Enter your choice (0 to 2): ")
+        choice = input("Enter your choice (0 to 3): ")
         if choice == '0':
             config.level_of_simulation = 0
         elif choice == '1':
@@ -131,13 +154,18 @@ config.count = 0
 logger = Logger()
 #pdb.set_trace()
 num_of_solvers = 2
+num_of_all_ped_sim = 4
 num_of_agv_groups = 5
 num_of_horizontal_time = 3
-default_num_loops = num_of_solvers * num_of_agv_groups * num_of_horizontal_time
+default_num_loops = num_of_solvers * num_of_all_ped_sim * num_of_agv_groups * 2 * num_of_horizontal_time
 while(config.count < default_num_loops and \
     (config.numOfAGVs <= config.max_AGVs or config.max_AGVs == -1) and \
         (config.numOfAGVs >= config.min_AGVs or config.min_AGVs == -1)):
     #pdb.set_trace()
+    StartEvent.static_index = 0
+    if(config.count == 6):
+        pdb.set_trace()
+    config.level_of_simulation = (config.count // num_of_solvers) % num_of_all_ped_sim
     config.count = config.count + 1
     if config.count > 1:
         print(f"{bcolors.WARNING}Start half cleanup{bcolors.ENDC}")
@@ -146,9 +174,11 @@ while(config.count < default_num_loops and \
             print("Start using solver at: ", config.count)
         else:
             print("Start using NetworkX at: ", config.count)
-        if(config.count % num_of_solvers == 1 and config.count > 1):
-            config.numOfAGVs = config.count % 10
-            if config.numOfAGVs in [1, 2]:
+        
+        #if(config.count % num_of_solvers == 1 and config.count > 1):
+        #    config.numOfAGVs = config.count % (num_of_solvers*num_of_agv_groups)
+        #    pdb.set_trace()
+            """if config.numOfAGVs in [1, 2]:
                 config.numOfAGVs = 2
             elif config.numOfAGVs in [3, 4]:
                 config.numOfAGVs = 4
@@ -156,10 +186,20 @@ while(config.count < default_num_loops and \
                 config.numOfAGVs = 6
             elif config.numOfAGVs in [7, 8]:
                 config.numOfAGVs = 8
-            elif remainder in [9, 0]:
-                config.numOfAGVs = 10
+            elif config.numOfAGVs in [9, 0]:
+                config.numOfAGVs = 10"""
+            #if(config.numOfAGVs / num_of_solvers <= config.numOfAGVs // num_of_solvers):
+            #    config.numOfAGVs = config.numOfAGVs // num_of_solvers
+            #else:
+        
+        import math
+        config.numOfAGVs = math.ceil(config.count / (num_of_solvers * num_of_all_ped_sim))
+        #    config.numOfAGVs = (config.numOfAGVs % num_of_agv_groups) + 1
+        config.numOfAGVs *= 2
+        config.numOfAGVs = (config.numOfAGVs % (num_of_agv_groups*2))
+        config.numOfAGVs = num_of_agv_groups*2 if config.numOfAGVs == 0 else config.numOfAGVs
         if(config.min_horizontal_time != -1):
-            quotient = config.count / 10
+            quotient = config.count / (num_of_solvers* num_of_all_ped_sim * num_of_agv_groups)
             if quotient <= 1:
                 config.H = config.min_horizontal_time
             elif quotient <= 2 and quotient > 1:
@@ -222,17 +262,22 @@ while(config.count < default_num_loops and \
     
     if __name__ == "__main__":
         import time
+        print(f'Simulate: {config.numOfAGVs} AGVs run for {config.H} (s) using {config.solver_choice} and pedestrian simulate mode: {config.level_of_simulation}')
+        if(config.level_of_simulation == 2):
+            #pdb.set_trace()
+            if(not check_file_existence()): #and (config.level_of_simulation == 2)):
+                continue
         start_time = time.time()
-        simulator.ready()
-        schedule_events(events)
-        simulator.run()
+        #simulator.ready()
+        #schedule_events(events)
+        #simulator.run()
         end_time = time.time()
         # Tính toán thời gian chạy
         elapsed_time = end_time - start_time
         # Chuyển đổi thời gian chạy sang định dạng hh-mm-ss
         hours, rem = divmod(elapsed_time, 3600)
         minutes, seconds = divmod(rem, 60)
-        config.timeSolving = config.timeSolving / config.totalSolving
+        #config.timeSolving = config.timeSolving / config.totalSolving
         now = datetime.now()
         formatted_now = now.strftime("%Y-%m-%d %H:%M:%S")
         #runTime = f'{:02}:{:02}:{:02}'.format(int(hours), int(minutes), int(seconds)
@@ -240,4 +285,4 @@ while(config.count < default_num_loops and \
         logger.log("Log.csv", config.filepath, config.numOfAGVs, config.H, \
             config.d, config.solver_choice, config.reachingTargetAGVs, config.haltingAGVs, \
                 config.totalCost, elapsed_time, config.timeSolving, config.level_of_simulation, formatted_now)
-        reset(simulator)
+        #reset(simulator)
