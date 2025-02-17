@@ -5,7 +5,7 @@
   },
   "graphicsMode": {
     "description": "Graphics mode (1 - Graphics, 0 - No Graphics)",
-    "value": 1
+    "value": 0
   },
   "timeRatio": {
     "description": "The time ratio of the demo simulation",
