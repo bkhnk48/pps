@@ -303,11 +303,11 @@ class HallwaySimulator:
                 print(f"map file {map_file} not found")
             if not os.path.exists(f"data/tmp/{tmp_file}"):
                 print(f"tmp file {tmp_file} not found")
-            print("event_type 0")
+            #print("event_type 0")
             os.system(f"model/hallway_simulator_module/sim/{str(self.machine_arch)}/app {json_file} {map_file} 0")
 
         else:
-            print("event_type 1")
+            #print("event_type 1")
             os.system(f"model/hallway_simulator_module/sim/{str(self.machine_arch)}/app {json_file} {map_file} 1")
 
 
@@ -384,7 +384,7 @@ class BulkHallwaySimulator:
             _, _, from_to = self.read_function(function)
             if int(from_to[0]) <= time_stamp <= int(from_to[1]):
                 selected_function = function
-                print(selected_function)
+                #print(selected_function)
                 break
 
         a, b, _ = self.read_function(selected_function)
@@ -465,11 +465,11 @@ class BulkHallwaySimulator:
                     0
                 )
                 output = hallway_simulator.run_simulation()
-                print(output)
+                #print(output)
                 for agv in output:
                     self.AGV_COMPLETION_LOGS[agv[0]][hallway['hallway_id']] = {"time_stamp": time_stamp, "completion_time": agv[1]}
 
-        print(self.AGV_COMPLETION_LOGS)
+        #print(self.AGV_COMPLETION_LOGS)
         return self.AGV_COMPLETION_LOGS
 
 #    def output_filter(self):
