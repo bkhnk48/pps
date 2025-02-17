@@ -10,6 +10,9 @@ import subprocess
 import sys
 import pdb
 import time
+from datetime import datetime
+import os
+import platform
 
 from model.hallway_simulator_module.HallwaySimulator import DirectoryManager
 dm = DirectoryManager()
@@ -162,9 +165,11 @@ while(config.count < 2*3):#*12 and config.numOfAGVs <= 10):
         hours, rem = divmod(elapsed_time, 3600)
         minutes, seconds = divmod(rem, 60)
         config.timeSolving = config.timeSolving / config.totalSolving
+        now = datetime.now()
+        formatted_now = now.strftime("%Y-%m-%d %H:%M:%S")
         #runTime = f'{:02}:{:02}:{:02}'.format(int(hours), int(minutes), int(seconds)
         print("Thời gian chạy: {:02}:{:02}:{:02}".format(int(hours), int(minutes), int(seconds)))
         logger.log("Log.csv", config.filepath, config.numOfAGVs, config.H, \
             config.d, config.solver_choice, config.reachingTargetAGVs, config.haltingAGVs, \
-                config.totalCost, elapsed_time, config.timeSolving, config.level_of_simulation)
+                config.totalCost, elapsed_time, config.timeSolving, config.level_of_simulation, formatted_now)
         reset(simulator)
