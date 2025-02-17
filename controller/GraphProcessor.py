@@ -301,9 +301,6 @@ class GraphProcessor:
             return self._target_nodes[index]
         return self._target_nodes
     
-    def remove_target_by_id(self, x):
-        self._target_nodes = [node for node in self._target_nodes if node.id != x]
-    
     def get_target_by_id(self, id):
         for node in self._target_nodes:
             if(node.id == id):
@@ -385,10 +382,7 @@ class GraphProcessor:
         if config.level_of_simulation == 2:
             result = self._calculate_sfm_runtime(space_start_node, space_end_node, agv, start_time, result)
         #elif config.level_of_simulation == 1 or config.level_of_simulation == 0:
-        if config.level_of_simulation == 3:
-            result = end_time - start_time
-        else:
-            result = self._calculate_final_result(result, start_time, end_time)
+        result = self._calculate_final_result(result, start_time, end_time)
         #else config.level_of_simulation == 0:
         #    pass
         
@@ -1412,7 +1406,7 @@ class GraphProcessor:
 
     def get_initial_conditions(self, target_node):
         if isinstance(self.ID, list):
-            if(len(self.ID) == 0 or len(self.earliness) == 0):
+            if(len(self.ID) == 0):
                 pdb.set_trace()
             ID = self.ID[0]
             earliness = self.earliness[0]
@@ -1795,14 +1789,11 @@ class GraphProcessor:
         if(use_config_data):
             self.H = config.H
         else:
-            if(config.min_horizontal_time == -1):
-                self.H = input("Nhap thoi gian can gia lap (default: 10): ")
-                if(self.H == ''):
-                    self.H = 10
-                else:
-                    self.H = int(self.H)
+            self.H = input("Nhap thoi gian can gia lap (default: 10): ")
+            if(self.H == ''):
+                self.H = 10
             else:
-                self.H = config.min_horizontal_time
+                self.H = int(self.H)
             config.H = self.H
 
         self.generate_hm_matrix()
@@ -1819,8 +1810,6 @@ class GraphProcessor:
         self.generate_adj_matrix()
         
         num_of_agvs = 0
-        #if(config.count == 5):
-        #    pdb.set_trace()
         if(use_config_data):
             self.num_max_agvs = config.num_max_agvs
             self.ID = config.ID
@@ -1831,25 +1820,17 @@ class GraphProcessor:
                     config.started_nodes[i] = config.started_nodes[i] % self.M
             self.started_nodes = config.started_nodes
             num_of_agvs = config.numOfAGVs
-            if(config.numOfAGVs > len(config.ID) or config.numOfAGVs > len(self.earliness) or config.numOfAGVs > len(self.tardiness)):
-                listAllDiff = [config.numOfAGVs - len(config.ID), config.numOfAGVs - len(self.earliness), config.numOfAGVs - len(self.tardiness)]
-                num_of_additional_agvs = max(listAllDiff) #config.numOfAGVs - len(config.ID)
-                
+            if(config.numOfAGVs > len(config.ID)):
+                num_of_additional_agvs = config.numOfAGVs - len(config.ID)
                 for _ in range(num_of_additional_agvs):
                     [s, d, e, t] = self.generate_numbers_student(self.M, self.H, 12, 100)
                     while(d in self.ID or s in self.started_nodes):
                         [s, d, e, t] = self.generate_numbers_student(self.M, self.H, 12, 100)
-                    if(config.numOfAGVs > len(self.started_nodes)):
-                        self.started_nodes.append(s)
-                    if(config.numOfAGVs > len(config.ID)):
-                        self.ID.append(d)
-                        config.ID.append(d)
-                    if(config.numOfAGVs > len(self.earliness)):
-                        self.earliness.append(e)
-                        config.earliness.append(e)
-                    if(config.numOfAGVs > len(self.tardiness)):
-                        self.tardiness.append(t)
-                        config.tardiness.append(t)
+                    self.started_nodes.append(s)
+                    self.ID.append(d)
+                    config.ID.append(d)
+                    self.earliness.append(e)
+                    self.tardiness.append(t)
             elif(config.numOfAGVs < len(config.ID)):
                 config.ID = config.ID[:(config.numOfAGVs)]
                 config.earliness = config.earliness[:(config.numOfAGVs)]
@@ -1858,24 +1839,13 @@ class GraphProcessor:
                 self.earliness = self.earliness[:(config.numOfAGVs)]
                 self.tardiness = self.tardiness[:(config.numOfAGVs)]
                 self.started_nodes = self.started_nodes[:(config.numOfAGVs)]
-                #pdb.set_trace()
         else:
-            if(config.min_horizontal_time == -1 and config.max_horizontal_time == -1 and\
-                config.step_horizontal_time == -1 and config.min_AGVs == -1\
-                    and config.max_AGVs == -1):
-                self.num_max_agvs = input("Nhap so luong AGV toi da di chuyen trong toan moi truong (default: 2):")
-                #pdb.set_trace()
-                if(self.num_max_agvs == ''):
-                    self.num_max_agvs = 2
-                else:
-                    self.num_max_agvs = int(self.num_max_agvs)
-                config.min_horizontal_time = config.H
-                config.max_horizontal_time = config.H
-                config.step_horizontal_time = 0
-                config.min_AGVs = self.num_max_agvs
-                config.max_AGVs = self.num_max_agvs
+            self.num_max_agvs = input("Nhap so luong AGV toi da di chuyen trong toan moi truong (default: 2):")
+            #pdb.set_trace()
+            if(self.num_max_agvs == ''):
+                self.num_max_agvs = 2
             else:
-                self.num_max_agvs = config.min_AGVs
+                self.num_max_agvs = int(self.num_max_agvs)
             num_of_agvs = self.num_max_agvs
             config.num_max_agvs = self.num_max_agvs
             config.numOfAGVs = num_of_agvs

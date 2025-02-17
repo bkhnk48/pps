@@ -53,10 +53,7 @@ class HaltingEvent(Event):
                 cost = cost + delta_cost
                 print(f'({self.delta_t})/({delta_cost})==={real_node}===END. ', end='')
             prev = path[i]
-        print(f'Total cost: {cost}. The AGV reaches its destination at {self.end_time} while its expected target: {self.agv.target_node.id}')
-        self.graph.graph_processor.remove_target_by_id(self.agv.target_node.id)
-        #for target_node in self.graph.graph_processor.get_targets():
-        #    print(f"\t Target node {target_node}")
+        print(f'Total cost: {cost}. The AGV reaches its destination at {self.end_time}')
     
     def process(self):
         #pdb.set_trace()
@@ -74,8 +71,6 @@ class HaltingEvent(Event):
         self.calculate_cost_halting()
         print(f"The total cost of {self.agv.id} is {self.agv.cost}")
         config.haltingAGVs = config.haltingAGVs + 1
-        self.agv.destroy()
-        del self.agv
         #self.getNext()
     
     def __str__(self):
@@ -406,6 +401,7 @@ class StartEvent(Event):
     static_index = 0
     def __init__(self, start_time, end_time, agv, graph, graph_processor):
         super().__init__(start_time, end_time, agv, graph, graph_processor)
+        StartEvent.static_index += 1
         print(self)
 
     def process(self):
@@ -415,7 +411,6 @@ class StartEvent(Event):
         self.getNext()
         
     def __str__(self):
-        StartEvent.static_index = StartEvent.static_index + 1
         return f"{StartEvent.static_index}) StartEvent for {self.agv.id} to kick off its route from {self.agv.current_node} at {self.start_time}"
     
     def getNext(self, debug = False):
