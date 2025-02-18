@@ -18,6 +18,19 @@ from model.hallway_simulator_module.HallwaySimulator import DirectoryManager
 dm = DirectoryManager()
 dm.full_cleanup()
 
+
+def get_os():
+    os_name = platform.system()
+    if os_name == 'Darwin':
+        return "macOS"
+    elif os_name == 'Windows':
+        return "Windows"
+    elif os_name == 'Linux':
+        return "Linux"
+    else:
+        return "Undefined OS"
+
+
 def choose_solver():
     print("Choose the method for solving:")
     print("1 - Use LINK II solver")
@@ -91,6 +104,9 @@ logger = Logger()
 while(config.count < 2*3):#*12 and config.numOfAGVs <= 10):
     #pdb.set_trace()
     config.count = config.count + 1
+    if(config.count >= 5 and get_os() != 'Linux'):
+        print("The current OS doesnt support SFM Simulation")
+        continue
     if config.count > 1:
         print(f"{bcolors.WARNING}Start half cleanup{bcolors.ENDC}")
         dm.half_cleanup()
