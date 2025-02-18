@@ -105,7 +105,7 @@ while(config.count < 2*3):#*12 and config.numOfAGVs <= 10):
     choose_time_measurement()
     graph_processor = GraphProcessor()
     start_time = time.time()
-    print("main.py:96, ", config.count)
+    #print("main.py:96, ", config.count)
     #if(config.count == 3):
     #    pdb.set_trace()
     graph_processor.use_in_main(config.count != 1)
