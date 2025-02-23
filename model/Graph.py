@@ -277,6 +277,15 @@ class Graph:
                             if(not found):                                    
                                 self.cur = self.cur[1:]
                 self.map[number] = self.cur #[1: ] if len(self.cur) > 1 else self.cur
+        with open('validating.txt', 'w', encoding='utf-8') as file: 
+            print(len(self.map), file=file)
+            for key, value in self.map.items():
+                print(key, file=file)
+                for item in self.map[key]:
+                    if (not isinstance(item, TimeoutNode)) and (not isinstance(item, TimeWindowNode)):
+                        print(f'{item.id % self.graph_processor.M} {item.id // self.graph_processor.M}', file=file)
+        pdb.set_trace()
+                
     
     def getTrace(self, agv):
         #pdb.set_trace()
