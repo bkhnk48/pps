@@ -21,10 +21,23 @@ bool cmp(TCar A, TCar B)
 
 string s;
 
-int main()
+int main(int argc, char* argv[])
 {
     //freopen("A.inp", "r", stdin);
     //freopen("A.out", "w", stdout);
+    std::ifstream infile(argv[1]);
+    std::string line;
+    std::map<std::pair<int, int>, int> dataMap;
+    
+    while (std::getline(infile, line)) {
+        if (line[0] == 'a') {
+            std::istringstream iss(line);
+            char a;
+            int X, Y, U, V;
+            iss >> a >> X >> Y >> U >> V;
+            dataMap[std::make_pair(X, Y)] = U;
+        }
+    }
 
     cin >> n;
 
@@ -80,15 +93,14 @@ int main()
         {
             if(car[i].road[j].first != car[i].road[j-1].first)
             {
-                q4[car[i].road[j-1].first][car[i].road[j].first].insert(i); // xe i di qua ng� tu j-1->j
+                q4[car[i].road[j-1].first][car[i].road[j].first].insert(i); // xe i đi qua ngã tư j-1->j
                 ngatu[car[i].road[j-1].first][car[i].road[j].first].push_back(make_pair(car[i].road[j-1].second, car[i].road[j].second));
                 idngatu.insert(make_pair(car[i].road[j-1].first, car[i].road[j].first));  // ghi lai cac cap nga tu tranh trung lap
             }
         }
     }
-    
-    type = 5;
 
+    type = 5;
     {
         if(type == 0)
         {
@@ -168,6 +180,12 @@ int main()
             bool ok = 0;
             for(auto k: idngatu)
             {
+                if(ngatu[k.first][k.second].size() > 
+                        dataMap[std::make_pair(k.first, k.second)]){
+                    cout << 1 << '\n';  
+                    return 0;
+                }
+                        
                 for(int i = 0; i < ngatu[k.first][k.second].size(); i++)
                 {
                     for(int j = i+1; j < ngatu[k.first][k.second].size(); j++)
@@ -189,5 +207,6 @@ int main()
             cout << ok << '\n';
         }
     }
+    return 0;
 
 }
