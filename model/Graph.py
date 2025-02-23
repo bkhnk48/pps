@@ -9,6 +9,8 @@ from controller.NodeGenerator import TimeoutNode
 from model.Node import Node
 import config
 import json
+import subprocess
+import sys
 
 class bcolors:
     HEADER = '\033[95m'
@@ -240,6 +242,15 @@ class Graph:
                 #self.id2_id4_list.append(self.neighbour_list[node_id])
                 self.dfs(tree, node_id)
 
+    def validate(self):
+        command = "cat validating.txt | ./validate.o " + config.filepath
+        result = subprocess.run(command, shell = True, capture_output = True, text = True)
+        output = result.stdout
+        if(output == '1\n'):
+            print("Co luc vi pham rang buoc: xe xuat phat sau khong duoc den dich truoc")
+            pdb.set_trace()
+            sys.exit(1)
+
     def setTrace(self, file_path = 'traces.txt'):
         #pdb.set_trace()
         self.file_path = file_path #'traces.txt'
@@ -284,7 +295,7 @@ class Graph:
                 for item in self.map[key]:
                     if (not isinstance(item, TimeoutNode)) and (not isinstance(item, TimeWindowNode)):
                         print(f'{item.id % self.graph_processor.M} {item.id // self.graph_processor.M}', file=file)
-        pdb.set_trace()
+        self.validate()
                 
     
     def getTrace(self, agv):
