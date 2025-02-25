@@ -53,7 +53,7 @@ cd <path to git cloned repository>/hoangnv-sfm-fork
 make
 
 # copy the compiled file to the main repository
-cp app <path to git cloned repository>/pathPlanningSimulation/model/hallway_simulator_module/sim/x86_64/app
+cp app <path to git cloned repository>/pps/model/hallway_simulator_module/sim/x86_64/app
 ```
 
 ### Run the code
