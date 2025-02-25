@@ -13,7 +13,7 @@
 Clone the main repository to your local machine using the following command:
 
 ```bash
-git clone [https://github.com/bkhnk48/pathPlanningSimulation.git](https://github.com/bkhnk48/pps.git) --branch main
+git clone https://github.com/bkhnk48/pps.git --branch finished_new_input
 ```
 
 Clone the repository for `hallway_simulator_module` to your local machine using the following command:
