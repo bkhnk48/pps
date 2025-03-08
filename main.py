@@ -18,6 +18,19 @@ from model.hallway_simulator_module.HallwaySimulator import DirectoryManager
 dm = DirectoryManager()
 dm.full_cleanup()
 
+
+def get_os():
+    os_name = platform.system()
+    if os_name == 'Darwin':
+        return "macOS"
+    elif os_name == 'Windows':
+        return "Windows"
+    elif os_name == 'Linux':
+        return "Linux"
+    else:
+        return "Undefined OS"
+
+
 def choose_solver():
     print("Choose the method for solving:")
     print("1 - Use LINK II solver")
@@ -91,6 +104,9 @@ logger = Logger()
 while(config.count < 2*3):#*12 and config.numOfAGVs <= 10):
     #pdb.set_trace()
     config.count = config.count + 1
+    if(config.count >= 5 and get_os() != 'Linux'):
+        print("The current OS doesnt support SFM Simulation")
+        continue
     if config.count > 1:
         print(f"{bcolors.WARNING}Start half cleanup{bcolors.ENDC}")
         dm.half_cleanup()
@@ -107,7 +123,7 @@ while(config.count < 2*3):#*12 and config.numOfAGVs <= 10):
     start_time = time.time()
     #print("main.py:96, ", config.count)
     #if(config.count == 3):
-    #    pdb.set_trace()
+    #pdb.set_trace()
     graph_processor.use_in_main(config.count != 1)
     end_time = time.time()
     graph_processor.print_out = False
@@ -168,7 +184,7 @@ while(config.count < 2*3):#*12 and config.numOfAGVs <= 10):
         now = datetime.now()
         formatted_now = now.strftime("%Y-%m-%d %H:%M:%S")
         #runTime = f'{:02}:{:02}:{:02}'.format(int(hours), int(minutes), int(seconds)
-        print("Thời gian chạy: {:02}:{:02}:{:02}".format(int(hours), int(minutes), int(seconds)))
+        print("Thời gian chạy: {:02}:{:02}:{:02} để giả lập việc di chuyển của {} AGVs".format(int(hours), int(minutes), int(seconds), config.num_max_agvs))
         logger.log("Log.csv", config.filepath, config.numOfAGVs, config.H, \
             config.d, config.solver_choice, config.reachingTargetAGVs, config.haltingAGVs, \
                 config.totalCost, elapsed_time, config.timeSolving, config.level_of_simulation, formatted_now)
