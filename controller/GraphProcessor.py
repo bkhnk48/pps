@@ -1811,12 +1811,13 @@ class GraphProcessor:
         
         num_of_agvs = 0
         if(use_config_data):
+            #pdb.set_trace()
             self.num_max_agvs = config.num_max_agvs
             self.ID = config.ID
             self.earliness = config.earliness
             self.tardiness = config.tardiness
             for i in range(len(config.started_nodes)):
-                if (config.started_nodes[i] > self.M):
+                if (config.started_nodes[i] > self.M and config.started_nodes[i] % self.M not in config.started_nodes):
                     config.started_nodes[i] = config.started_nodes[i] % self.M
             self.started_nodes = config.started_nodes
             num_of_agvs = config.numOfAGVs
@@ -1841,7 +1842,6 @@ class GraphProcessor:
                 self.started_nodes = self.started_nodes[:(config.numOfAGVs)]
         else:
             self.num_max_agvs = input("Nhap so luong AGV toi da di chuyen trong toan moi truong (default: 2):")
-            #pdb.set_trace()
             if(self.num_max_agvs == ''):
                 self.num_max_agvs = 2
             else:
@@ -1855,7 +1855,12 @@ class GraphProcessor:
                 self.tardiness = []
                 #pdb.set_trace()
                 for _ in range(num_of_agvs):
-                    [s, d, e, t] = self.generate_numbers_student(self.M, self.H, 12, 100)
+                    [s, d, e, t] = self.generate_numbers_student(self.M, self.H, int(0.2*self.M), 100 if self.H > 100 else self.H//3)
+                    while s in self.started_nodes:
+                        s += self.M
+                        if s >= self.H * self.M:
+                            break
+                    #self.started_nodes.append(s)
                     self.started_nodes.append(s)
                     self.ID.append(d)
                     self.earliness.append(e)
