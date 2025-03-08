@@ -123,7 +123,7 @@ while(config.count < 2*3):#*12 and config.numOfAGVs <= 10):
     start_time = time.time()
     #print("main.py:96, ", config.count)
     #if(config.count == 3):
-    #    pdb.set_trace()
+    #pdb.set_trace()
     graph_processor.use_in_main(config.count != 1)
     end_time = time.time()
     graph_processor.print_out = False
@@ -184,7 +184,7 @@ while(config.count < 2*3):#*12 and config.numOfAGVs <= 10):
         now = datetime.now()
         formatted_now = now.strftime("%Y-%m-%d %H:%M:%S")
         #runTime = f'{:02}:{:02}:{:02}'.format(int(hours), int(minutes), int(seconds)
-        print("Thời gian chạy: {:02}:{:02}:{:02}".format(int(hours), int(minutes), int(seconds)))
+        print("Thời gian chạy: {:02}:{:02}:{:02} để giả lập việc di chuyển của {} AGVs".format(int(hours), int(minutes), int(seconds), config.num_max_agvs))
         logger.log("Log.csv", config.filepath, config.numOfAGVs, config.H, \
             config.d, config.solver_choice, config.reachingTargetAGVs, config.haltingAGVs, \
                 config.totalCost, elapsed_time, config.timeSolving, config.level_of_simulation, formatted_now)
