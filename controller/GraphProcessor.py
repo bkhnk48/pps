@@ -1060,6 +1060,7 @@ class GraphProcessor:
 
     def init_agvs_n_events(self, all_agvs, events, graph, graph_processor):
         from controller.EventGenerator import StartEvent
+        StartEvent.static_index = 0
         from model.AGV import AGV
         for node_id in self.started_nodes:
             #pdb.set_trace()
