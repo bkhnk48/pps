@@ -1818,7 +1818,7 @@ class GraphProcessor:
         if(use_config_data):
             self.draw = config.draw
         else:
-            self.draw = input("Nhap tuy chon vẽ TSG (default 0 - không nên dùng với đồ thị lớn): ")
+            self.draw = input("Nhập 1 để vẽ TSG (default 0) không nên dùng với đồ thị lớn): ")
             if(self.draw == '' or self.draw == 0):
                 self.draw = 0
             else:
