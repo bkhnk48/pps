@@ -33,6 +33,7 @@ class GraphProcessor:
         self._adj = []  # Adjacency matrix
         self._M = 0
         self._H = 0
+        self._draw = 0
         self._d = 0
         self._alpha = 1
         self._beta = 1
@@ -74,6 +75,13 @@ class GraphProcessor:
     @adj.setter
     def adj(self, value):
         self._adj = value
+        
+    @property
+    def M(self):
+        return self._M
+    @M.setter
+    def M(self, value):
+        self._M = value
 
     # Getter and Setter for H
     @property
@@ -83,6 +91,13 @@ class GraphProcessor:
     @H.setter
     def H(self, value):
         self._H = value
+        
+    @property
+    def draw(self):
+        return self._draw
+    @draw.setter
+    def draw(self, value):
+        self._draw = value
 
     # Getter and Setter for d
     @property
@@ -830,6 +845,7 @@ class GraphProcessor:
                         self.alpha = int(parts[1])
                     elif parts[0] == 'beta':
                         self.beta = int(parts[1])
+            config.M = self.M
             if(self.print_out):
                 print("Doc file hoan tat, M =", self.M)
         except FileNotFoundError:
@@ -1066,6 +1082,8 @@ class GraphProcessor:
             #pdb.set_trace()
             agv = AGV("AGV" + str(node_id), node_id, graph)  # Create an AGV at this node
             #print(Event.getValue("number_of_nodes_in_space_graph"))
+            if(self.M == 0):
+                pdb.set_trace()
             start_time = node_id // self.M
             end_time = start_time
             start_event = StartEvent(start_time, end_time, agv, graph, graph_processor)  # Start event at time 0
@@ -1366,7 +1384,7 @@ class GraphProcessor:
         pass
       return max_val
       
-    def generate_numbers_student(self, G, H, M, N, df=10):
+    def generate_numbers_student(self, G, H, M, N = 0, df=10):
         while True:
             self._seed = self._seed + 1
             self._seed = self._seed % G
@@ -1377,7 +1395,7 @@ class GraphProcessor:
             # Chuyển đổi các số này thành số nguyên trong khoảng từ 1 đến 100
             first_two = np.round((first_two - np.min(first_two)) / (np.max(first_two) - np.min(first_two)) * (G//3) + self._seed).astype(int)
             numbers = np.round((numbers - np.min(numbers)) / (np.max(numbers) - np.min(numbers)) * (H//3) + self._seed).astype(int)
-            if first_two[0] < G and first_two[1] < G and numbers[0] < numbers[1] and numbers[1] < H:
+            if first_two[0] < G and first_two[1] < G and numbers[0] <= numbers[1] and numbers[1] < H:
                 # Kiểm tra điều kiện khoảng cách tối thiểu
                 if (abs(first_two[0] - first_two[1]) >= M and abs(numbers[0] - numbers[1]) >= N):
                     return np.concatenate((first_two, numbers))
@@ -1796,6 +1814,16 @@ class GraphProcessor:
             else:
                 self.H = int(self.H)
             config.H = self.H
+        
+        if(use_config_data):
+            self.draw = config.draw
+        else:
+            self.draw = input("Nhap tuy chon vẽ TSG (default 0 - không nên dùng với đồ thị lớn): ")
+            if(self.draw == '' or self.draw == 0):
+                self.draw = 0
+            else:
+                self.draw = 1
+            config.draw = self.draw
 
         self.generate_hm_matrix()
         if(use_config_data):
@@ -1856,7 +1884,7 @@ class GraphProcessor:
                 self.tardiness = []
                 #pdb.set_trace()
                 for _ in range(num_of_agvs):
-                    [s, d, e, t] = self.generate_numbers_student(self.M, self.H, int(0.2*self.M), 100 if self.H > 100 else self.H//3)
+                    [s, d, e, t] = self.generate_numbers_student(self.M, self.H, int(0.2*self.M))#, 100 if self.H > 100 else self.H//3)
                     while s in self.started_nodes:
                         s += self.M
                         if s >= self.H * self.M:
