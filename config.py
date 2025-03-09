@@ -18,3 +18,5 @@ totalSolving = 0
 timeSolving = 0
 level_of_simulation = 0 #0 - "Fully Random", 1 - "Random in the list", 2 - "SFM"
 test_automation = 0
+draw = 0
+M = 0
