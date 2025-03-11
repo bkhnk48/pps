@@ -1268,6 +1268,9 @@ class GraphProcessor:
             if R:
                 new_a.update(self.create_new_edges(restriction, R, maxid))
                 maxid += 3
+                
+            # Add virtual nodes and edges for the restriction
+            self.add_virtual_nodes_and_edges(R, restriction[1])
 
         self.update_edges(new_a)
         self.insert_halting_edges()
@@ -1705,6 +1708,36 @@ class GraphProcessor:
           file.writelines(new_lines)
 
         print("Đã gỡ bỏ các cung con cháu xuất phát từ điểm gốc trong đồ thị TSG.")
+    
+    def add_virtual_nodes_and_edges(self, restricted_edges, U):
+        # https://docs.google.com/document/d/1X8K4h8F6a-R3Oc13k94jqXmp3TTwddr2b21dT5IJXN0/edit?tab=t.0
+        # Calculate total capacity 
+        C= sum(edge[4] for edge in restricted_edges)
+        F = C - u
+        
+        if F > 0:
+            # Create virtual source and sink nodes
+            virtual_source = max(node.id for node in self.ts_nodes) + 1
+            virtual_sink = virtual_source + 1
+            
+            # Add virtual source and sink nodes to the graph
+            self.ts_nodes.append(Node(virtual_source))
+            self.ts_nodes.append(Node(virtual_sink))
+            
+            for edge in restricted_edges:
+                s,d,lower,upper,capacity = edge
+                
+                # Add edges from virtual source to the source nodes of restricted edges
+                self.ts_edges.append((virtual_source, s, 0, capacity, 0))
+                self.graph.adjacency_list[virutal_source].append((s, (0, capacity, 0)))
+                
+                # Add edges from the destination nodes of restricted edges to virtual sink
+                self.ts_edges.append((d,virtual_sink, 0, capacity, 0))
+                self.graph.adjacency_list[d].append((virtual_sink, (0, capacity, 0)))
+            
+            # Add the virtual source and sink nodes to the map_nodes
+            self.map_nodes[virtual_source] = Node(virtual_source)
+            self.map_nodes[virtual_sink] = Node(virtual_sink)
     
     def process_tsg(self):
         AGV, TASKS, objective_coeffs = self.initialize_sets()
