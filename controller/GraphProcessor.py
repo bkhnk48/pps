@@ -6,7 +6,7 @@ from controller.NodeGenerator import ArtificialNode
 from controller.NodeGenerator import TimeWindowNode
 from controller.NodeGenerator import RestrictionNode
 from controller.RestrictionForTimeFrameController import RestrictionForTimeFrameController
-from controller.RestrictionController import RestrictionController
+# from controller.RestrictionController import RestrictionController
 from model.Node import Node
 from model.hallway_simulator_module.HallwaySimulator import BulkHallwaySimulator
 from collections import deque
@@ -50,6 +50,7 @@ class GraphProcessor:
         self._started_nodes = []
         self._print_out = True
         self._time_window_controller = None
+        self._restriction_for_timeframe_controller = None
         self._restriction_controller = None
         self._start_ban = -1
         self._end_ban = -1
@@ -245,6 +246,16 @@ class GraphProcessor:
     @time_window_controller.setter
     def time_window_controller(self, value):
         self._time_window_controller = value
+
+    
+    # Getter và Setter cho restriction_for_timeframe_controller
+    @property
+    def restriction_for_timeframe_controller(self):
+        return self._restriction_for_timeframe_controller
+    
+    @restriction_for_timeframe_controller.setter
+    def restriction_for_timeframe_controller(self, value):
+        self._restriction_for_timeframe_controller = value
 
     # Getter và Setter cho restriction_controller
     @property
@@ -1256,26 +1267,28 @@ class GraphProcessor:
             self.tsedges.append(temp)
         
     def process_restrictions(self):
-        # if self.restrictions:
-        #     controller = RestrictionForTimeFrameController(self)
-        #     controller.apply_restriction()
-        """Xử lý các hạn chế trong đồ thị."""
-        if self.restriction_controller is None:
-            self.restriction_controller = RestrictionController(self)
+        if self.restriction_for_timeframe_controller is None:
+            self.restriction_for_timeframe_controller = RestrictionForTimeFrameController(self)
+            self.restriction_for_timeframe_controller.apply_restriction()
+        # """Xử lý các hạn chế trong đồ thị."""
+        # from controller.RestrictionController import RestrictionController
+        # if self.restriction_controller is None:
+        #     self.restriction_controller = RestrictionController(self)
 
-        edges_with_cost = self.get_edges_with_cost()
-        maxid = self.get_max_id() + 1
-        new_a = set()
+        # edges_with_cost = self.get_edges_with_cost()
+        # maxid = self.get_max_id() + 1
+        # new_a = set()
 
-        for restriction in self.restrictions:
-            R = self.create_restricted_edges(restriction, edges_with_cost, maxid)
-            if R:
-                new_a.update(self.create_new_edges(restriction, R, maxid))
-                maxid += 3
-
-        self.update_edges(new_a)
-        self.insert_halting_edges()
-        self.write_to_file()
+        # for restriction in self.restrictions:
+        #     R = self.create_restricted_edges(restriction, edges_with_cost, maxid)
+        #     if R:
+        #         new_a.update(self.create_new_edges(restriction, R, maxid))
+        #         maxid += 3
+        # print("ts_edges: ",self.ts_edges)
+        # print("Space_edges: ",self.space_edges)
+        # self.update_edges(new_a)
+        # self.insert_halting_edges()
+        # self.write_to_file()
         
     def get_edges_with_cost(self):
         """Trả về một từ điển các cạnh với chi phí."""
