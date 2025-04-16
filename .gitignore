@@ -176,3 +176,5 @@ tramp
 
 # git
 .git/
+
+exclude*
