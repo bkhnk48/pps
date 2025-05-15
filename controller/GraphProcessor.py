@@ -656,7 +656,8 @@ class GraphProcessor:
             self.graph.version += 1
 
         new_halting_edges = self.collect_new_halting_edges()
-        self.graph.write_to_file([agv_id, new_node_id], new_halting_edges)                
+        self.graph.write_to_file([agv_id, new_node_id], new_halting_edges)
+        #pdb.set_trace()                
     
     def process_adjacency_list(self, current_time, new_node_id, M):
         """Duyệt qua từng phần tử của adjacency_list và cập nhật thông tin."""
@@ -764,6 +765,8 @@ class GraphProcessor:
                     new_nodes.add(edge[0])
                     for target in self.get_targets():
                         dest_id = target.id
+                        if(edge[0] == 30):
+                            pdb.set_trace()
                         new_halting_edges.append([edge[0], dest_id, 0, 1, self.H * self.H])
 
         return new_halting_edges
@@ -1031,9 +1034,12 @@ class GraphProcessor:
 
     def create_edge_output(self, output_lines, ID, j, cost_info, checking_list):
         """Tạo dòng output cho cạnh mới và thêm vào danh sách."""
+        #pdb.set_trace()
         upper, cost = cost_info
-        if ID // self.M >= self.H:
+        if ((ID // self.M - (1 if ID % self.M == 0 else 0))>= self.H):
             output_lines.append(f"a {ID} {j} 0 1 {cost} Exceed")
+            #if(ID % self.M == 0):
+            #    pdb.set_trace()
         else:
             output_lines.append(f"a {ID} {j} 0 {upper} {cost}")
         
@@ -1082,9 +1088,11 @@ class GraphProcessor:
             #pdb.set_trace()
             agv = AGV("AGV" + str(node_id), node_id, graph)  # Create an AGV at this node
             #print(Event.getValue("number_of_nodes_in_space_graph"))
-            if(self.M == 0):
-                pdb.set_trace()
-            start_time = node_id // self.M
+            #if(self.M == 0):
+            #    pdb.set_trace()
+            start_time = node_id // self.M - (1 if node_id % self.M == 0 else 0)
+            #if(node_id % self.M == 0):
+            #    pdb.set_trace()
             end_time = start_time
             start_event = StartEvent(start_time, end_time, agv, graph, graph_processor)  # Start event at time 0
             events.append(start_event)
@@ -1264,7 +1272,7 @@ class GraphProcessor:
         new_a = set()
 
         for restriction in self.restrictions:
-            R = self.create_restricted_edges(restriction, edges_with_cost, maxid)
+            R = self.restriction_controller.create_restricted_edges(restriction, edges_with_cost, maxid)
             if R:
                 new_a.update(self.create_new_edges(restriction, R, maxid))
                 maxid += 3
@@ -1334,11 +1342,18 @@ class GraphProcessor:
             time = edge.end_node.id // self.M - (1 if edge.end_node.id % self.M == 0 else 0)
             #    pdb.set_trace()
             if(time >= self.H):
+                #print(f"time = {time} at node.id = {edge.end_node.id}")
                 halting_nodes.add(edge.end_node.id)
         targets = self.get_targets()
         new_a = set()
         for h_node in halting_nodes:
+            #pdb.set_trace()
             for target in targets:
+                #if((h_node // self.M - (1 if h_node % self.M == 0 else 0)) < self.H):
+                #    at_time = h_node // self.M - (1 if h_node % self.M == 0 else 0)
+                #    print(f"at_time = {at_time}")
+                #if(h_node == 30):
+                #    pdb.set_trace()
                 e = (h_node, target.id, 0, 1, self.H*self.H)
                 new_a.update({e})
         self.ts_edges.extend(e for e in new_a if e not in self.ts_edges)
@@ -1357,8 +1372,9 @@ class GraphProcessor:
             for edge in self.tsedges:
                 if (edge is not None):   
                     if(edge.weight == self.H*self.H):
-                        #pdb.set_trace()
-                        file.write(f"c Exceed {edge.weight} {edge.weight // self.M}\na {edge.start_node.id} {edge.end_node.id} {edge.lower} {edge.upper} {edge.weight}\n")
+                        if((edge.start_node.id // self.M - (1 if edge.start_node.id % self.M == 0 else 0)) >= self.H):
+                            #print(f"c Exceed {edge.weight} {edge.weight // self.M}\na {edge.start_node.id} {edge.end_node.id} {edge.lower} {edge.upper} {edge.weight}\n")
+                            file.write(f"c Exceed {edge.weight} {edge.weight // self.M} as {edge.start_node.id} // {self.M} - (1 if {edge.start_node.id} % {self.M} == 0 else 0)\na {edge.start_node.id} {edge.end_node.id} {edge.lower} {edge.upper} {edge.weight}\n")
                     else:
                         file.write(f"a {edge.start_node.id} {edge.end_node.id} {edge.lower} {edge.upper} {edge.weight}\n")
         if(self.print_out):
@@ -1793,8 +1809,17 @@ class GraphProcessor:
             if 1 < number < M:
                 return number
 
-    def use_in_main(self, use_config_data = False, print_output = False):
-        self.print_out = print_output
+    def use_in_main(self, use_config_data = False):
+        if(use_config_data):
+            self.print_out = config.print_output
+        else:
+            print_out = input("Bạn có muốn print out ra hết các thông báo chi tiết khi chương trình hoạt động không? (Enter để trả lời KHÔNG): ")
+            if print_out == '':
+                self.print_out = False
+            else:
+                self.print_out = True
+            config.print_out = self.print_out
+
         if(use_config_data):
             filepath = config.filepath
         else:
