@@ -765,8 +765,6 @@ class GraphProcessor:
                     new_nodes.add(edge[0])
                     for target in self.get_targets():
                         dest_id = target.id
-                        if(edge[0] == 30):
-                            pdb.set_trace()
                         new_halting_edges.append([edge[0], dest_id, 0, 1, self.H * self.H])
 
         return new_halting_edges
