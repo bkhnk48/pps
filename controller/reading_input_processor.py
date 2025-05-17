@@ -4,6 +4,8 @@ from datetime import datetime
 from model.Logger import Logger
 import config
 from model.hallway_simulator_module.HallwaySimulator import DirectoryManager
+from openpyxl import load_workbook
+import math
 
 class bcolors:
     HEADER = '\033[95m'
@@ -130,8 +132,6 @@ class ReadingInputProcessor:
         return True  # báo hiệu tiếp tục vòng lặp
     
     def read_xls(self):
-        from openpyxl import load_workbook
-        import math
         # Đọc file Excel
         file_name = 'completion_times.xlsx'
         workbook = load_workbook(file_name, data_only=True)
