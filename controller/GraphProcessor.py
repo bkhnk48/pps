@@ -38,7 +38,6 @@ class GraphProcessor(ReadingInputProcessor):
         self._ts_nodes = []
         self._tsedges = []
         self._started_nodes = []
-        self._print_out = True
         self._time_window_controller = None
         self._restriction_controller = None
         self._start_ban = -1
@@ -1746,15 +1745,7 @@ class GraphProcessor(ReadingInputProcessor):
                 return number
 
     def use_in_main(self, use_config_data = False):
-        if(use_config_data):
-            self.print_out = config.print_output
-        else:
-            print_out = input("Bạn có muốn print out ra hết các thông báo chi tiết khi chương trình hoạt động không? (Enter để trả lời KHÔNG): ")
-            if print_out == '':
-                self.print_out = False
-            else:
-                self.print_out = True
-            config.print_out = self.print_out
+        self.ask_for_print_out(use_config_data)
 
         if(use_config_data):
             filepath = config.filepath
