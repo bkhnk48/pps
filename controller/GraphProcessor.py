@@ -6,6 +6,7 @@ from controller.NodeGenerator import ArtificialNode
 from controller.NodeGenerator import TimeWindowNode
 from controller.NodeGenerator import RestrictionNode
 from controller.RestrictionController import RestrictionController
+from controller.reading_input_processor import ReadingInputProcessor
 from model.Node import Node
 from model.hallway_simulator_module.HallwaySimulator import BulkHallwaySimulator
 from collections import deque
@@ -17,19 +18,9 @@ import config
 """ Mô tả yêu cầu của code:
 https://docs.google.com/document/d/13S_Ycg-aB4GjEm8xe6tAoUHzhS-Z1iFnM4jX_bWFddo/edit?usp=sharing """
 
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    RED = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-
-class GraphProcessor:
-    def __init__(self):
+class GraphProcessor(ReadingInputProcessor):
+    def __init__(self, dm):
+        super().__init__(dm) 
         self._adj = []  # Adjacency matrix
         self._M = 0
         self._H = 0
@@ -55,17 +46,7 @@ class GraphProcessor:
         self._seed = 0
         self._num_max_agvs = 0
         self._graph = None
-	# Initialize an empty list to store the processed numbers
-	self.processed_numbers = []
-        if(config.level_of_simulation == 1):
-            #random in the list
-            #import os
-            # Lấy thư mục hiện hành
-            #current_directory = os.getcwd()
-            # In ra thư mục hiện hành
-            #print("Thư mục hiện hành là:", current_directory)
-            #pdb.set_trace()
-            self.read_xls()
+        # Initialize an empty list to store the processed numbers
 
 #===============================================================================
 
@@ -330,49 +311,6 @@ class GraphProcessor:
             return 0
         else:
             return math.ceil(num)
-    
-    def read_xls(self):
-        #import pandas as pd
-        from openpyxl import load_workbook
-        import math
-        
-        # Đọc file Excel
-        #pdb.set_trace()
-        file_name = 'completion_times.xlsx'
-        workbook = load_workbook(file_name, data_only=True)
-        sheet = workbook.active
-        
-        # Find the last column with a value in the first row
-        last_column_with_value = sheet.max_column
-        for col in range(sheet.max_column, 0, -1):
-            if sheet.cell(row=1, column=col).value is not None:
-                last_column_with_value = col
-                break
-        # Lấy số lượng cột và hàng
-        max_column = sheet.max_column
-        max_row = sheet.max_row
-        # Lấy dữ liệu từ 3 cột cuối cùng
-        last_three_columns = []
-        for row in sheet.iter_rows(min_row=1, max_row=max_row, min_col=last_column_with_value-2, max_col=last_column_with_value):
-            row_data = []
-            for cell in row:
-                if cell.value is not None:
-                    #print(cell.value)
-                    row_data.append(cell.value)
-            if row_data:
-                #print(row_data)
-                last_three_columns.append(row_data)
-        #df = pd.read_excel('completion_times.xlsx', engine='openpyxl')
-        # Get the last 3 columns
-        #last_three_columns = df.iloc[:, -3:]
-        
-        for row in last_three_columns:
-            for num in row:
-                if isinstance(num, (int, float)):  # Kiểm tra nếu là số
-                    self.processed_numbers.append(self.process_number(num))
-                else:
-                    #print(num)
-                    pass
         
 
 #======================================================================================
