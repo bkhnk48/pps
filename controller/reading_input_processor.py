@@ -29,7 +29,18 @@ class ReadingInputProcessor:
         self.dm = _dm
         self.dm.full_cleanup()  # dọn sạch ban đầu
         self.processed_numbers = []
+        self._space_edges = []
 
+    # Getter và Setter cho space_edges
+    @property
+    def space_edges(self):
+        return self._space_edges
+    
+    @space_edges.setter
+    def space_edges(self, value):
+        if not isinstance(value, list):
+            raise ValueError("space_edges must be a list")
+        self._space_edges = value
     def get_os(self):
         os_name = platform.system()
         if os_name == 'Darwin':
