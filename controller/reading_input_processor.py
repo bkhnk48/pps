@@ -181,3 +181,41 @@ class ReadingInputProcessor:
             if filepath == '':
                 filepath = 'Redundant3x3Wards.txt'
             config.filepath = filepath
+            
+    def handle_n(self, parts):
+        nid, ntype = int(parts[1]), parts[2]
+        if ntype == '1':
+            self.started_nodes.append(nid)
+        elif ntype == '-1':
+            self.ID.append(nid)
+            self.earliness = [] if isinstance(self.earliness, int) else self.earliness
+            self.tardiness = [] if isinstance(self.tardiness, int) else self.tardiness
+            self.earliness.append(int(parts[3]))
+            self.tardiness.append(int(parts[4]))
+            
+    def process_input_file(self, filepath):
+        self.space_edges = []
+        try:
+            with open(filepath, 'r') as file:
+                self.M = 0
+                for line in file:
+                    parts = line.strip().split()
+                    if not parts:
+                        continue
+                    tag = parts[0]
+                    if tag == 'a' and len(parts) >= 6:
+                        id1, id2 = int(parts[1]), int(parts[2])
+                        self.space_edges.append(parts)
+                        self.M = max(self.M, id1, id2)
+                    elif tag == 'n':
+                        self.handle_n(parts)
+                    elif tag == 'alpha':
+                        self.alpha = int(parts[1])
+                    elif tag == 'beta':
+                        self.beta = int(parts[1])
+            config.M = self.M
+            if self.print_out:
+                print("Doc file hoan tat, M =", self.M)
+        except FileNotFoundError:
+            if self.print_out:
+                print("File khong ton tai!")
