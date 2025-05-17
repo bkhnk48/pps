@@ -756,40 +756,6 @@ class GraphProcessor(ReadingInputProcessor):
                 new_weight = int(weight * 1.1)
                 self.graph.adjacency_list[end_node][adj_node] = new_weight
                 print(f"Updated weight of edge {end_node} to {adj_node} to {new_weight} due to changes at {start_node}.")
- 
-    def process_input_file(self, filepath):
-        self.space_edges = []
-        try:
-            with open(filepath, 'r') as file:
-                self.M = 0
-                for line in file:
-                    parts = line.strip().split()
-                    if parts[0] == 'a' and len(parts) >= 6:
-                        id1, id2 = int(parts[1]), int(parts[2])
-                        self.space_edges.append(parts)
-                        self.M = max(self.M, id1, id2)
-                    elif parts[0] == 'n':
-                        if(parts[2] == '1'):
-                            self.started_nodes.append(int(parts[1]))
-                        if(parts[2] == '-1'):
-                            self.ID.append(int(parts[1]))
-                            if isinstance(self.earliness, int):
-                                self.earliness = []
-                            if isinstance(self.tardiness, int):
-                                self.tardiness = []
-                            self.earliness.append(int(parts[3]))
-                            self.tardiness.append(int(parts[4]))
-                    elif parts[0] == 'alpha':
-                        self.alpha = int(parts[1])
-                    elif parts[0] == 'beta':
-                        self.beta = int(parts[1])
-            config.M = self.M
-            if(self.print_out):
-                print("Doc file hoan tat, M =", self.M)
-        except FileNotFoundError:
-            if(self.print_out):
-                print("File khong ton tai!")
-            return
 
     def find_node(self, _id):
         _id = int(_id)
