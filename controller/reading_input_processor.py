@@ -21,6 +21,7 @@ class bcolors:
 class ReadingInputProcessor:
     def __init__(self, _dm):
         self.logger = Logger()
+        self._print_out = True
         #self.x = {}
         #self.y = {}
 
@@ -147,8 +148,7 @@ class ReadingInputProcessor:
         max_column, max_row = sheet.max_column, sheet.max_row
         # Lấy dữ liệu từ 3 cột cuối cùng
         last_three_columns = []
-        for row in sheet.iter_rows(min_row=1, max_row=max_row, \
-            min_col=last_column_with_value-2, max_col=last_column_with_value):
+        for row in sheet.iter_rows(min_row=1, max_row=max_row, \min_col=last_column_with_value-2, max_col=last_column_with_value):
             row_data = []
             for cell in row:
                 if cell.value is not None:
@@ -160,3 +160,14 @@ class ReadingInputProcessor:
             for num in row:
                 if isinstance(num, (int, float)):  # Kiểm tra nếu là số
                     self.processed_numbers.append(self.process_number(num))
+    
+    def ask_for_print_out(self, use_config_data = False):
+        if(use_config_data):
+            self.print_out = config.print_output
+        else:
+            print_out = input("Bạn có muốn print out ra hết các thông báo chi tiết khi chương trình hoạt động không? (Enter để trả lời KHÔNG): ")
+            if print_out == '':
+                self.print_out = False
+            else:
+                self.print_out = True
+        config.print_out = self.print_out
