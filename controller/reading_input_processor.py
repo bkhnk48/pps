@@ -1,0 +1,164 @@
+import platform
+import time
+from datetime import datetime
+from model.Logger import Logger
+import config
+from model.hallway_simulator_module.HallwaySimulator import DirectoryManager
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    RED = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    
+class ReadingInputProcessor:
+    def __init__(self, _dm):
+        self.logger = Logger()
+        #self.x = {}
+        #self.y = {}
+
+        #config.count = 0  # reset bộ đếm
+        self.dm = _dm
+        self.dm.full_cleanup()  # dọn sạch ban đầu
+        self.processed_numbers = []
+
+    def get_os(self):
+        os_name = platform.system()
+        if os_name == 'Darwin':
+            return "macOS"
+        elif os_name == 'Windows':
+            return "Windows"
+        elif os_name == 'Linux':
+            return "Linux"
+        else:
+            return "Undefined OS"
+
+    def choose_solver(self):
+        print("Choose the method for solving:")
+        print("1 - Use LINK II solver")
+        print("2 - Use parallel network-simplex")
+        print("3 - Use NetworkX")
+        choice = 3
+        if(config.count % 2 == 0):
+            choice = 1
+            config.solver_choice = 'solver'
+        else:
+            if(config.count <= 1):
+                choice = input("Enter your choice (1 or 2 or 3): ")
+                if choice == '1':
+                    config.solver_choice = 'solver'
+                elif choice == '2':
+                    config.solver_choice = 'network-simplex'
+                elif choice == '3':
+                    config.solver_choice = 'networkx'
+                else:
+                    print("Invalid choice. Defaulting to Network X.")
+                    config.solver_choice = 'networkx'
+            else:
+                config.solver_choice = 'networkx'
+
+    def choose_time_measurement(self):
+        if(config.count == 1 and config.test_automation == 0):
+            print("Choose level of Time Measurement:")
+            print("0 - Fully Random")
+            print("1 - Random in a list")
+            print("2 - SFM")
+            choice = input("Enter your choice (0 to 2): ")
+            if choice == '0':
+                config.level_of_simulation = 0
+            elif choice == '1':
+                config.level_of_simulation = 1
+            elif choice == '2':
+                config.level_of_simulation = 2
+            else:
+                print("Invalid choice. Defaulting to run SFM.")
+                config.level_of_simulation = 2
+        else:
+            if(config.count <= 2):
+                config.level_of_simulation = 0
+            elif(config.count <= 4):
+                config.level_of_simulation = 1
+            elif(config.count <= 6):
+                config.level_of_simulation = 2
+        if(config.level_of_simulation == 1):
+            #random in the list
+            self.read_xls()
+
+    def choose_test_automation(self):
+        if(config.count == 1):
+            print("Choose level of Test automation:")
+            print("0 - Manual")
+            print("1 - Automation")
+            choice = input("Enter your choice (0 or 1): ")
+            if choice == '0':
+                config.test_automation = 0
+            else:
+                print("Defaulting to run Automation")
+                config.test_automation = 1
+
+    def start_round(self):
+        config.count += 1
+    
+        now = datetime.now()
+        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+        print(f"----- ROUND {config.count} at {dt_string} -----")
+    
+        # Cảnh báo nếu không hỗ trợ mô phỏng SFM
+        if config.count >= 5 and self.get_os() != 'Linux':
+            print("⚠️  The current OS doesn't support SFM Simulation")
+            return False  # báo hiệu không nên tiếp tục vòng lặp
+    
+        # In cảnh báo half cleanup từ vòng lặp 2 trở đi
+        if config.count > 1:
+            print(f"{bcolors.WARNING}Start half cleanup{bcolors.ENDC}")
+    
+        # Thông báo chọn solver
+        if config.count % 2 == 0:
+            print("Start using solver at:", config.count)
+        else:
+            print("Start using NetworkX at:", config.count)
+    
+        # Cleanup tạm
+        self.dm.half_cleanup()
+        #time.sleep(1)
+    
+        return True  # báo hiệu tiếp tục vòng lặp
+    
+    def read_xls(self):
+        from openpyxl import load_workbook
+        import math
+        # Đọc file Excel
+        file_name = 'completion_times.xlsx'
+        workbook = load_workbook(file_name, data_only=True)
+        sheet = workbook.active
+        
+        # Find the last column with a value in the first row
+        last_column_with_value = sheet.max_column
+        for col in range(sheet.max_column, 0, -1):
+            if sheet.cell(row=1, column=col).value is not None:
+                last_column_with_value = col
+                break
+        # Lấy số lượng cột và hàng
+        max_column = sheet.max_column
+        max_row = sheet.max_row
+        # Lấy dữ liệu từ 3 cột cuối cùng
+        last_three_columns = []
+        for row in sheet.iter_rows(min_row=1, max_row=max_row, min_col=last_column_with_value-2, max_col=last_column_with_value):
+            row_data = []
+            for cell in row:
+                if cell.value is not None:
+                    row_data.append(cell.value)
+            if row_data:
+                last_three_columns.append(row_data)
+        
+        for row in last_three_columns:
+            for num in row:
+                if isinstance(num, (int, float)):  # Kiểm tra nếu là số
+                    self.processed_numbers.append(self.process_number(num))
+                else:
+                    pass
