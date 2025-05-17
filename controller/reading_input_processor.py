@@ -144,11 +144,11 @@ class ReadingInputProcessor:
                 last_column_with_value = col
                 break
         # Lấy số lượng cột và hàng
-        max_column = sheet.max_column
-        max_row = sheet.max_row
+        max_column, max_row = sheet.max_column, sheet.max_row
         # Lấy dữ liệu từ 3 cột cuối cùng
         last_three_columns = []
-        for row in sheet.iter_rows(min_row=1, max_row=max_row, min_col=last_column_with_value-2, max_col=last_column_with_value):
+        for row in sheet.iter_rows(min_row=1, max_row=max_row, \
+            min_col=last_column_with_value-2, max_col=last_column_with_value):
             row_data = []
             for cell in row:
                 if cell.value is not None:
@@ -160,5 +160,3 @@ class ReadingInputProcessor:
             for num in row:
                 if isinstance(num, (int, float)):  # Kiểm tra nếu là số
                     self.processed_numbers.append(self.process_number(num))
-                else:
-                    pass
