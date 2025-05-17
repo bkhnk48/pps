@@ -1749,7 +1749,7 @@ class GraphProcessor(ReadingInputProcessor):
         self.ask_spatial_map(use_config_data)
         self.started_nodes = [] #[1, 10]
 
-        self.process_input_file(filepath)
+        self.process_input_file(config.filepath)
         if(use_config_data):
             self.H = config.H
         else:
