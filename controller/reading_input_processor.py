@@ -171,3 +171,12 @@ class ReadingInputProcessor:
             else:
                 self.print_out = True
         config.print_out = self.print_out
+        
+    def ask_spatial_map(self, use_config_data = False):
+        if(use_config_data):
+            filepath = config.filepath
+        else:
+            filepath = input("Nhap ten file can thuc hien (hint: Redundant3x3Wards.txt): ")
+            if filepath == '':
+                filepath = 'Redundant3x3Wards.txt'
+            config.filepath = filepath
