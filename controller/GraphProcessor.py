@@ -33,7 +33,6 @@ class GraphProcessor(ReadingInputProcessor):
         self._earliness = 0
         self._target_nodes = []
         self._tardiness = 0
-        self._space_edges = []
         self._ts_edges = []
         self._ts_nodes = []
         self._tsedges = []
@@ -151,17 +150,6 @@ class GraphProcessor(ReadingInputProcessor):
     @tardiness.setter
     def tardiness(self, value):
         self._tardiness = value
-
-    # Getter và Setter cho space_edges
-    @property
-    def space_edges(self):
-        return self._space_edges
-
-    @space_edges.setter
-    def space_edges(self, value):
-        if not isinstance(value, list):
-            raise ValueError("space_edges must be a list")
-        self._space_edges = value
 
     # Getter và Setter cho ts_edges
     @property
