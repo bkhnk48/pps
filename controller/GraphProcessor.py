@@ -1746,14 +1746,7 @@ class GraphProcessor(ReadingInputProcessor):
 
     def use_in_main(self, use_config_data = False):
         self.ask_for_print_out(use_config_data)
-
-        if(use_config_data):
-            filepath = config.filepath
-        else:
-            filepath = input("Nhap ten file can thuc hien (hint: Redundant3x3Wards.txt): ")
-            if filepath == '':
-                filepath = 'Redundant3x3Wards.txt'
-            config.filepath = filepath
+        self.ask_spatial_map(use_config_data)
         self.started_nodes = [] #[1, 10]
 
         self.process_input_file(filepath)
