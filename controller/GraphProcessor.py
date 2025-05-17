@@ -55,6 +55,8 @@ class GraphProcessor:
         self._seed = 0
         self._num_max_agvs = 0
         self._graph = None
+	# Initialize an empty list to store the processed numbers
+	self.processed_numbers = []
         if(config.level_of_simulation == 1):
             #random in the list
             #import os
@@ -363,8 +365,6 @@ class GraphProcessor:
         #df = pd.read_excel('completion_times.xlsx', engine='openpyxl')
         # Get the last 3 columns
         #last_three_columns = df.iloc[:, -3:]
-        # Initialize an empty list to store the processed numbers
-        self.processed_numbers = []
         
         for row in last_three_columns:
             for num in row:
