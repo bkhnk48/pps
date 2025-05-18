@@ -6,39 +6,30 @@ from controller.NodeGenerator import ArtificialNode
 from controller.NodeGenerator import TimeWindowNode
 from controller.NodeGenerator import RestrictionNode
 from controller.RestrictionController import RestrictionController
-from controller.reading_input_processor import ReadingInputProcessor
+from controller.generating_time_window_controller import GenerationTimeWindowController
 from model.Node import Node
 from model.hallway_simulator_module.HallwaySimulator import BulkHallwaySimulator
 from collections import deque
 from scipy.sparse import lil_matrix
-import numpy as np
-import pdb
 import config
 
 """ Mô tả yêu cầu của code:
 https://docs.google.com/document/d/13S_Ycg-aB4GjEm8xe6tAoUHzhS-Z1iFnM4jX_bWFddo/edit?usp=sharing """
 
-class GraphProcessor(ReadingInputProcessor):
+class GraphProcessor(GenerationTimeWindowController):
     def __init__(self, dm):
         super().__init__(dm) 
         self._adj = []  # Adjacency matrix
         self._alpha = 1
         self._beta = 1
         self._gamma = 1
-        self._ID = []
-        self._earliness = 0
         self._target_nodes = []
-        self._tardiness = 0
-        self._ts_edges = []
         self._ts_nodes = []
         self._tsedges = []
-        self._started_nodes = []
         self._time_window_controller = None
         self._restriction_controller = None
         self._start_ban = -1
         self._end_ban = -1
-        self._seed = 0
-        self._num_max_agvs = 0
         self._graph = None
         # Initialize an empty list to store the processed numbers
 
@@ -79,24 +70,6 @@ class GraphProcessor(ReadingInputProcessor):
     @gamma.setter
     def gamma(self, value):
         self._gamma = value
-
-    # Getter and Setter for ID
-    @property
-    def ID(self):
-        return self._ID
-
-    @ID.setter
-    def ID(self, value):
-        self._ID = value
-
-    # Getter and Setter for earliness
-    @property
-    def earliness(self):
-        return self._earliness
-
-    @earliness.setter
-    def earliness(self, value):
-        self._earliness = value    
     
     @property
     def target_nodes(self):
@@ -105,26 +78,6 @@ class GraphProcessor(ReadingInputProcessor):
     @target_nodes.setter
     def target_nodes(self, value):
         self._target_nodes = value
-        
-    # Getter and Setter for tardiness
-    @property
-    def tardiness(self):
-        return self._tardiness
-
-    @tardiness.setter
-    def tardiness(self, value):
-        self._tardiness = value
-
-    # Getter và Setter cho ts_edges
-    @property
-    def ts_edges(self):
-        return self._ts_edges
-
-    @ts_edges.setter
-    def ts_edges(self, value):
-        if not isinstance(value, list):
-            raise ValueError("ts_edges must be a list")
-        self._ts_edges = value
 
     # Getter và Setter cho ts_nodes
     @property
@@ -147,28 +100,6 @@ class GraphProcessor(ReadingInputProcessor):
         if not isinstance(value, list):
             raise ValueError("tsedges must be a list")
         self._tsedges = value
-
-    # Getter và Setter cho started_nodes
-    @property
-    def started_nodes(self):
-        return self._started_nodes
-
-    @started_nodes.setter
-    def started_nodes(self, value):
-        if not isinstance(value, list):
-            raise ValueError("started_nodes must be a list")
-        self._started_nodes = value
-
-    # Getter và Setter cho print_out
-    @property
-    def print_out(self):
-        return self._print_out
-
-    @print_out.setter
-    def print_out(self, value):
-        if not isinstance(value, bool):
-            raise ValueError("print_out must be a boolean")
-        self._print_out = value
 
     # Getter và Setter cho time_window_controller
     @property
@@ -209,26 +140,6 @@ class GraphProcessor(ReadingInputProcessor):
         if not isinstance(value, int):
             raise ValueError("end_ban must be an integer")
         self._end_ban = value
-
-    # Getter và Setter cho seed
-    @property
-    def seed(self):
-        return self._seed
-
-    @seed.setter
-    def seed(self, value):
-        if not isinstance(value, int):
-            raise ValueError("seed must be an integer")
-        self._seed = value
-
-    # Getter và Setter cho num_max_agvs
-    @property
-    def num_max_agvs(self):
-        return self._num_max_agvs
-
-    @num_max_agvs.setter
-    def num_max_agvs(self, value):
-        self._num_max_agvs = value
 
     # Getter và Setter cho graph
     @property
@@ -1252,22 +1163,6 @@ class GraphProcessor(ReadingInputProcessor):
       except FileNotFoundError:
         pass
       return max_val
-      
-    def generate_numbers_student(self, G, H, M, N = 0, df=10):
-        while True:
-            self._seed = self._seed + 1
-            self._seed = self._seed % G
-            np.random.seed(self._seed)
-            # Sinh 4 số ngẫu nhiên theo phân phối Student
-            first_two = np.random.standard_t(df, size=2)
-            numbers = np.random.standard_t(df, size=2)
-            # Chuyển đổi các số này thành số nguyên trong khoảng từ 1 đến 100
-            first_two = np.round((first_two - np.min(first_two)) / (np.max(first_two) - np.min(first_two)) * (G//3) + self._seed).astype(int)
-            numbers = np.round((numbers - np.min(numbers)) / (np.max(numbers) - np.min(numbers)) * (H//3) + self._seed).astype(int)
-            if first_two[0] < G and first_two[1] < G and numbers[0] <= numbers[1] and numbers[1] < H:
-                # Kiểm tra điều kiện khoảng cách tối thiểu
-                if (abs(first_two[0] - first_two[1]) >= M and abs(numbers[0] - numbers[1]) >= N):
-                    return np.concatenate((first_two, numbers))
     
     def add_time_windows_constraints(self):
         from controller.TimeWindowController import TimeWindowController
@@ -1677,83 +1572,10 @@ class GraphProcessor(ReadingInputProcessor):
         
         self.generate_adj_matrix()
         
-        num_of_agvs = 0
-        if(use_config_data):
-            #pdb.set_trace()
-            self.num_max_agvs = config.num_max_agvs
-            self.ID = config.ID
-            self.earliness = config.earliness
-            self.tardiness = config.tardiness
-            for i in range(len(config.started_nodes)):
-                if (config.started_nodes[i] > self.M and config.started_nodes[i] % self.M not in config.started_nodes):
-                    config.started_nodes[i] = config.started_nodes[i] % self.M
-            self.started_nodes = config.started_nodes
-            num_of_agvs = config.numOfAGVs
-            if(config.numOfAGVs > len(config.ID)):
-                num_of_additional_agvs = config.numOfAGVs - len(config.ID)
-                for _ in range(num_of_additional_agvs):
-                    [s, d, e, t] = self.generate_numbers_student(self.M, self.H, 12, 100)
-                    while(d in self.ID or s in self.started_nodes):
-                        [s, d, e, t] = self.generate_numbers_student(self.M, self.H, 12, 100)
-                    self.started_nodes.append(s)
-                    self.ID.append(d)
-                    config.ID.append(d)
-                    self.earliness.append(e)
-                    self.tardiness.append(t)
-            elif(config.numOfAGVs < len(config.ID)):
-                config.ID = config.ID[:(config.numOfAGVs)]
-                config.earliness = config.earliness[:(config.numOfAGVs)]
-                config.tardiness = config.tardiness[:(config.numOfAGVs)]
-                config.started_nodes = config.started_nodes[:(config.numOfAGVs)]
-                self.earliness = self.earliness[:(config.numOfAGVs)]
-                self.tardiness = self.tardiness[:(config.numOfAGVs)]
-                self.started_nodes = self.started_nodes[:(config.numOfAGVs)]
-        else:
-            self.num_max_agvs = input("Nhap so luong AGV toi da di chuyen trong toan moi truong (default: 2):")
-            if(self.num_max_agvs == ''):
-                self.num_max_agvs = 2
-            else:
-                self.num_max_agvs = int(self.num_max_agvs)
-            num_of_agvs = self.num_max_agvs
-            config.num_max_agvs = self.num_max_agvs
-            config.numOfAGVs = num_of_agvs
-            if len(self.started_nodes) == 0:
-                self.ID = []
-                self.earliness = []
-                self.tardiness = []
-                #pdb.set_trace()
-                for _ in range(num_of_agvs):
-                    [s, d, e, t] = self.generate_numbers_student(self.M, self.H, int(0.2*self.M))#, 100 if self.H > 100 else self.H//3)
-                    while s in self.started_nodes:
-                        s += self.M
-                        if s >= self.H * self.M:
-                            break
-                    #self.started_nodes.append(s)
-                    self.started_nodes.append(s)
-                    self.ID.append(d)
-                    self.earliness.append(e)
-                    self.tardiness.append(t)
-                print(f'Start: {self.started_nodes} \n End: {self.ID} \n Earliness: {self.earliness} \n Tardiness: {self.tardiness}')
-                config.started_nodes = self.started_nodes.copy()
-                config.ID = self.ID.copy()
-                config.earliness = self.earliness.copy()
-                config.tardiness = self.tardiness.copy()
+        num_of_agvs = self.reuse_for_tasks(use_config_data)
 
         self.create_tsg_file()
-        count = 0
-        
-        while(count <= num_of_agvs - 1):
-            #pdb.set_trace()
-            if(isinstance(self.ID, int)):
-                self.ID = 3
-                self.earliness = 4 if count == 0 else 7
-                self.tardiness = 6 if count == 0 else 9
-                self.alpha = 1
-                self.beta = 1
-
-            self.add_time_windows_constraints()
-            assert len(self.ts_edges) == len(self.tsedges), f"Thiếu cạnh ở đâu đó rồi {len(self.ts_edges)} != {len(self.tsedges)}"
-            count += 1
+        self.add_time_window_first_time(num_of_agvs)
         #self.add_restrictions()
         self.gamma = 1
         self.restriction_count = 1
