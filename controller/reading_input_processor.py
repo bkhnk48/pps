@@ -218,7 +218,7 @@ class ReadingInputProcessor:
                 self.print_out = False
             else:
                 self.print_out = True
-        config.print_out = self.print_out
+        config.print_output = self.print_out
         
     def ask_spatial_map(self, use_config_data = False):
         if(use_config_data):
