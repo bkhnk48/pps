@@ -22,7 +22,6 @@ class GraphProcessor(ReadingInputProcessor):
     def __init__(self, dm):
         super().__init__(dm) 
         self._adj = []  # Adjacency matrix
-        self._M = 0
         self._alpha = 1
         self._beta = 1
         self._gamma = 1
@@ -53,13 +52,6 @@ class GraphProcessor(ReadingInputProcessor):
     @adj.setter
     def adj(self, value):
         self._adj = value
-        
-    @property
-    def M(self):
-        return self._M
-    @M.setter
-    def M(self, value):
-        self._M = value
 
     # Getter and Setter for alpha
     @property
