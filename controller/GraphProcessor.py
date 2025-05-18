@@ -23,8 +23,6 @@ class GraphProcessor(ReadingInputProcessor):
         super().__init__(dm) 
         self._adj = []  # Adjacency matrix
         self._M = 0
-        self._H = 0
-        self._draw = 0
         self._d = 0
         self._alpha = 1
         self._beta = 1
@@ -63,22 +61,6 @@ class GraphProcessor(ReadingInputProcessor):
     @M.setter
     def M(self, value):
         self._M = value
-
-    # Getter and Setter for H
-    @property
-    def H(self):
-        return self._H
-
-    @H.setter
-    def H(self, value):
-        self._H = value
-        
-    @property
-    def draw(self):
-        return self._draw
-    @draw.setter
-    def draw(self, value):
-        self._draw = value
 
     # Getter and Setter for d
     @property
@@ -1704,25 +1686,8 @@ class GraphProcessor(ReadingInputProcessor):
         self.started_nodes = [] #[1, 10]
 
         self.process_input_file(config.filepath)
-        if(use_config_data):
-            self.H = config.H
-        else:
-            self.H = input("Nhap thoi gian can gia lap (default: 10): ")
-            if(self.H == ''):
-                self.H = 10
-            else:
-                self.H = int(self.H)
-            config.H = self.H
-        
-        if(use_config_data):
-            self.draw = config.draw
-        else:
-            self.draw = input("Nhập 1 để vẽ TSG (default 0) không nên dùng với đồ thị lớn): ")
-            if(self.draw == '' or self.draw == 0):
-                self.draw = 0
-            else:
-                self.draw = 1
-            config.draw = self.draw
+        self.ask_horizontal_time(use_config_data)
+        self.ask_for_draw(use_config_data)
 
         self.generate_hm_matrix()
         if(use_config_data):
