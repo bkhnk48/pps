@@ -32,6 +32,16 @@ class ReadingInputProcessor:
         self._space_edges = []
         self._draw = 0
         self._H = 0
+        self._d = 0
+    
+    # Getter and Setter for d
+    @property
+    def d(self):
+        return self._d
+    
+    @d.setter
+    def d(self, value):
+        self._d = value
         
     # Getter and Setter for H
     @property
@@ -270,3 +280,14 @@ class ReadingInputProcessor:
             else:
                 self.draw = 1
             config.draw = self.draw
+            
+    def ask_for_d(self, use_config_data = False):
+        if(use_config_data):
+            self.d = config.d
+        else:
+            self.d = input("Nhap time unit (default: 10): ")
+            if(self.d == ''):
+                self.d = 10
+            else:
+                self.d = int(self.d)
+            config.d = self.d
