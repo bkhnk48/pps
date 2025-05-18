@@ -23,7 +23,6 @@ class GraphProcessor(ReadingInputProcessor):
         super().__init__(dm) 
         self._adj = []  # Adjacency matrix
         self._M = 0
-        self._d = 0
         self._alpha = 1
         self._beta = 1
         self._gamma = 1
@@ -61,15 +60,6 @@ class GraphProcessor(ReadingInputProcessor):
     @M.setter
     def M(self, value):
         self._M = value
-
-    # Getter and Setter for d
-    @property
-    def d(self):
-        return self._d
-
-    @d.setter
-    def d(self, value):
-        self._d = value
 
     # Getter and Setter for alpha
     @property
@@ -1690,15 +1680,8 @@ class GraphProcessor(ReadingInputProcessor):
         self.ask_for_draw(use_config_data)
 
         self.generate_hm_matrix()
-        if(use_config_data):
-            self.d = config.d
-        else:
-            self.d = input("Nhap time unit (default: 10): ")
-            if(self.d == ''):
-                self.d = 10
-            else:
-                self.d = int(self.d)
-            config.d = self.d
+        
+        self.ask_for_d(use_config_data)
         
         self.generate_adj_matrix()
         
