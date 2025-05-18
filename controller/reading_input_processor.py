@@ -30,12 +30,30 @@ class ReadingInputProcessor:
         self.dm.full_cleanup()  # dọn sạch ban đầu
         self.processed_numbers = []
         self._space_edges = []
+        self._draw = 0
+        self._H = 0
+        
+    # Getter and Setter for H
+    @property
+    def H(self):
+        return self._H
+
+    @H.setter
+    def H(self, value):
+        self._H = value
+        
+    @property
+    def draw(self):
+        return self._draw
+    @draw.setter
+    def draw(self, value):
+        self._draw = value
 
     # Getter và Setter cho space_edges
     @property
     def space_edges(self):
         return self._space_edges
-    
+
     @space_edges.setter
     def space_edges(self, value):
         if not isinstance(value, list):
@@ -230,3 +248,25 @@ class ReadingInputProcessor:
         except FileNotFoundError:
             if self.print_out:
                 print("File khong ton tai!")
+                
+    def ask_horizontal_time(self, use_config_data = False):
+        if(use_config_data):
+            self.H = config.H
+        else:
+            self.H = input("Nhap thoi gian can gia lap (default: 10): ")
+            if(self.H == ''):
+                self.H = 10
+            else:
+                self.H = int(self.H)
+            config.H = self.H
+            
+    def ask_for_draw(self, use_config_data = False):
+        if(use_config_data):
+            self.draw = config.draw
+        else:
+            self.draw = input("Nhập 1 để vẽ TSG (default 0) không nên dùng với đồ thị lớn): ")
+            if(self.draw == '' or self.draw == 0):
+                self.draw = 0
+            else:
+                self.draw = 1
+            config.draw = self.draw
