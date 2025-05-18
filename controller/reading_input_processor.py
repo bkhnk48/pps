@@ -33,16 +33,24 @@ class ReadingInputProcessor:
         self._draw = 0
         self._H = 0
         self._d = 0
+        self._M = 0
+    
+    @property
+    def M(self):
+        return self._M
+    @M.setter
+    def M(self, value):
+        self._M = value
     
     # Getter and Setter for d
     @property
     def d(self):
         return self._d
-    
+
     @d.setter
     def d(self, value):
         self._d = value
-        
+
     # Getter and Setter for H
     @property
     def H(self):
