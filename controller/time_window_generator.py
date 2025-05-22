@@ -1,6 +1,6 @@
 from controller.reading_input_processor import ReadingInputProcessor
 
-class GenerationTimeWindowController(ReadingInputProcessor):
+class TimeWindowGenerator(ReadingInputProcessor):
     def __init__(self, dm):
         super().__init__(dm) 
         self._ts_edges = []
