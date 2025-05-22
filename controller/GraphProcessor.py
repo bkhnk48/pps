@@ -6,7 +6,7 @@ from controller.NodeGenerator import ArtificialNode
 from controller.NodeGenerator import TimeWindowNode
 from controller.NodeGenerator import RestrictionNode
 from controller.RestrictionController import RestrictionController
-from controller.generating_time_window_controller import GenerationTimeWindowController
+from controller.time_window_generator import TimeWindowGenerator
 from model.Node import Node
 from model.hallway_simulator_module.HallwaySimulator import BulkHallwaySimulator
 from collections import deque
@@ -16,7 +16,7 @@ import config
 """ Mô tả yêu cầu của code:
 https://docs.google.com/document/d/13S_Ycg-aB4GjEm8xe6tAoUHzhS-Z1iFnM4jX_bWFddo/edit?usp=sharing """
 
-class GraphProcessor(GenerationTimeWindowController):
+class GraphProcessor(TimeWindowGenerator):
     def __init__(self, dm):
         super().__init__(dm) 
         self._adj = []  # Adjacency matrix
