@@ -4,7 +4,7 @@ from controller.reading_input_processor import ReadingInputProcessor
 class TimeWindowGenerator(ReadingInputProcessor):
     def __init__(self, dm):
         super().__init__(dm) 
-        self._tsedges = []
+        self._ts_edges = []
         self._target_nodes = []
         self._time_window_controller = None
         self._alpha = 1
@@ -14,14 +14,14 @@ class TimeWindowGenerator(ReadingInputProcessor):
         
     # Getter và Setter cho ts_edges
     @property
-    def tsedges(self):
-        return self._tsedges
+    def ts_edges(self):
+        return self._ts_edges
     
-    @tsedges.setter
-    def tsedges(self, value):
+    @ts_edges.setter
+    def ts_edges(self, value):
         if not isinstance(value, list):
             raise ValueError("ts_edges must be a list")
-        self._tsedges = value
+        self._ts_edges = value
     
     # Getter và Setter cho time_window_controller
     @property
@@ -136,7 +136,7 @@ class TimeWindowGenerator(ReadingInputProcessor):
         for e in edges:
             #self.tsedges.append(ArtificialEdge(self.find_node(e[0]), self.find_node(e[1]), e[4]))
             temp = self.find_node(e[0]).create_edge(self.find_node(e[1]), self.M, self.d, e)
-            self.tsedges.append(temp)
+            self.ts_edges.append(temp)
     
     def update_edges(self, new_edges):
         #self.ts_edges.extend(e for e in new_edges if e not in self.ts_edges)
