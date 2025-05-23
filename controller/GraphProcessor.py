@@ -4,6 +4,7 @@ import json
 from controller.NodeGenerator import TimeoutNode
 from controller.NodeGenerator import ArtificialNode
 from controller.NodeGenerator import RestrictionNode
+from controller.NodeGenerator import TimeWindowNode
 from controller.RestrictionController import RestrictionController
 from controller.time_window_generator import TimeWindowGenerator
 from controller.waiting_and_moving_generator import WaitingAndMovingEdgesGenerator
@@ -37,17 +38,6 @@ class GraphProcessor(WaitingAndMovingEdgesGenerator):
     @adj.setter
     def adj(self, value):
         self._adj = value
-
-    # Getter và Setter cho tsedges
-    """@property"""
-    """def tsedges(self):"""
-    """    return self._tsedges"""
-
-    """@tsedges.setter"""
-    """def tsedges(self, value):"""
-    """    if not isinstance(value, list):"""
-    """        raise ValueError("tsedges must be a list")"""
-    """    self._tsedges = value"""
 
     # Getter và Setter cho restriction_controller
     @property
