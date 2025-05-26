@@ -889,56 +889,6 @@ class GraphProcessor(WaitingAndMovingEdgesGenerator):
                 file.write(line)
         print("Đã tạo file TSG_new.txt mới với các dòng thỏa điều kiện.")
 
-    def add_problem_info(self):
-      json_filepath = input("Nhap ten file dau vao: ")
-      try:
-
-          with open(json_filepath, 'r') as json_file:
-              data = json.load(json_file)
-              itinerary_start = data["itinerary"]["start"]
-              itinerary_end = data["itinerary"]["end"]
-
-              # Tính toán max_id và số lượng cung (A) từ file TSG.txt
-              max_id = 0
-              A = 0
-              with open('TSG.txt', 'r') as tsg_file:
-                  for line in tsg_file:
-                      if line.startswith('a'):
-                          A += 1
-                          _, id1, id2, _, _, _ = line.split()
-                          max_id = max(max_id, int(id1), int(id2))
-
-              # Tạo dòng thông tin về bài toán cần giải
-              problem_info_line = f"p min {max_id} {A}\n"
-
-              # Tạo dòng thông tin về lịch trình
-              itinerary_lines = []
-              for item in itinerary_start:
-                  time_values = item["time"]
-                  for time_value in time_values:
-                      point_id = item["point"] + self.M * time_value
-                      itinerary_lines.append(f"n {point_id} 1\n")
-              for item in itinerary_end:
-                  point_id = item["point"][0]
-                  time_values = item["time"]
-                  itinerary_lines.append(f"n {point_id} -1\n")
-                  self.ID = point_id
-                  self.earliness = time_values[0]
-                  self.tardiness = time_values[1]
-                  self.alpha = 1
-                  self.beta =  1
-                  self.add_time_windows_constraints()
-
-              # Ghi dòng thông tin về bài toán và lịch trình vào đầu file TSG.txt
-              with open('TSG.txt', 'r+') as tsg_file:
-                  content = tsg_file.read()
-                  tsg_file.seek(0, 0)
-                  tsg_file.write(problem_info_line + ''.join(itinerary_lines) + content)
-
-              print("Đã thêm thông tin về bài toán vào file TSG.txt.")
-      except FileNotFoundError:
-          print("Không tìm thấy file JSON hoặc TSG.txt.")
-
     def remove_redundant_edges(self):
         R, E, S = self.initialize_sets()
         
