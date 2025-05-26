@@ -494,34 +494,6 @@ class GraphProcessor(WaitingAndMovingEdgesGenerator):
                 new_weight = int(weight * 1.1)
                 self.graph.adjacency_list[end_node][adj_node] = new_weight
                 print(f"Updated weight of edge {end_node} to {adj_node} to {new_weight} due to changes at {start_node}.")
-
-    def find_node(self, _id):
-        _id = int(_id)
-        # Tìm kiếm đối tượng Node có ID tương ứng
-        if not hasattr(self, 'map_nodes'):
-            # Nếu chưa tồn tại, chuyển self.ts_nodes thành self.map_nodes
-            self.map_nodes = {node.id: node for node in self.ts_nodes}
-        # Tìm kiếm trên self.map_nodes
-        if _id in self.map_nodes:
-            return self.map_nodes[_id]
-        else:
-            # Nếu không có trên map_nodes, thêm vào cả ts_nodes và map_nodes
-            #if(id == 26272):
-            #    pdb.set_trace()
-            for node in self._target_nodes:
-                if(node.id == _id):
-                    self.map_nodes[_id] = node
-                    return node
-            time = _id // self.M - (1 if _id % self.M == 0 else 0)
-            new_node = None
-            if(time >= self.H):
-                new_node = TimeoutNode(_id, "TimeOut")
-            else:
-                new_node = Node(_id)
-            self.ts_nodes.append(new_node)
-            self.map_nodes[_id] = new_node
-            
-            return new_node
 	
     def generate_hm_matrix(self):
         self.matrix = [[j + 1 + self.M * i for j in range(self.M)] for i in range(self.H)]
@@ -887,38 +859,6 @@ class GraphProcessor(WaitingAndMovingEdgesGenerator):
         self.update_edges_after_restrictions(R)
         return R
 
-
-    def process_tsg_file(self, target_node, ID, earliness, tardiness):
-        new_edges = set()
-
-        try:
-            with open('TSG.txt', 'r') as file:
-                for line in file:
-                    parts = line.strip().split()
-                    if parts[0] == 'a' and len(parts) >= 6:
-                        ID2 = int(parts[2])
-                        self.process_line(ID, ID2, earliness, tardiness, new_edges, target_node)
-
-        except FileNotFoundError:
-            pass
-
-        return new_edges
-
-    def process_line(self, ID, ID2, earliness, tardiness, new_edges, target_node):
-        for i in range(1, self.H + 1):
-            j = i * self.M + ID
-            if j == ID2:
-                C = int(int(self.beta) * max(earliness - i, 0, i - tardiness) / int(self.alpha))
-                new_edges.add((j, target_node.id, 0, 1, C))
-                self.find_node(j).create_edge(target_node, self.M, self.d, [j, target_node.id, 0, 1, C])
-                break
-
-        t = ID2 // self.M - (1 if ID2 % self.M == 0 else 0)
-        if t > self.H:
-            C = self.H * self.H
-            new_edges.add((j, target_node.id, 0, 1, C))
-            self.find_node(j).create_edge(target_node, self.M, self.d, [j, target_node.id, 0, 1, C])
-
     def update_tsg_with_t(self):
         T = int(input("Nhập giá trị T: "))
         # Đảm bảo T là một giá trị nguyên dương
@@ -1219,18 +1159,6 @@ class GraphProcessor(WaitingAndMovingEdgesGenerator):
                         print(f'x_{m}_{i}_{j} = 1')
         else:
             print('The problem does not have an optimal solution.')
-     
-    """def generate_poisson_random(self, M = None):
-        if M is None:
-            M = self.M
-        if M <= 2 and M >= 1:
-            return M
-        while True:
-            # Sinh số ngẫu nhiên theo phân phối Poisson
-            number = np.random.poisson(lam=M)        
-            # Kiểm tra điều kiện số ngẫu nhiên lớn hơn 1 và nhỏ hơn hoặc bằng M
-            if 1 < number < M:
-                return number"""
 
     def use_in_main(self, use_config_data = False):
         self.ask_for_print_out(use_config_data)
