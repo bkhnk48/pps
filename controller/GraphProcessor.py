@@ -939,30 +939,6 @@ class GraphProcessor(WaitingAndMovingEdgesGenerator):
       except FileNotFoundError:
           print("Không tìm thấy file JSON hoặc TSG.txt.")
 
-    def remove_duplicate_lines(self):
-            try:
-                # Read lines from TSG.txt
-                with open('TSG.txt', 'r') as file:
-                    lines = file.readlines()
-
-                seen_lines = set()
-                unique_lines = []
-                for line in lines:
-                    if re.match(r'^a\s+\d+\s+\d+', line):
-                        if line.strip() not in seen_lines:
-                            unique_lines.append(line)
-                            seen_lines.add(line.strip())
-                    else:
-                        unique_lines.append(line)
-
-                # Write unique lines back to TSG.txt
-                with open('TSG.txt', 'w') as file:
-                    file.writelines(unique_lines)
-
-                print("Removed duplicate lines from TSG.txt.")
-            except FileNotFoundError:
-                print("File TSG.txt not found.")
-
     def remove_redundant_edges(self):
         R, E, S = self.initialize_sets()
         
