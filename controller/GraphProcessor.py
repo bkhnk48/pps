@@ -859,36 +859,6 @@ class GraphProcessor(WaitingAndMovingEdgesGenerator):
         self.update_edges_after_restrictions(R)
         return R
 
-    def update_tsg_with_t(self):
-        T = int(input("Nhập giá trị T: "))
-        # Đảm bảo T là một giá trị nguyên dương
-        if not isinstance(T, int) or T <= 0:
-            print("Giá trị của T phải là một số nguyên dương.")
-            return
-
-        new_lines = []
-
-        # Đọc và kiểm tra từng dòng trong file TSG.txt cũ
-        try:
-            with open('TSG.txt', 'r') as file:
-                for line in file:
-                    parts = line.strip().split()
-                    if len(parts) == 6 and parts[0] == 'a':
-                        ID1, ID2 = int(parts[1]), int(parts[2])
-
-                        # Kiểm tra điều kiện ID1 và ID2
-                        if ID1 >= T * self.M and ID2 >= T * self.M:
-                            new_lines.append(line)
-        except FileNotFoundError:
-            print("Không tìm thấy file TSG.txt.")
-            return
-
-        # Ghi các dòng thỏa điều kiện vào file TSG.txt mới
-        with open('TSG_new.txt', 'w') as file:
-            for line in new_lines:
-                file.write(line)
-        print("Đã tạo file TSG_new.txt mới với các dòng thỏa điều kiện.")
-
     def remove_redundant_edges(self):
         R, E, S = self.initialize_sets()
         
