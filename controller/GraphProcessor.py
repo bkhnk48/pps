@@ -916,13 +916,14 @@ class GraphProcessor(WaitingAndMovingEdgesGenerator):
         self.ts_edges.sort(key=lambda edge: (edge[0], edge[1]))"""
     
         
-    def get_started_points(self):
+    """def get_started_points(self):
         N = int(input("Nhập vào số lượng các xe AGV: "))
+        pdb.set_trace()
         self.started_nodes = []
         for i in range(1, N+1):
             p, t = map(int, input(f"Xe {i} xuất phát ở đâu và khi nào (nhập p t)?: ").split())
             p = t*self.M + p
-            self.started_nodes.append(p)
+            self.started_nodes.append(p)"""
 
     def process_tsg_file(self, target_node, ID, earliness, tardiness):
         new_edges = set()
