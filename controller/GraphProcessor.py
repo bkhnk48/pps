@@ -567,12 +567,6 @@ class GraphProcessor(WaitingAndMovingEdgesGenerator):
                     self.map_nodes[id] = temp
         #    self.ts_nodes.append(Node(ID2))
 
-    def show(self, q):
-        if len(q) < 10:
-            return list(q)
-        else:
-            return list(q)[:5] + ["..."]
-
     def insert_from_queue(self, q, checking_list=None):
         """Chèn các cạnh từ hàng đợi vào đồ thị."""
         output_lines = []
@@ -800,27 +794,6 @@ class GraphProcessor(WaitingAndMovingEdgesGenerator):
                 file.write(f"a {ID} {j} 0 {upper} {c}\n")
         print("Da cap nhat file TSG.txt.")
 
-    def add_restrictions(self):
-        alpha = input("Nhập vào alpha: ")
-        beta = input("Nhập vào beta: ")
-        gamma = input("Nhập vào gamma: ")
-        self.alpha = int(alpha) if alpha else 1
-        self.beta = int(beta) if beta else 1
-        self.gamma = int(gamma) if gamma else 1
-        restriction_count = input("Hãy nhập số lượng các restriction: ")
-        self.restriction_count = int(restriction_count) if restriction_count else 1
-        start_ban, end_ban = map(int, input("Khung thời gian cấm (nhập hai số phân tách bằng khoảng trắng a b): ").split())
-        self.start_ban = start_ban
-        self.end_ban = end_ban
-        self.restrictions = []
-
-        for i in range(self.restriction_count):
-            print(f"Restriction {i + 1}:")
-            u, v = map(int, input("\tKhu vực cấm (nhập hai số phân tách bằng khoảng trắng a b): ").split())
-
-            self.restrictions.append((u, v))
-        self.ur = int(input("Số lượng hạn chế: "))
-        
     def process_restrictions(self):
         """Xử lý các hạn chế trong đồ thị."""
         if self.restriction_controller is None:
