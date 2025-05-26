@@ -291,30 +291,6 @@ class GraphProcessor(WaitingAndMovingEdgesGenerator):
         if self.graph.nodes[end_id] is None:
             self.graph.nodes[end_id] = end_node
             
-    """def find_unique_nodes(self, file_path = 'traces.txt'):
-        pdb.set_trace()"""
-        """ Find nodes that are only listed as starting nodes in edges. """
-        """if not os.path.exists(file_path):
-            print(f"File {file_path} does not exist.")
-            return []
-        
-        target_ids = set()
-        with open(file_path, 'r', encoding='utf-8') as file:
-            for line in file:
-                if line.startswith('a'):
-                    parts = line.split()
-                    target_ids.add(int(parts[3]))
-
-        unique_ids = set()
-        with open(file_path, 'r', encoding='utf-8') as file:
-            for line in file:
-                if line.startswith('a'):
-                    parts = line.split()
-                    node_id = int(parts[1])
-                    if node_id not in target_ids:
-                        unique_ids.add(node_id)
-
-        return list(unique_ids)"""
     
     def update(self,currentpos,nextpos,realtime):
         list = utility()
