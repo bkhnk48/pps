@@ -13,6 +13,7 @@ from model.hallway_simulator_module.HallwaySimulator import BulkHallwaySimulator
 from collections import deque
 from scipy.sparse import lil_matrix
 import config
+import pdb
 
 """ Mô tả yêu cầu của code:
 https://docs.google.com/document/d/13S_Ycg-aB4GjEm8xe6tAoUHzhS-Z1iFnM4jX_bWFddo/edit?usp=sharing """
@@ -279,6 +280,7 @@ class GraphProcessor(WaitingAndMovingEdgesGenerator):
         return completion_time
     
     def insertEdgesAndNodes(self, start, end, edge):
+        #pdb.set_trace()
         start_id = start if isinstance(start, int) else start.id
         end_id = end if isinstance(end, int) else end.id
         self.graph.adjacency_list[start_id].append((end_id, edge))
@@ -908,22 +910,6 @@ class GraphProcessor(WaitingAndMovingEdgesGenerator):
         self.update_edges_after_restrictions(R)
         return R
 
-    """def update_edges(self, new_a):
-        #Cập nhật danh sách các cạnh với các cạnh mới và đảm bảo tính chính xác.
-        self.ts_edges.extend(e for e in new_a if e not in self.ts_edges)
-        self.create_set_of_edges(new_a)
-        assert len(self.ts_edges) == len(self.tsedges), f"Thiếu cạnh ở đâu đó rồi {len(self.ts_edges)} != {len(self.tsedges)}"
-        self.ts_edges.sort(key=lambda edge: (edge[0], edge[1]))"""
-    
-        
-    """def get_started_points(self):
-        N = int(input("Nhập vào số lượng các xe AGV: "))
-        pdb.set_trace()
-        self.started_nodes = []
-        for i in range(1, N+1):
-            p, t = map(int, input(f"Xe {i} xuất phát ở đâu và khi nào (nhập p t)?: ").split())
-            p = t*self.M + p
-            self.started_nodes.append(p)"""
 
     def process_tsg_file(self, target_node, ID, earliness, tardiness):
         new_edges = set()
