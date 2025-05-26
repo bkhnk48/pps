@@ -7,7 +7,7 @@ from controller.NodeGenerator import RestrictionNode
 from controller.NodeGenerator import TimeWindowNode
 from controller.RestrictionController import RestrictionController
 from controller.time_window_generator import TimeWindowGenerator
-from controller.waiting_and_moving_generator import WaitingAndMovingEdgesGenerator
+from controller.kick_off_generator import KickOffGenerator
 from model.Node import Node
 from model.hallway_simulator_module.HallwaySimulator import BulkHallwaySimulator
 from collections import deque
@@ -18,7 +18,7 @@ import pdb
 """ Mô tả yêu cầu của code:
 https://docs.google.com/document/d/13S_Ycg-aB4GjEm8xe6tAoUHzhS-Z1iFnM4jX_bWFddo/edit?usp=sharing """
 
-class GraphProcessor(WaitingAndMovingEdgesGenerator):
+class GraphProcessor(KickOffGenerator):
     def __init__(self, dm):
         super().__init__(dm) 
         self._adj = []  # Adjacency matrix
@@ -643,28 +643,6 @@ class GraphProcessor(WaitingAndMovingEdgesGenerator):
                 file.write(line + "\n")
         if(self.print_out):
             print("TSG.txt file created.")
-
-    def init_agvs_n_events(self, all_agvs, events, graph, graph_processor):
-        from controller.EventGenerator import StartEvent
-        StartEvent.static_index = 0
-        from model.AGV import AGV
-        for node_id in self.started_nodes:
-            #pdb.set_trace()
-            agv = AGV("AGV" + str(node_id), node_id, graph)  # Create an AGV at this node
-            #print(Event.getValue("number_of_nodes_in_space_graph"))
-            #if(self.M == 0):
-            #    pdb.set_trace()
-            start_time = node_id // self.M - (1 if node_id % self.M == 0 else 0)
-            #if(node_id % self.M == 0):
-            #    pdb.set_trace()
-            end_time = start_time
-            start_event = StartEvent(start_time, end_time, agv, graph, graph_processor)  # Start event at time 0
-            events.append(start_event)
-            all_agvs.add(agv)  # Thêm vào tập hợp AGV
-    
-    def init_tasks(self, tasks):
-        for node_id in self.get_targets():
-            tasks.add(node_id)
     
     def query_edges_by_source_id(self):
         source_id = int(input("Nhap vao ID nguon: "))
