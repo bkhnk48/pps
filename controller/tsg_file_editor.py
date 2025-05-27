@@ -1,7 +1,9 @@
 from controller.reading_input_processor import ReadingInputProcessor
 from model.Node import Node
 from controller.NodeGenerator import TimeoutNode
-class TsgEditor(ReadingInputProcessor):
+
+#Sẽ được lớp TimeWindowGenerator kế thừa
+class TsgFileEditor(ReadingInputProcessor):
     def __init__(self, dm):
         super().__init__(dm) 
         self._target_nodes = []
@@ -96,3 +98,28 @@ class TsgEditor(ReadingInputProcessor):
             self.map_nodes[_id] = new_node
             
             return new_node
+        
+    def append_edges_to_file(self, new_edges):
+        """Thêm các cạnh mới vào file TSG.txt."""
+        edges_with_cost = { (int(edge[1]), int(edge[2])): [int(edge[4]), int(edge[5])] 
+                            for edge in self.space_edges if edge[3] == '0' and int(edge[4]) >= 1 }
+
+        with open('TSG.txt', 'a') as file:
+            for ID, j, c in new_edges:
+                u, v = ID % self.M + (self.M if ID % self.M == 0 else 0), j % self.M + (self.M if j % self.M == 0 else 0)
+                [upper, _] = edges_with_cost[(u, v)]
+                file.write(f"a {ID} {j} 0 {upper} {c}\n")
+        print("Da cap nhat file TSG.txt.")
+        
+    def update_file(self, id1=-1, id2=-1, c12=-1):
+        """Cập nhật file TSG.txt với các cạnh mới dựa trên đầu vào."""
+        ID1 = self.get_input_id(id1, "Nhap ID1: ")
+        ID2 = self.get_input_id(id2, "Nhap ID2: ")
+        C12 = self.get_input_weight(c12)
+
+        ID2 = self.adjust_id2_if_needed(ID1, ID2, C12)
+
+        existing_edges = self.load_existing_edges()
+        if (ID1, ID2) not in existing_edges:
+            new_edges = self.find_new_edges(ID1, ID2, C12)
+            self.append_edges_to_file(new_edges)
