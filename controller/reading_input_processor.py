@@ -3,22 +3,13 @@ import time
 from datetime import datetime
 from model.Logger import Logger
 import config
+from config import bcolors
 from model.hallway_simulator_module.HallwaySimulator import DirectoryManager
 from openpyxl import load_workbook
 import math
 import numpy as np
 import pdb
 from controller.start_node_generator import StartNodeGenerator
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    RED = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
     
 #Sẽ được lớp TsgFileEditor kế thừa
 class ReadingInputProcessor(StartNodeGenerator):
