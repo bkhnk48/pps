@@ -1,6 +1,7 @@
-from controller.waiting_and_moving_generator import WaitingAndMovingEdgesGenerator
+from controller.edge_modifier import EdgeModifier
 
-class GraphValidator(WaitingAndMovingEdgesGenerator):
+#Sẽ được lớp KickOffGenerator kế thừa
+class GraphValidator(EdgeModifier):
     def __init__(self, dm):
         super().__init__(dm)
     
