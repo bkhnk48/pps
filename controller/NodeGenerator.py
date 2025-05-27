@@ -1,5 +1,34 @@
 from model.Node import Node
 
+class NodeGenerator:
+    @staticmethod
+    def generate_node(is_artificial_node, id, label, graph_processor):
+        if(is_artificial_node):
+            if(label == "TimeWindow"):
+                temp = TimeWindowNode(id, label)
+                graph_processor.ts_nodes.append(temp)
+                graph_processor.map_nodes[id] = temp
+            elif(label == "Restriction"):
+                temp = RestrictionNode(id, label)
+                graph_processor.ts_nodes.append(temp)
+                graph_processor.map_nodes[id] = temp
+            elif (label == "Timeout"):
+                temp = TimeoutNode(id, label)
+                graph_processor.ts_node.append(temp)
+                graph_processor.map_nodes[id] = temp
+            else:
+                temp = ArtificialNode(id, label)
+                graph_processor.ts_nodes.append(temp)
+                graph_processor.map_nodes[id] = temp
+        else:
+            time = id // graph_processor.M - (1 if id % graph_processor.M == 0 else 0)
+            temp = None
+            if(time >= graph_processor.H):
+                temp = TimeoutNode(id, "Timeout")
+            else:
+                temp = Node(id)
+            graph_processor.ts_nodes.append(temp)
+            graph_processor.map_nodes[id] = temp
 class ArtificialNode(Node):
     def __init__(self, id, label=None, temporary=False):
         super().__init__(id, label)
