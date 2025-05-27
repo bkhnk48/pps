@@ -5,6 +5,7 @@ from controller.NodeGenerator import TimeoutNode
 from controller.NodeGenerator import ArtificialNode
 from controller.NodeGenerator import RestrictionNode
 from controller.NodeGenerator import TimeWindowNode
+from controller.NodeGenerator import NodeGenerator
 from controller.RestrictionController import RestrictionController
 from controller.time_window_generator import TimeWindowGenerator
 from controller.kick_off_generator import KickOffGenerator
@@ -500,32 +501,7 @@ class GraphProcessor(KickOffGenerator):
         for id in args:
             # Ensure that Node objects for id exist in ts_nodes
             if not any(node.id == id for node in self.ts_nodes) and isinstance(id, int):
-                if(is_artificial_node):
-                   if(label == "TimeWindow"):
-                       temp = TimeWindowNode(id, label)
-                       self.ts_nodes.append(temp)
-                       self.map_nodes[id] = temp
-                   elif(label == "Restriction"):
-                       temp = RestrictionNode(id, label)
-                       self.ts_nodes.append(temp)
-                       self.map_nodes[id] = temp
-                   elif (label == "Timeout"):
-                       temp = TimeoutNode(id, label)
-                       self.ts_node.append(temp)
-                       self.map_nodes[id] = temp
-                   else:
-                       temp = ArtificialNode(id, label)
-                       self.ts_nodes.append(temp)
-                       self.map_nodes[id] = temp
-                else:
-                    time = id // self.M - (1 if id % self.M == 0 else 0)
-                    temp = None
-                    if(time >= self.H):
-                        temp = TimeoutNode(id, "Timeout")
-                    else:
-                        temp = Node(id)
-                    self.ts_nodes.append(temp)
-                    self.map_nodes[id] = temp
+                NodeGenerator.generate_node(is_artificial_node, id, label, self)
         #    self.ts_nodes.append(Node(ID2))
 
     def insert_from_queue(self, q, checking_list=None):
