@@ -817,18 +817,6 @@ class GraphProcessor(KickOffGenerator):
         except FileNotFoundError:
             print("File không tồn tại.")
 
-    def process_tsg(self):
-        AGV, TASKS, objective_coeffs = self.initialize_sets()
-        
-        if AGV is None or objective_coeffs is None:
-            return  # Nếu gặp lỗi trong quá trình đọc file, thoát khỏi hàm.
-
-        solver = pywraplp.Solver.CreateSolver('SCIP')
-        self.setup_objective(solver, AGV, objective_coeffs)
-
-        status = solver.Solve()
-        self.handle_solution(status, solver, AGV, objective_coeffs)
-
     def initialize_sets(self):
         AGV = set()
         TASKS = set()
