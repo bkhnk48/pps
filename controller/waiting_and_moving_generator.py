@@ -16,20 +16,6 @@ class WaitingAndMovingEdgesGenerator (TimeWindowGenerator):
     @graph.setter
     def graph(self, value):
         self._graph = value
-            
-    def _handle_special_cases(self, start_id, next_id, start_time, end_time, result):
-        try:
-            if isinstance(self.graph.nodes[next_id], TimeWindowNode):
-                return end_time - start_time if result == -1 else result
-        except KeyError:
-            #for e in self.ts_edges:
-            #    if e[0] % self.graph.number_of_nodes_in_space_graph == start_id % self.graph.number_of_nodes_in_space_graph:
-            for e in self.ts_edges:
-                if e.start_node.id % self.graph.number_of_nodes_in_space_graph == start_id % self.graph.number_of_nodes_in_space_graph:
-                    #result = e[4] if result == -1 else result
-                    result = e.weight if result == -1 else result
-            return abs(end_time - start_time) if result == -1 else result
-        return result
     
     def get_ts_edges(self, checking_list):
         """Lấy danh sách các cạnh tạm thời."""
