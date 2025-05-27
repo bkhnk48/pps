@@ -760,33 +760,6 @@ class GraphProcessor(KickOffGenerator):
                 E.add(int(target_id))
         return E
 
-    def filter_edges(self, R, E):
-        try:
-            with open('TSG.txt', 'r') as file:
-                lines = file.readlines()
-
-            new_lines = []
-            for line in lines:
-                if line.startswith('a'):
-                    _, source_id, target_id, _, _, _ = line.split()
-                    source_id = int(source_id)
-                    target_id = int(target_id)
-
-                    # Nếu source_id không thuộc S và không thuộc E, loại bỏ cạnh
-                    if source_id not in R and source_id not in E:
-                        continue
-
-                # Thêm dòng vào danh sách mới
-                new_lines.append(line)
-
-            # Ghi các dòng mới vào file TSG.txt
-            with open('TSG.txt', 'w') as file:
-                file.writelines(new_lines)
-
-            print("Đã loại bỏ các cạnh dư thừa từ file TSG.txt.")
-        except FileNotFoundError:
-            print("File không tồn tại.")
-
     def use_in_main(self, use_config_data = False):
         self.ask_for_print_out(use_config_data)
         self.ask_spatial_map(use_config_data)
