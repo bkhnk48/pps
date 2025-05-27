@@ -20,6 +20,7 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
     
+#Sẽ được lớp TsgFileEditor kế thừa
 class ReadingInputProcessor(StartNodeGenerator):
     def __init__(self, _dm):
         super().__init__()
