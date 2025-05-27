@@ -1,27 +1,14 @@
 from controller.NodeGenerator import TimeWindowNode
-from controller.reading_input_processor import ReadingInputProcessor
+#from controller.reading_input_processor import ReadingInputProcessor
+from controller.tsg_editor import TsgEditor
 
-class TimeWindowGenerator(ReadingInputProcessor):
+class TimeWindowGenerator(TsgEditor):
     def __init__(self, dm):
         super().__init__(dm) 
-        self._ts_edges = []
-        self._target_nodes = []
         self._time_window_controller = None
         self._alpha = 1
         self._beta = 1
         self._gamma = 1
-        self._ts_nodes = []
-        
-    # Getter và Setter cho ts_edges
-    @property
-    def ts_edges(self):
-        return self._ts_edges
-    
-    @ts_edges.setter
-    def ts_edges(self, value):
-        if not isinstance(value, list):
-            raise ValueError("ts_edges must be a list")
-        self._ts_edges = value
     
     # Getter và Setter cho time_window_controller
     @property
@@ -58,26 +45,6 @@ class TimeWindowGenerator(ReadingInputProcessor):
     @gamma.setter
     def gamma(self, value):
         self._gamma = value
-        
-    # Getter và Setter cho ts_nodes
-    @property
-    def ts_nodes(self):
-        return self._ts_nodes
-
-    @ts_nodes.setter
-    def ts_nodes(self, value):
-        if not isinstance(value, list):
-            raise ValueError("ts_nodes must be a list")
-        self._ts_nodes = value
-        
-        
-    @property
-    def target_nodes(self):
-        return self._target_nodes
-    
-    @target_nodes.setter
-    def target_nodes(self, value):
-        self._target_nodes = value
         
     def append_target(self, target_node):
         if isinstance(target_node, TimeWindowNode):
