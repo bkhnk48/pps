@@ -726,14 +726,6 @@ class GraphProcessor(KickOffGenerator):
         self.update_edges_after_restrictions(R)
         return R
 
-    def remove_redundant_edges(self):
-        R, E, S = self.initialize_sets()
-        
-        if R is None or E is None:
-            return  # Nếu gặp lỗi trong quá trình đọc file, thoát khỏi hàm.
-
-        self.filter_edges(R, E)
-
     def extract_node_ids(self, lines):
         S = set()
         for line in lines[1:]:
