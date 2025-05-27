@@ -734,36 +734,6 @@ class GraphProcessor(KickOffGenerator):
 
         self.filter_edges(R, E)
 
-    def initialize_sets(self):
-        R = set()  # Tập ID của nút nguồn
-        E = set()  # Tập ID của nút đích
-
-        try:
-            with open('TSG.txt', 'r') as file:
-                lines = file.readlines()
-                if not lines:
-                    print("File rỗng.")
-                    return None, None
-
-                first_line = lines[0].strip()
-                if first_line.startswith('p min'):
-                    S = self.extract_node_ids(lines)
-
-                    # Lưu ID của nút nguồn vào tập R
-                    R = self.extract_source_ids(lines, S)
-
-                    # Lưu ID của nút đích vào tập E
-                    E = self.extract_target_ids(lines)
-
-                else:
-                    print("File không đúng định dạng.")
-                    return None, None
-        except FileNotFoundError:
-            print("File không tồn tại.")
-            return None, None
-
-        return R, E
-
     def extract_node_ids(self, lines):
         S = set()
         for line in lines[1:]:
@@ -816,32 +786,6 @@ class GraphProcessor(KickOffGenerator):
             print("Đã loại bỏ các cạnh dư thừa từ file TSG.txt.")
         except FileNotFoundError:
             print("File không tồn tại.")
-
-    def initialize_sets(self):
-        AGV = set()
-        TASKS = set()
-        objective_coeffs = {}
-
-        try:
-            with open('TSG.txt', 'r') as file:
-                for line in file:
-                    parts = line.strip().split()
-                    if len(parts) == 3 and parts[0] == 'n':
-                        node_id, val = int(parts[1]), int(parts[2])
-                        if val == 1:
-                            AGV.add(node_id)
-                        elif val == -1:
-                            TASKS.add(node_id)
-                    elif len(parts) == 6 and parts[0] == 'a':
-                        i, j, c = int(parts[1]), int(parts[2]), int(parts[5])
-                        if (i, j) not in objective_coeffs:
-                            objective_coeffs[(i, j)] = c
-
-        except FileNotFoundError:
-            print("File TSG.txt không tồn tại.")
-            return None, None, None
-
-        return AGV, TASKS, objective_coeffs
 
     def setup_objective(self, solver, AGV, objective_coeffs):
         
