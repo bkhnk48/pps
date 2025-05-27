@@ -83,6 +83,14 @@ class ReadingInputProcessor(StartNodeGenerator):
     @num_max_agvs.setter
     def num_max_agvs(self, value):
         self._num_max_agvs = value
+    
+    def _process_number(self, num):
+        import math
+        if num < 5:
+            return 0
+        else:
+            return math.ceil(num)
+    
     def get_os(self):
         os_name = platform.system()
         if os_name == 'Darwin':
@@ -213,7 +221,7 @@ class ReadingInputProcessor(StartNodeGenerator):
         for row in last_three_columns:
             for num in row:
                 if isinstance(num, (int, float)):  # Kiểm tra nếu là số
-                    self.processed_numbers.append(self.process_number(num))
+                    self.processed_numbers.append(self._process_number(num))
     
     def ask_for_print_out(self, use_config_data = False):
         if(use_config_data):
