@@ -9,6 +9,7 @@ import math
 import numpy as np
 import pdb
 
+#Sẽ được lớp ReadingInputProcessor kế thừa
 class StartNodeGenerator:
     def __init__(self):
         self._started_nodes = []
