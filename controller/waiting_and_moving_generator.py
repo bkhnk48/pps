@@ -2,6 +2,7 @@ from controller.NodeGenerator import TimeWindowNode
 from controller.time_window_generator import TimeWindowGenerator
 import pdb
 
+#Sẽ được lớp EdgeModifier kế thừa
 class WaitingAndMovingEdgesGenerator (TimeWindowGenerator):
     def __init__(self, dm):
         super().__init__(dm) 
