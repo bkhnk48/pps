@@ -787,25 +787,6 @@ class GraphProcessor(KickOffGenerator):
         except FileNotFoundError:
             print("File không tồn tại.")
 
-    def setup_objective(self, solver, AGV, objective_coeffs):
-        
-        objective = solver.Objective()
-        added_keys = set()  # Sử dụng set để lưu trữ các khóa đã được thêm
-        
-        for m in AGV:
-            for i, j in objective_coeffs.keys():
-                key = f'x_{m}_{i}_{j}'
-                if key not in added_keys:  # Chỉ tạo biến nếu chưa được tạo trước đó
-                    x = solver.BoolVar(key)
-                    objective.SetCoefficient(x, objective_coeffs[(i, j)])  # Đặt hệ số cho mỗi biến
-                    added_keys.add(key)  # Thêm khóa vào set đã được thêm
-
-        objective.SetMinimization()
-        print(added_keys)
-
-        # Thêm ràng buộc x_m_i_j nhận giá trị 0 hoặc 1
-        self.add_constraints(solver, AGV, objective_coeffs)
-
     def add_constraints(self, solver, AGV, objective_coeffs):
         for m in AGV:
             for i, j in objective_coeffs.keys():
