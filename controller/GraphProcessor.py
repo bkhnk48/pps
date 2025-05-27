@@ -26,7 +26,6 @@ class GraphProcessor(KickOffGenerator):
         self._restriction_controller = None
         self._start_ban = -1
         self._end_ban = -1
-        self._graph = None
         # Initialize an empty list to store the processed numbers
 
 #===============================================================================
@@ -70,22 +69,6 @@ class GraphProcessor(KickOffGenerator):
         if not isinstance(value, int):
             raise ValueError("end_ban must be an integer")
         self._end_ban = value
-
-    # Getter và Setter cho graph
-    @property
-    def graph(self):
-        return self._graph
-
-    @graph.setter
-    def graph(self, value):
-        self._graph = value
-    
-    def process_number(self, num):
-        import math
-        if num < 5:
-            return 0
-        else:
-            return math.ceil(num)
         
 
 #======================================================================================
@@ -143,10 +126,6 @@ class GraphProcessor(KickOffGenerator):
         }
         return edges_with_cost.get((space_start_node, space_end_node), [-1, -1])[1]
 
-    def _is_target_node(self, next_id):
-        all_ids_of_target_nodes = [node.id for node in self.target_nodes]
-        return next_id in all_ids_of_target_nodes
-
     def _update_agv_path(self, agv, node_id):
         if agv is not None:
             agv.path.add(node_id)
@@ -188,20 +167,6 @@ class GraphProcessor(KickOffGenerator):
             value = self.processed_numbers[index] if config.level_of_simulation == 1 else index
             return math.ceil((1 + value/100)*(end_time - start_time))
             #return 3 if (end_time - start_time <= 3) else 2 * (end_time - start_time) - 3
-        return result
-
-    def _handle_collisions(self, result, next_id, agv, M):
-        all_ids_of_target_nodes = [node.id for node in self.target_nodes]
-        collision = True
-        while collision:
-            collision = False
-            if next_id not in all_ids_of_target_nodes and next_id in self.graph.nodes:
-                node = self.graph.nodes[next_id]
-                if node.agv and node.agv != agv:
-                    print(f'{node.agv.id} != {agv.id}')
-                    collision = True
-                    result += 1
-                    next_id += M
         return result
     
     def getReal_preprocess(self, Map_file, function_file):
@@ -422,10 +387,6 @@ class GraphProcessor(KickOffGenerator):
         self.time_window_controller.generate_time_window_edges(self.graph.nodes[source_id], self.graph.adjacency_list, self.graph.number_of_nodes_in_space_graph)
         self.restriction_controller.generate_restriction_edges(self.graph.nodes[source_id], self.graph.nodes[dest_id], self.graph.nodes, self.graph.adjacency_list)
 
-    def version_check(self, current_time):
-        """Kiểm tra nếu phiên bản cần được cập nhật."""
-        time2 = self.graph.number_of_nodes_in_space_graph // self.M - (1 if self.graph.number_of_nodes_in_space_graph % self.M == 0 else 0)
-        return time2 != current_time
 
     def collect_new_halting_edges(self):
         """Thu thập các cạnh dừng mới cần được thêm vào."""
@@ -598,10 +559,6 @@ class GraphProcessor(KickOffGenerator):
         return {(int(edge[1]), int(edge[2])): [int(edge[4]), int(edge[5])] 
                 for edge in self.space_edges if edge[3] == '0' and int(edge[4]) >= 1}
 
-    def is_valid_id(self, ID):
-        """Kiểm tra xem ID có hợp lệ không."""
-        return 0 <= ID < self.adj.shape[0]
-
     def add_edge_to_queue(self, q, ID, j, output_lines, edges_with_cost, checking_list):
         """Thêm cạnh vào hàng đợi và ghi lại vào output_lines nếu cần."""
         if j not in q:
@@ -620,16 +577,6 @@ class GraphProcessor(KickOffGenerator):
         u = ID % self.M if ID % self.M != 0 or ID == 0 else self.M
         v = j % self.M if j % self.M != 0 or j == 0 else self.M
         return u, v
-
-    def should_add_edge(self, cost_info, ID, j, v):
-        """Kiểm tra điều kiện để thêm cạnh."""
-        upper, cost = cost_info
-        return ((ID // self.M) + cost >= (j // self.M) - (v // self.M)) and (upper != -1)
-
-    def validate_edges(self):
-        pass
-        """Kiểm tra tính nhất quán của các cạnh."""
-        #assert len(self.ts_edges) == len(self.tsedges), f"Thiếu cạnh ở đâu đó rồi {len(self.tsedges)} != {len(self.ts_edges)}"
 
     def create_tsg_file(self):          
         #pdb.set_trace()
@@ -667,37 +614,6 @@ class GraphProcessor(KickOffGenerator):
         else:
             if(self.print_out):
                 print(f"Khong tim thay canh nao co ID nguon la {source_id}.")
-    
-    def check_file_conditions(self):
-        try:
-            seen_edges = set()
-            with open('TSG.txt', 'r') as file:
-                for line in file:
-                    parts = line.strip().split()
-                    if parts[0] != 'a':
-                        continue
-                    ID1, ID2 = int(parts[1]), int(parts[2])
-
-                    # Condition 1: ID1 should not equal ID2
-                    if ID1 == ID2:
-                        print("False")
-                        return
-
-                    # Condition 2: If ID1 before ID2, then ID2 should not come before ID1
-                    if (ID1, ID2) in seen_edges or (ID2, ID1) in seen_edges:
-                        print("False")
-                        return
-                    else:
-                        seen_edges.add((ID1, ID2))
-
-                    # Condition 3: ID2/self.M should be greater than ID1/self.M
-                    if ID2 // self.M <= ID1 // self.M:
-                        print("False")
-                        return
-
-            print("True")
-        except FileNotFoundError:
-            print("File TSG.txt khong ton tai!")
 
     def update_file(self, id1=-1, id2=-1, c12=-1):
         """Cập nhật file TSG.txt với các cạnh mới dựa trên đầu vào."""
