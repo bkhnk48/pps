@@ -726,14 +726,6 @@ class GraphProcessor(KickOffGenerator):
         self.update_edges_after_restrictions(R)
         return R
 
-    def extract_node_ids(self, lines):
-        S = set()
-        for line in lines[1:]:
-            if line.startswith('n'):
-                _, node_id, _ = line.split()
-                S.add(int(node_id))
-        return S
-
     def use_in_main(self, use_config_data = False):
         self.ask_for_print_out(use_config_data)
         self.ask_spatial_map(use_config_data)
