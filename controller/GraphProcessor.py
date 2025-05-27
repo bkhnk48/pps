@@ -787,18 +787,6 @@ class GraphProcessor(KickOffGenerator):
         except FileNotFoundError:
             print("File không tồn tại.")
 
-    def handle_solution(self, status, solver, AGV, objective_coeffs):
-        if status == pywraplp.Solver.OPTIMAL:
-            print('Solution:')
-            print('Objective value =', solver.Objective().Value())
-            for m in AGV:
-                for i, j in objective_coeffs.keys():
-                    x = solver.LookupVariable(f'x_{m}_{i}_{j}')
-                    if x.solution_value() == 1:
-                        print(f'x_{m}_{i}_{j} = 1')
-        else:
-            print('The problem does not have an optimal solution.')
-
     def use_in_main(self, use_config_data = False):
         self.ask_for_print_out(use_config_data)
         self.ask_spatial_map(use_config_data)
