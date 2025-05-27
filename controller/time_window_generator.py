@@ -1,8 +1,9 @@
 from controller.NodeGenerator import TimeWindowNode
 #from controller.reading_input_processor import ReadingInputProcessor
-from controller.tsg_editor import TsgEditor
+from controller.tsg_file_editor import TsgFileEditor
 
-class TimeWindowGenerator(TsgEditor):
+#Sẽ được lớp WaitingAndMovingEdgesGenerator kế thừa
+class TimeWindowGenerator(TsgFileEditor):
     def __init__(self, dm):
         super().__init__(dm) 
         self._time_window_controller = None
