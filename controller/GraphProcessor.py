@@ -787,13 +787,6 @@ class GraphProcessor(KickOffGenerator):
         except FileNotFoundError:
             print("File không tồn tại.")
 
-    def add_constraints(self, solver, AGV, objective_coeffs):
-        for m in AGV:
-            for i, j in objective_coeffs.keys():
-                x = solver.LookupVariable(f'x_{m}_{i}_{j}')
-                constraint = solver.Constraint(0, 1)
-                constraint.SetCoefficient(x, 1)
-
     def handle_solution(self, status, solver, AGV, objective_coeffs):
         if status == pywraplp.Solver.OPTIMAL:
             print('Solution:')
