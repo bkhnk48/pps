@@ -155,7 +155,6 @@ class GraphProcessor(KickOffGenerator):
             year = current_time.tm_year
             
             seed = second + minute * 60 + hour * 3600 + day * 86400 + month * 2592000 + year * 31104000
-            
             # Seed the random number generator
             random.seed(seed)
             # Generate a random number with the given max value
@@ -244,19 +243,6 @@ class GraphProcessor(KickOffGenerator):
         completion_time = result[agv_id][hallway_id]["completion_time"]
         print(f"{bcolors.OKGREEN}AGV {agv_id} has runtime {completion_time} in hallway {hallway_id}.{bcolors.ENDC}")
         return completion_time
-    
-    def insertEdgesAndNodes(self, start, end, edge):
-        #pdb.set_trace()
-        start_id = start if isinstance(start, int) else start.id
-        end_id = end if isinstance(end, int) else end.id
-        self.graph.adjacency_list[start_id].append((end_id, edge))
-        start_node = start if isinstance(start, Node) else self.find_node(start)
-        end_node = end if isinstance(end, Node) else self.find_node(end)
-        if self.graph.nodes[start_id] is None:
-            self.graph.nodes[start_id] = start_node
-        if self.graph.nodes[end_id] is None:
-            self.graph.nodes[end_id] = end_node
-            
     
     def update(self,currentpos,nextpos,realtime):
         list = utility()
@@ -504,50 +490,6 @@ class GraphProcessor(KickOffGenerator):
                 NodeGenerator.generate_node(is_artificial_node, id, label, self)
         #    self.ts_nodes.append(Node(ID2))
 
-    def insert_from_queue(self, q, checking_list=None):
-        """Chèn các cạnh từ hàng đợi vào đồ thị."""
-        output_lines = []
-        edges_with_cost = self.extract_edges_with_cost()
-        ts_edges = self.get_ts_edges(checking_list)
-        
-        count = 0
-        while q:
-            if count % 1000 == 0:
-                pass  # Có thể thêm log tại đây nếu cần
-            count += 1
-            ID = q.popleft()
-            
-            if not self.is_valid_id(ID):
-                continue
-            
-            for j in self.adj.rows[ID]:
-                if self.is_edge_present(ID, j, ts_edges):
-                    continue
-                
-                self.add_edge_to_queue(q, ID, j, output_lines, edges_with_cost, checking_list)
-
-        if checking_list is None:
-            self.validate_edges()
-        return output_lines
-
-    def extract_edges_with_cost(self):
-        """Trích xuất các cạnh có chi phí từ danh sách cạnh không gian."""
-        return {(int(edge[1]), int(edge[2])): [int(edge[4]), int(edge[5])] 
-                for edge in self.space_edges if edge[3] == '0' and int(edge[4]) >= 1}
-
-    def add_edge_to_queue(self, q, ID, j, output_lines, edges_with_cost, checking_list):
-        """Thêm cạnh vào hàng đợi và ghi lại vào output_lines nếu cần."""
-        if j not in q:
-            q.append(j)
-        
-        u, v = self.get_node_coordinates(ID, j)
-        cost_info = edges_with_cost.get((u, v), (-1, -1))
-        
-        if self.should_add_edge(cost_info, ID, j, v):
-            self.create_edge_output(output_lines, ID, j, cost_info, checking_list)
-        elif ID + self.M * self.d == j and ID % self.M == j % self.M:
-            self.create_holding_edge_output(output_lines, ID, j, checking_list)
-
     def get_node_coordinates(self, ID, j):
         """Lấy tọa độ nút từ ID."""
         u = ID % self.M if ID % self.M != 0 or ID == 0 else self.M
@@ -591,19 +533,6 @@ class GraphProcessor(KickOffGenerator):
             if(self.print_out):
                 print(f"Khong tim thay canh nao co ID nguon la {source_id}.")
 
-    def update_file(self, id1=-1, id2=-1, c12=-1):
-        """Cập nhật file TSG.txt với các cạnh mới dựa trên đầu vào."""
-        ID1 = self.get_input_id(id1, "Nhap ID1: ")
-        ID2 = self.get_input_id(id2, "Nhap ID2: ")
-        C12 = self.get_input_weight(c12)
-
-        ID2 = self.adjust_id2_if_needed(ID1, ID2, C12)
-
-        existing_edges = self.load_existing_edges()
-        if (ID1, ID2) not in existing_edges:
-            new_edges = self.find_new_edges(ID1, ID2, C12)
-            self.append_edges_to_file(new_edges)
-
     def get_input_id(self, default_id, prompt):
         """Lấy ID từ người dùng hoặc sử dụng giá trị mặc định."""
         return int(input(prompt)) if default_id == -1 else default_id
@@ -634,35 +563,6 @@ class GraphProcessor(KickOffGenerator):
             return existing_edges
         return existing_edges
 
-    def find_new_edges(self, ID1, ID2, C12):
-        """Tìm các cạnh mới cần thêm vào đồ thị."""
-        q = deque([ID2])
-        visited = {ID2}
-        new_edges = [(ID1, ID2, C12)]
-
-        while q:
-            ID = q.popleft()
-            for j in self.adj.rows[ID]:
-                if j not in visited:
-                    c = self.d if ID + self.M * self.d == j and ID % self.M == j % self.M else C12
-                    if (ID // self.M) + c == j // self.M:
-                        new_edges.append((ID, j, c))
-                        q.append(j)
-                        visited.add(j)
-        
-        return new_edges
-
-    def append_edges_to_file(self, new_edges):
-        """Thêm các cạnh mới vào file TSG.txt."""
-        edges_with_cost = { (int(edge[1]), int(edge[2])): [int(edge[4]), int(edge[5])] 
-                            for edge in self.space_edges if edge[3] == '0' and int(edge[4]) >= 1 }
-
-        with open('TSG.txt', 'a') as file:
-            for ID, j, c in new_edges:
-                u, v = ID % self.M + (self.M if ID % self.M == 0 else 0), j % self.M + (self.M if j % self.M == 0 else 0)
-                [upper, _] = edges_with_cost[(u, v)]
-                file.write(f"a {ID} {j} 0 {upper} {c}\n")
-        print("Da cap nhat file TSG.txt.")
 
     def process_restrictions(self):
         """Xử lý các hạn chế trong đồ thị."""
