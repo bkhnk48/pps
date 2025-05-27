@@ -1,10 +1,21 @@
 from controller.NodeGenerator import TimeWindowNode
 from controller.time_window_generator import TimeWindowGenerator
+import pdb
 
 class WaitingAndMovingEdgesGenerator (TimeWindowGenerator):
     def __init__(self, dm):
         super().__init__(dm) 
-        
+        self._graph = None
+
+    # Getter và Setter cho graph
+    @property
+    def graph(self):
+        return self._graph
+    
+    @graph.setter
+    def graph(self, value):
+        self._graph = value
+            
     def _handle_special_cases(self, start_id, next_id, start_time, end_time, result):
         try:
             if isinstance(self.graph.nodes[next_id], TimeWindowNode):
@@ -30,7 +41,20 @@ class WaitingAndMovingEdgesGenerator (TimeWindowGenerator):
     def is_edge_present(self, ID, j, ts_edges):
         """Kiểm tra xem cạnh đã tồn tại trong ts_edges chưa."""
         #return any(edge[0] == ID and edge[1] == j for edge in ts_edges)
-        return any(edge.start_node.id == ID and edge.end_node.id == j for edge in ts_edges)
+        #pdb.set_trace()
+        for i, e in enumerate(ts_edges):
+            if isinstance(e, list):
+                if(e[0] == ID and e[1] == j):
+                    return True
+            else:
+                if(e.start_node.id == ID and e.end_node.id == j):
+                    return True
+                #pdb.set_trace()
+                #print(f"[!] self.ts_edges[{i}] là list: {e}")
+        #if(len(ts_edges) == 0):
+        #    return False
+        return False
+        #return any(edge.start_node.id == ID and edge.end_node.id == j for edge in ts_edges)
     
     def create_edge_output(self, output_lines, ID, j, cost_info, checking_list):
         """Tạo dòng output cho cạnh mới và thêm vào danh sách."""
