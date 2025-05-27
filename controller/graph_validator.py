@@ -14,7 +14,7 @@ class GraphValidator(EdgeModifier):
         """Kiểm tra xem ID có hợp lệ không."""
         return 0 <= ID < self.adj.shape[0]
 
-    def _is_target_node(self, next_id):
+    def is_target_node(self, next_id):
         all_ids_of_target_nodes = [node.id for node in self.target_nodes]
         return next_id in all_ids_of_target_nodes
 
@@ -35,7 +35,7 @@ class GraphValidator(EdgeModifier):
         """Kiểm tra tính nhất quán của các cạnh."""
         #assert len(self.ts_edges) == len(self.tsedges), f"Thiếu cạnh ở đâu đó rồi {len(self.tsedges)} != {len(self.ts_edges)}" 
     
-    def _handle_collisions(self, result, next_id, agv, M):
+    def handle_collisions(self, result, next_id, agv, M):
         all_ids_of_target_nodes = [node.id for node in self.target_nodes]
         collision = True
         while collision:
