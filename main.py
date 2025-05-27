@@ -1,4 +1,4 @@
-from model.Graph import Graph, bcolors#, graph
+from model.Graph import Graph#, graph
 from model.AGV import AGV
 from model.Event import Event, debug
 from controller.EventGenerator import StartEvent
