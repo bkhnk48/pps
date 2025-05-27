@@ -734,16 +734,6 @@ class GraphProcessor(KickOffGenerator):
                 S.add(int(node_id))
         return S
 
-    def extract_source_ids(self, lines, S):
-        R = set()
-        for line in lines[1:]:
-            if line.startswith('a'):
-                _, source_id, _, _, _, _ = line.split()
-                source_id = int(source_id)
-                if source_id not in S:
-                    R.add(source_id)
-        return R
-
     def use_in_main(self, use_config_data = False):
         self.ask_for_print_out(use_config_data)
         self.ask_spatial_map(use_config_data)
