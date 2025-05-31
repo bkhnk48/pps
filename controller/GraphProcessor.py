@@ -26,8 +26,8 @@ class GraphProcessor(KickOffGenerator):
         self._adj = []  # Adjacency matrix
         #self._tsedges = []
         self._restriction_controller = None
-        self._start_ban = -1
-        self._end_ban = -1
+        #self._start_ban = -1
+        #self._end_ban = -1
         self._time_determinator = TimeDeterminator(self)
         # Initialize an empty list to store the processed numbers
 
@@ -50,30 +50,7 @@ class GraphProcessor(KickOffGenerator):
     @restriction_controller.setter
     def restriction_controller(self, value):
         self._restriction_controller = value
-
-    # Getter và Setter cho start_ban
-    @property
-    def start_ban(self):
-        return self._start_ban
-
-    @start_ban.setter
-    def start_ban(self, value):
-        if not isinstance(value, int):
-            raise ValueError("start_ban must be an integer")
-        self._start_ban = value
-
-    # Getter và Setter cho end_ban
-    @property
-    def end_ban(self):
-        return self._end_ban
-
-    @end_ban.setter
-    def end_ban(self, value):
-        if not isinstance(value, int):
-            raise ValueError("end_ban must be an integer")
-        self._end_ban = value
         
-
 #======================================================================================
 
     def getReal(self, start_id, next_id, agv):
@@ -535,8 +512,6 @@ class GraphProcessor(KickOffGenerator):
         #self.add_restrictions()
         self.gamma = 1
         self.restriction_count = 1
-        self.start_ban = 0
-        self.end_ban = 2*self.d
         self.restrictions = []
         self.ur = 3
         #pdb.set_trace()
