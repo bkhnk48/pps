@@ -123,26 +123,48 @@ class WaitingAndMovingEdgesGenerator (TimeWindowGenerator):
                 new_a.update({e})
         #self.ts_edges.extend(e for e in new_a if e not in self.ts_edges)
         self.create_set_of_edges(new_a)
-        
-    def write_to_file(self):
-        M = max(target.id for target in self.get_targets())
-        with open('TSG.txt', 'w') as file:
-            #file.write(f"p min {M} {len(self.ts_edges)}\n")
-            file.write(f"p min {M} {len(self.ts_edges)}\n")
-            for start in self.started_nodes:
-                file.write(f"n {start} 1\n")
-            for target in self.get_targets():
-                target_id = target.id
-                file.write(f"n {target_id} -1\n")
-            #no longer use self.tsedges:
-            #for edge in self.ts_edges:
-            for edge in self.ts_edges:
-                if (edge is not None):   
-                    if(edge.weight == self.H*self.H):
-                        if((edge.start_node.id // self.M - (1 if edge.start_node.id % self.M == 0 else 0)) >= self.H):
-                            #print(f"c Exceed {edge.weight} {edge.weight // self.M}\na {edge.start_node.id} {edge.end_node.id} {edge.lower} {edge.upper} {edge.weight}\n")
-                            file.write(f"c Exceed {edge.weight} {edge.weight // self.M} as {edge.start_node.id} // {self.M} - (1 if {edge.start_node.id} % {self.M} == 0 else 0)\na {edge.start_node.id} {edge.end_node.id} {edge.lower} {edge.upper} {edge.weight}\n")
-                    else:
-                        file.write(f"a {edge.start_node.id} {edge.end_node.id} {edge.lower} {edge.upper} {edge.weight}\n")
-        if(self.print_out):
+    def write_to_file(self, agv_id_and_new_start=None, new_halting_edges=None,
+                  supply=None, vs_id=None, vt_id=None, filename="TSG.txt"):
+        get_targets = self.get_targets \
+            if hasattr(self, 'get_targets') \
+                else self.graph_processor.get_targets
+        targets = get_targets()
+        M = max(target.id for target in targets)
+        if new_halting_edges: M = max(M, max(e[1] for e in new_halting_edges))
+        num_edges = (self.count_edges() \
+            if hasattr(self, 'count_edges') \
+                else len(self.ts_edges)) + (len(new_halting_edges) if new_halting_edges else 0)
+
+        with open(filename, 'w') as f:
+            f.write(f"p min {M} {num_edges}\n")
+            starts = getattr(self, 'started_nodes', self.getAllNewStartedNodes())
+            self._write_node_lines(f, starts, targets, supply, vs_id, vt_id)
+
+            if hasattr(self, 'ts_edges'):
+                for e in self.ts_edges: self._write_edge_lines(f, e)
+            elif hasattr(self, 'adjacency_list'):
+                for sid, edges in sorted(self.adjacency_list.items()):
+                    for eid, data in edges:
+                        f.write(f"a {sid} {eid} {data.lower} {data.upper} {data.weight}\n")
+
+            if new_halting_edges:
+                for e in new_halting_edges:
+                    f.write(f"a {e[0]} {e[1]} {e[2]} {e[3]} {e[4]}\n")
+
+        if getattr(self, "print_out", False):
             print("Đã cập nhật các cung mới vào file TSG.txt.")
+
+    def _write_edge_lines(self, f, edge):
+        if edge is None: return
+        if edge.weight == self.H * self.H \
+            and (edge.start_node.id // self.M - (edge.start_node.id % self.M == 0)) >= self.H:
+            f.write(f"c Exceed {edge.weight} {edge.weight // self.M}\n")
+        f.write(f"a {edge.start_node.id} {edge.end_node.id} "
+            f"{edge.lower} {edge.upper} {edge.weight}\n")
+        
+    def _write_node_lines(self, f, starts, targets, supply, vs_id, vt_id):
+        for s in starts:
+            f.write(f"n {s} {supply if supply and vs_id == s else 1}\n")
+        for t in targets:
+            f.write(f"n {t.id} {-supply if supply and vt_id == t.id else -1}\n")
+    
