@@ -7,6 +7,7 @@ from controller.NodeGenerator import RestrictionNode
 from controller.NodeGenerator import TimeWindowNode
 from controller.NodeGenerator import NodeGenerator
 from controller.RestrictionController import RestrictionController
+from controller.restriction_time_frame_controller import RestrictionForTimeFrameController
 from controller.time_window_generator import TimeWindowGenerator
 from controller.kick_off_generator import KickOffGenerator
 from controller.time_determinator import TimeDeterminator
@@ -26,13 +27,23 @@ class GraphProcessor(KickOffGenerator):
         self._adj = []  # Adjacency matrix
         #self._tsedges = []
         self._restriction_controller = None
-        #self._start_ban = -1
-        #self._end_ban = -1
+        self._restriction_for_timeframe_controller = None
+        self._start_ban = -1
+        self._end_ban = -1
         self._time_determinator = TimeDeterminator(self)
         # Initialize an empty list to store the processed numbers
 
 #===============================================================================
 
+    # Getter và Setter cho restriction_for_timeframe_controller
+    @property
+    def restriction_for_timeframe_controller(self):
+        return self._restriction_for_timeframe_controller
+    
+    @restriction_for_timeframe_controller.setter
+    def restriction_for_timeframe_controller(self, value):
+        self._restriction_for_timeframe_controller = value
+        
     # Getter and Setter for adj
     @property
     def adj(self):
@@ -50,7 +61,30 @@ class GraphProcessor(KickOffGenerator):
     @restriction_controller.setter
     def restriction_controller(self, value):
         self._restriction_controller = value
+
+    # Getter và Setter cho start_ban
+    @property
+    def start_ban(self):
+        return self._start_ban
+
+    @start_ban.setter
+    def start_ban(self, value):
+        if not isinstance(value, int):
+            raise ValueError("start_ban must be an integer")
+        self._start_ban = value
+
+    # Getter và Setter cho end_ban
+    @property
+    def end_ban(self):
+        return self._end_ban
+
+    @end_ban.setter
+    def end_ban(self, value):
+        if not isinstance(value, int):
+            raise ValueError("end_ban must be an integer")
+        self._end_ban = value
         
+
 #======================================================================================
 
     def getReal(self, start_id, next_id, agv):
@@ -171,7 +205,7 @@ class GraphProcessor(KickOffGenerator):
             self.graph.version += 1
 
         new_halting_edges = self.collect_new_halting_edges()
-        self.graph.write_to_file([agv_id, new_node_id], new_halting_edges)
+        self.write_to_file([agv_id, new_node_id], new_halting_edges)
         #pdb.set_trace()                
     
     def process_adjacency_list(self, current_time, new_node_id, M):
@@ -452,29 +486,36 @@ class GraphProcessor(KickOffGenerator):
         return existing_edges
 
 
-    def process_restrictions(self):
+    def process_restrictions(self, use_config_data = False):
         """Xử lý các hạn chế trong đồ thị."""
-        if self.restriction_controller is None:
-            self.restriction_controller = RestrictionController(self)
-
-        edges_with_cost = self.get_edges_with_cost()
-        maxid = self.get_max_id() + 1
-        new_a = set()
-
-        for restriction in self.restrictions:
-            R = self.restriction_controller.create_restricted_edges(restriction, edges_with_cost, maxid)
-            if R:
-                new_a.update(self.create_new_edges(restriction, R, maxid))
-                maxid += 3
-
-        self.update_edges(new_a)
+        #pdb.set_trace()
+        if self.restriction_for_timeframe_controller is None:
+            self.restriction_for_timeframe_controller = RestrictionForTimeFrameController(self)
+            #self.restriction_for_timeframe_controller.apply_restriction(use_config_data)
+            
         self.insert_halting_edges()
-        self.write_to_file()
+        self.restriction_controller.insert_artificial_objects(F, use_config_data=use_config_data)
+        
+        # Ghi file TSG.txt
+        U = config.artificial_upper_bound
+        if  F > U:
+            vs_id = next((n.id for n in self.graph.nodes.values() if getattr(n, "label", "") == "vS"), None)
+            vt_id = next((n.id for n in self.graph.nodes.values() if getattr(n, "label", "") == "vT"), None)
+            self.write_to_file(supply=U, vs_id=vs_id, vt_id=vt_id)
+        else:
+            self.write_to_file()
 
     def get_edges_with_cost(self):
         """Trả về một từ điển các cạnh với chi phí."""
         return {(int(edge[1]), int(edge[2])): int(edge[5])
                 for edge in self.space_edges if edge[3] == '0' and int(edge[4]) >= 1}
+    
+    def remove_edge_by_id(self, u, v):
+        """Xóa cạnh từ ts_edges dựa trên id hai đầu mút."""
+        self.ts_edges = [e for e in self.ts_edges
+            if not (getattr(e, 'start_node', None) and getattr(e, 'end_node', None) and e.start_node.id == u and e.end_node.id == v)
+        ]   
+        return True
 
     def create_restricted_edges(self, restriction, edges_with_cost, maxid):
         """Tạo các cạnh bị cấm dựa trên hạn chế và chi phí."""
@@ -489,6 +530,35 @@ class GraphProcessor(KickOffGenerator):
 
         self.update_edges_after_restrictions(R)
         return R
+    
+    def remove_artificial_nodes_and_edges(self):
+        """Xóa toàn bộ node/cung ảo và reset trạng thái pipeline, restriction_controller."""
+        artificial_types = {"ArtificialNode", "RestrictionNode"}
+        artificial_edge_types = {"ArtificialEdge", "RestrictionEdge"}
+
+        def not_artificial(obj, types):
+            return getattr(obj, "__class__", type("")).__name__ not in types
+
+        self.ts_nodes = [n for n in self.ts_nodes if not_artificial(n, artificial_types)]
+        self.ts_edges = [e for e in self.ts_edges if not_artificial(e, artificial_edge_types)]
+
+        if getattr(self, 'graph', None):
+            self.graph.nodes = {k: v for k, v in self.graph.nodes.items() if not_artificial(v, artificial_types)}
+            for k in self.graph.adjacency_list:
+                self.graph.adjacency_list[k] = [(end_id, edge) for end_id, edge in self.graph.adjacency_list[k] if not_artificial(edge, artificial_edge_types)
+                ]
+        # Reset pipeline state
+        pipeline = getattr(self, "pipeline", None)
+        if pipeline:
+            for attr in ("omega_edges", "omega_nodes", "omega_in", "omega_out", "in_caps", "out_caps"):
+                val = type(getattr(pipeline, attr, []))()
+                setattr(pipeline, attr, val)
+            pipeline.max_flow_value = 0
+
+        # Reset restriction_controller state
+        rc = getattr(self, "restriction_controller", None)
+        if rc and hasattr(rc, "restriction_edges"):
+            rc.restriction_edges.clear()
 
     def use_in_main(self, use_config_data = False):
         self.ask_for_print_out(use_config_data)
