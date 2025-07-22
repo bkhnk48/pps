@@ -137,7 +137,7 @@ class WaitingAndMovingEdgesGenerator (TimeWindowGenerator):
 
         with open(filename, 'w') as f:
             f.write(f"p min {M} {num_edges}\n")
-            starts = getattr(self, 'started_nodes', self.getAllNewStartedNodes())
+            starts = self.started_nodes#getattr(self, 'started_nodes', self.graph.getAllNewStartedNodes())
             self._write_node_lines(f, starts, targets, supply, vs_id, vt_id)
 
             if hasattr(self, 'ts_edges'):
@@ -167,4 +167,4 @@ class WaitingAndMovingEdgesGenerator (TimeWindowGenerator):
             f.write(f"n {s} {supply if supply and vs_id == s else 1}\n")
         for t in targets:
             f.write(f"n {t.id} {-supply if supply and vt_id == t.id else -1}\n")
-    
+
