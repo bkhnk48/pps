@@ -8,6 +8,7 @@ from controller.NodeGenerator import TimeWindowNode
 from controller.NodeGenerator import NodeGenerator
 from controller.RestrictionController import RestrictionController
 from controller.restriction_time_frame_controller import RestrictionForTimeFrameController
+from controller.restriction_integrator_tqm import RestrictionIntegratorTQM
 from controller.time_window_generator import TimeWindowGenerator
 from controller.kick_off_generator import KickOffGenerator
 from controller.time_determinator import TimeDeterminator
@@ -27,7 +28,7 @@ class GraphProcessor(KickOffGenerator):
         self._adj = []  # Adjacency matrix
         #self._tsedges = []
         self._restriction_controller = None
-        self._restriction_for_timeframe_controller = None
+        #self._restriction_for_timeframe_controller = None
         self._start_ban = -1
         self._end_ban = -1
         self._time_determinator = TimeDeterminator(self)
@@ -36,13 +37,13 @@ class GraphProcessor(KickOffGenerator):
 #===============================================================================
 
     # Getter và Setter cho restriction_for_timeframe_controller
-    @property
-    def restriction_for_timeframe_controller(self):
-        return self._restriction_for_timeframe_controller
+    #@property
+    #def restriction_for_timeframe_controller(self):
+    #    return self._restriction_for_timeframe_controller
     
-    @restriction_for_timeframe_controller.setter
-    def restriction_for_timeframe_controller(self, value):
-        self._restriction_for_timeframe_controller = value
+    #@restriction_for_timeframe_controller.setter
+    #def restriction_for_timeframe_controller(self, value):
+    #    self._restriction_for_timeframe_controller = value
         
     # Getter and Setter for adj
     @property
@@ -489,11 +490,14 @@ class GraphProcessor(KickOffGenerator):
     def process_restrictions(self, use_config_data = False):
         """Xử lý các hạn chế trong đồ thị."""
         #pdb.set_trace()
-        if self.restriction_for_timeframe_controller is None:
-            self.restriction_for_timeframe_controller = RestrictionForTimeFrameController(self)
+        #if self.restriction_for_timeframe_controller is None:
+        #    self.restriction_for_timeframe_controller = RestrictionForTimeFrameController(self)
             #self.restriction_for_timeframe_controller.apply_restriction(use_config_data)
-            
+        if self.restriction_controller is None:
+            self.restriction_controller = RestrictionIntegratorTQM(self)
+    
         self.insert_halting_edges()
+        F = self.restriction_controller.compute_max_flow(use_config_data)
         self.restriction_controller.insert_artificial_objects(F, use_config_data=use_config_data)
         
         # Ghi file TSG.txt
