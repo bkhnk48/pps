@@ -7,7 +7,7 @@ from controller.NodeGenerator import RestrictionNode
 from controller.NodeGenerator import TimeWindowNode
 from controller.NodeGenerator import NodeGenerator
 from controller.RestrictionController import RestrictionController
-from controller.restriction_time_frame_controller import RestrictionForTimeFrameController
+#from controller.restriction_time_frame_controller import RestrictionForTimeFrameController
 from controller.restriction_integrator_tqm import RestrictionIntegratorTQM
 from controller.time_window_generator import TimeWindowGenerator
 from controller.kick_off_generator import KickOffGenerator
