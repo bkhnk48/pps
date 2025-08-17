@@ -1,8 +1,9 @@
 from model.BenchmarkNode import BenchmarkNode
 from model.BenchmarkEdge import BenchmarkEdge
+import os
 
 class BenchmarkGraph:
-    def __init__(self, height=-1, width=-1, is_octile=False):
+    def __init__(self, height=-1, width=-1, is_octile=False, file_map=None):
         self.height = height
         self.width = width
         self.is_octile = is_octile
@@ -12,7 +13,11 @@ class BenchmarkGraph:
         self.found_map = 0
         self.prev_line = ""
         self.curr_line = ""
-        self.file_map = ""
+        # Default map file path
+        if file_map is None:
+            self.file_map = os.path.join("data", "Benchmark", "simplest.map")
+        else:
+            self.file_map = file_map
         self.V = {}  # node.id -> BenchmarkNode
         self.E = {}  # edge_key -> BenchmarkEdge
 
@@ -80,9 +85,7 @@ class BenchmarkGraph:
         elif self.curr_line[j] not in disallowed_chars:
             print(f"Warning: Character '{self.curr_line[j]}' is invalid. By default, this cell is considered non-walkable.")
 
-    def generate_space_graph(self, file_path):
-        # Reset trạng thái trước khi đọc file mới
-        self.file_map = file_path
+    def reset_state(self):
         self.found_type = 0
         self.found_height = 0
         self.found_width = 0
@@ -91,6 +94,15 @@ class BenchmarkGraph:
         self.curr_line = ""
         self.V = {}
         self.E = {}
+
+    def generate_space_graph(self, file_path=None):
+        # Reset
+        self.reset_state()
+        if file_path is None:
+            file_path = self.file_map
+        if not os.path.exists(file_path):
+            file_path = os.path.join("data", "Benchmark", "simplest.map")
+        self.file_map = file_path
         i = 0
         with open(file_path, "r", encoding="utf-8") as file:
             for line in file:
