@@ -276,7 +276,7 @@ class ReadingInputProcessor(StartNodeGenerator):
         current_id = 1
         for r in range(len(map_grid)):
             for c in range(len(map_grid[0])):
-                if map_grid[r][c] in ['.', '*']:
+                if map_grid[r][c] in ['.', 'S']:
                     node_id[(r, c)] = current_id
                     current_id += 1
         return node_id            
