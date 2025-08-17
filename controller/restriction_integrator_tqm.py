@@ -44,7 +44,7 @@ class RestrictionIntegratorTQM(RestrictionController):
         if gamma is None:
             gamma = self.get_artificial_gamma(use_config_data)
         #print(f"✅ Max Flow F = {F}, U = {U}")
-        import controller.ArtificialNodeInserter
+        from controller.artificial_node_inserter import ArtificialNodeInserter
         if F > U and F != 0:
             if self.graph_processor.graph is None:
                 self.graph_processor.graph = Graph(self.graph_processor)
