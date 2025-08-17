@@ -16,7 +16,7 @@ totalCost = 0
 functions_file = "functions.txt"
 totalSolving = 0
 timeSolving = 0
-level_of_simulation = 0 #0 - "Fully Random", 1 - "Random in the list", 2 - "SFM"
+level_of_simulation = -1 #-1 - "BIMODAL", 0 - GAUSSIAN, 1 - "Random in the list", 2 - "SFM"
 test_automation = 0
 draw = 0
 M = 0
@@ -25,8 +25,8 @@ numOfRestrictedRegions = 0
 max_flow_conditions = None
 artificial_upper_bound = None
 artificial_gamma = None
-BIMODAL = 0.67
-GAUSSIAN = 0.33
+BIMODAL = -1
+GAUSSIAN = 0
 
 class bcolors:
     HEADER = '\033[95m'
