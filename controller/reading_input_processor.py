@@ -124,28 +124,32 @@ class ReadingInputProcessor(StartNodeGenerator):
     def choose_time_measurement(self):
         if(config.count == 1 and config.test_automation == 0):
             print("Choose level of Time Measurement:")
-            print("0 - Fully Random")
+            print("0 - Fully Random - (B) Bimodal or (G) Gaussian Distribution")
             print("1 - Random in a list")
             print("2 - SFM")
-            choice = input("Enter your choice (0 to 2): ")
-            if choice == '0':
-                config.level_of_simulation = 0
+            choice = input("Enter your choice (0/B/b/G/g, or 1 or 2): ")
+            if choice == '0' or choice.lower() == 'b':
+                print("We will use Bimodal Distribution (B)")
+                config.level_of_simulation = config.BIMODAL
             elif choice == '1':
                 config.level_of_simulation = 1
             elif choice == '2':
                 config.level_of_simulation = 2
+            elif choice.lower() == 'g':
+                print("We will use Gaussian Distribution (G)")
+                config.level_of_simulation = config.GAUSSIAN
             else:
                 print("Invalid choice. Defaulting to run SFM.")
                 config.level_of_simulation = 2
         else:
             if(config.count <= 2):
-                config.level_of_simulation = 0
+                config.level_of_simulation = config.BIMODAL if \
+                            config.level_of_simulation == config.GAUSSIAN else config.GAUSSIAN
             elif(config.count <= 4):
                 config.level_of_simulation = 1
             elif(config.count <= 6):
                 config.level_of_simulation = 2
-        if(config.level_of_simulation == 1):
-            #random in the list
+        if(config.level_of_simulation == 1):#random in the list
             self.read_xls()
 
     def choose_test_automation(self):
