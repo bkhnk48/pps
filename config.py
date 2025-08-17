@@ -25,6 +25,8 @@ numOfRestrictedRegions = 0
 max_flow_conditions = None
 artificial_upper_bound = None
 artificial_gamma = None
+BIMODAL = 0.67
+GAUSSIAN = 0.33
 
 class bcolors:
     HEADER = '\033[95m'
