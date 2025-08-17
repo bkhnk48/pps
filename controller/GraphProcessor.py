@@ -568,7 +568,9 @@ class GraphProcessor(KickOffGenerator):
         self.ask_for_print_out(use_config_data)
         self.ask_spatial_map(use_config_data)
         self.started_nodes = [] #[1, 10]
+        pdb.set_trace()
 
+        #self.read_map_file(config.filepath)
         self.process_input_file(config.filepath)
         self.ask_horizontal_time(use_config_data)
         self.ask_for_draw(use_config_data)
