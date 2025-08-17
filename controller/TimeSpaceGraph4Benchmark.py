@@ -1,6 +1,8 @@
 from model.BenchmarkNode import BenchmarkNode, TopBulbNode, BottomBulbNode, BottleneckNode
 from model.BenchmarkEdge import BenchmarkEdge, InflowEdge, NeckEdge, OutflowEdge, WaitingEdge
 
+NUM_IDS_PER_GROUP = 6  # Number of IDs required for each node/edge group
+
 class TimeSpaceGraph4Benchmark:
     def __init__(self, time_horizon, time_step=1):
         self.H = time_horizon
@@ -9,7 +11,7 @@ class TimeSpaceGraph4Benchmark:
         self.V = {}  # node.id -> Node subclass
         self.E = {}  # edge_key -> Edge subclass
 
-    # Cantor pairing (directed) for edge key
+    # Cantor pairing for directed edge key
     def get_edge_key(self, a, b):
         s = a + b
         return int(s * (s + 1) / 2 + b)
@@ -35,41 +37,46 @@ class TimeSpaceGraph4Benchmark:
             return ts_id // self.M - 1
         return ts_id // self.M
 
-    def add_nodes_and_edges(self, list_ids, lower=0, upper=1, weight=1, d=1):
-        if len(list_ids) != 6:
-            raise ValueError("Invalid length of list")
-        list_ids = sorted(list_ids)
-        a1, a2, a3, a4 = list_ids[0], list_ids[1], list_ids[2], list_ids[3]
-        t1, t2, t3, t4 = self.get_time(a1), self.get_time(a2), self.get_time(a3), self.get_time(a4)
-        b1, b2, b3, b4 = self.get_space_id(a1), self.get_space_id(a2), self.get_space_id(a3), self.get_space_id(a4)
-        v1, v2 = list_ids[4], list_ids[5]
-
+    def validate_ids(self, a1, a2, a3, a4, v1, v2, t1, t2, t3, t4, b1, b2, b3, b4):
         if (v1 <= self.M * self.H) or (v2 <= self.M * self.H) or (v2 - v1) != 1:
-            raise ValueError("Invalid BottleneckNode ID.")
-        if (t1 != t2) or (t3 != t4) or (t1 == t3) or (t2 == t4) or (t1 == t2 and t2 == t3 and t3 == t4):
-            raise ValueError("Invalid Time of Node")
+            return "Invalid BottleneckNode ID."
+        if (t1 != t2) or (t3 != t4) or (t1 == t3) or (t2 == t4) or (t1 == t2 == t3 == t4):
+            return "Invalid Time of Node"
         if ((b1 != b3) and (b1 != b4)) or ((b1 == b3) and (b1 == b4)) or ((b2 != b3) and (b2 != b4)) or \
            ((b2 == b3) and (b2 == b4)) or (b3 == b4) or (b1 == b2):
-            raise ValueError("Invalid Space ID")
+            return "Invalid Space ID"
+        return None
 
-        self.add_node(TopBulbNode(a1))
-        self.add_node(TopBulbNode(a2))
-        self.add_node(BottomBulbNode(a3))
-        self.add_node(BottomBulbNode(a4))
-        self.add_node(BottleneckNode(v1))
-        self.add_node(BottleneckNode(v2))
+    def create_nodes(self, a1, a2, a3, a4, v1, v2):
+        nodes = [
+            TopBulbNode(a1), TopBulbNode(a2),
+            BottomBulbNode(a3), BottomBulbNode(a4),
+            BottleneckNode(v1), BottleneckNode(v2)
+        ]
+        for node in nodes:
+            self.add_node(node)
 
+    def create_edges(self, a1, a2, a3, a4, v1, v2, b2, b4, lower, upper, weight, d):
         self.add_edge(InflowEdge(self.V[a1], self.V[v1], lower, upper, 0))
         self.add_edge(InflowEdge(self.V[a2], self.V[v1], lower, upper, 0))
         self.add_edge(NeckEdge(self.V[v1], self.V[v2], lower, upper, weight))
         self.add_edge(OutflowEdge(self.V[v2], self.V[a3], lower, upper, 0))
         self.add_edge(OutflowEdge(self.V[v2], self.V[a4], lower, upper, 0))
-        if b2 == b4:
-            self.add_edge(WaitingEdge(self.V[a2], self.V[a4], lower, upper, d))
-            self.add_edge(WaitingEdge(self.V[a1], self.V[a3], lower, upper, d))
-        else:
-            self.add_edge(WaitingEdge(self.V[a2], self.V[a3], lower, upper, d))
-            self.add_edge(WaitingEdge(self.V[a1], self.V[a4], lower, upper, d))
+        pairs = [(a2, a4), (a1, a3)] if b2 == b4 else [(a2, a3), (a1, a4)]
+        for u, v in pairs:
+            self.add_edge(WaitingEdge(self.V[u], self.V[v], lower, upper, d))
+
+    def add_nodes_and_edges(self, list_ids, lower=0, upper=1, weight=1, d=1):
+        if len(list_ids) != NUM_IDS_PER_GROUP:
+            raise ValueError(f"Invalid length of list, expected {NUM_IDS_PER_GROUP}")
+        a1, a2, a3, a4, v1, v2 = sorted(list_ids)
+        t1, t2, t3, t4 = map(self.get_time, [a1, a2, a3, a4])
+        b1, b2, b3, b4 = map(self.get_space_id, [a1, a2, a3, a4])
+        err = self.validate_ids(a1, a2, a3, a4, v1, v2, t1, t2, t3, t4, b1, b2, b3, b4)
+        if err:
+            raise ValueError(err)
+        self.create_nodes(a1, a2, a3, a4, v1, v2)
+        self.create_edges(a1, a2, a3, a4, v1, v2, b2, b4, lower, upper, weight, d)
 
     def build_tsg_4_benchmark(self, benchmark_graph):
         benchmark_graph.generate_space_graph(benchmark_graph.file_map)
