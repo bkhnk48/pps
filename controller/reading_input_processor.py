@@ -127,15 +127,15 @@ class ReadingInputProcessor(StartNodeGenerator):
             print("0 - Fully Random - (B) Bimodal or (G) Gaussian Distribution")
             print("1 - Random in a list")
             print("2 - SFM")
-            choice = input("Enter your choice (0/B/b/G/g, or 1 or 2): ")
-            if choice == '0' or choice.lower() == 'b':
+            choice = input("Enter your choice (-1/B/b, or 0/G/g, or 1 or 2): ")
+            if choice == '-1' or choice.lower() == 'b':
                 print("We will use Bimodal Distribution (B)")
                 config.level_of_simulation = config.BIMODAL
             elif choice == '1':
                 config.level_of_simulation = 1
             elif choice == '2':
                 config.level_of_simulation = 2
-            elif choice.lower() == 'g':
+            elif choice.lower() == 'g' or choice == '0':
                 print("We will use Gaussian Distribution (G)")
                 config.level_of_simulation = config.GAUSSIAN
             else:
