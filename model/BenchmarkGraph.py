@@ -22,22 +22,26 @@ class BenchmarkGraph:
         self.E = {}  # edge_key -> BenchmarkEdge
 
     def get_edge_key(self, a, b):
+        # Cantor pairing for undirected edge key
         u, v = min(a, b), max(a, b)
         s = u + v
         return int(s * (s + 1) / 2 + v)
 
     def add_node(self, node):
+        # Add node to graph
         if not isinstance(node, BenchmarkNode):
             raise ValueError("node must be BenchmarkNode")
         self.V[node.id] = node
 
     def add_edge(self, edge):
+        # Add edge to graph
         if not isinstance(edge, BenchmarkEdge):
             raise ValueError("edge must be BenchmarkEdge")
         key = self.get_edge_key(edge.start_node.id, edge.end_node.id)
         self.E[key] = edge
 
     def _check_valid(self, line):
+        # Check and parse map file header
         if line.startswith("type"):
             self.found_type += 1
             if self.found_type > 1:
@@ -68,6 +72,7 @@ class BenchmarkGraph:
         return False
 
     def connect(self, i, j, allowed_chars={'.', 'S'}, disallowed_chars={'T', 'W', '@'}):
+        # Connect node to neighbors if allowed
         id = j + self.width * i
         if j > 0 and self.curr_line[j-1] in allowed_chars:
             left_id = (j-1) + self.width * i
@@ -86,6 +91,7 @@ class BenchmarkGraph:
             print(f"Warning: Character '{self.curr_line[j]}' is invalid. By default, this cell is considered non-walkable.")
 
     def reset_state(self):
+        # Reset graph state before reading new map
         self.found_type = 0
         self.found_height = 0
         self.found_width = 0
@@ -95,13 +101,18 @@ class BenchmarkGraph:
         self.V = {}
         self.E = {}
 
-    def generate_space_graph(self, file_path=None):
-        # Reset
-        self.reset_state()
+    def _get_valid_map_path(self, file_path):
+        # Get valid map file path, fallback to default if not found
         if file_path is None:
             file_path = self.file_map
         if not os.path.exists(file_path):
             file_path = os.path.join("data", "Benchmark", "simplest.map")
+        return file_path
+
+    def generate_space_graph(self, file_path=None):
+        # Generate graph from map file
+        self.reset_state()
+        file_path = self._get_valid_map_path(file_path)
         self.file_map = file_path
         i = 0
         with open(file_path, "r", encoding="utf-8") as file:
@@ -123,6 +134,7 @@ class BenchmarkGraph:
             raise ValueError("Missing height or width")
 
     def export_space_graph_dimacs_file(self, space_graph_file_path="./BenchmarkGraph.txt"):
+        # Export graph to DIMACS format
         edges_list = list(self.E.values())
         edges_list.sort(key=lambda e: (e.start_node.id, e.end_node.id))
         with open(space_graph_file_path, "w", encoding="utf-8") as f:
