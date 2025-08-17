@@ -9,11 +9,13 @@ from openpyxl import load_workbook
 import math
 import numpy as np
 import pdb
+import re
 from controller.start_node_generator import StartNodeGenerator
     
 #Sẽ được lớp TsgFileEditor kế thừa
 class ReadingInputProcessor(StartNodeGenerator):
     def __init__(self, _dm):
+        
         super().__init__()
         self.logger = Logger()
         self._print_out = True
@@ -28,6 +30,7 @@ class ReadingInputProcessor(StartNodeGenerator):
         self._draw = 0
         self._d = 0
         self._num_max_agvs = 0
+        self._restriction_for_timeframe_controller = None
 
     # Getter và Setter cho print_out
     @property
@@ -245,7 +248,86 @@ class ReadingInputProcessor(StartNodeGenerator):
             self.tardiness = [] if isinstance(self.tardiness, int) else self.tardiness
             self.earliness.append(int(parts[3]))
             self.tardiness.append(int(parts[4]))
-            
+
+    def parse_map_file(self, map_lines):
+        movement_type = None
+        height = width = None
+        map_grid = []
+        parsing_map = False
+
+        for line in map_lines:
+            line = line.strip()
+            if line.startswith("type"):
+                movement_type = line.split()[1].lower()
+            elif line.startswith("height"):
+                height = int(line.split()[1])
+            elif line.startswith("width"):
+                width = int(line.split()[1])
+            elif line == "map":
+                parsing_map = True
+            elif parsing_map:
+                map_grid.append(line)
+
+        return movement_type, height, width, map_grid
+    
+    def build_node_ids(self, map_grid):
+        """Gán ID cho các ô có thể đi được."""
+        node_id = {}
+        current_id = 1
+        for r in range(len(map_grid)):
+            for c in range(len(map_grid[0])):
+                if map_grid[r][c] in ['.', '*']:
+                    node_id[(r, c)] = current_id
+                    current_id += 1
+        return node_id            
+    def generate_dimacs_edges(self, map_grid, movement_type, unit_length=1):
+        rows = len(map_grid)
+        cols = len(map_grid[0])
+        node_id = self.build_node_ids(map_grid)
+
+        # Hướng đi
+        directions_4 = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        directions_8 = directions_4 + [(-1, -1), (-1, 1), (1, -1), (1, 1)]
+        directions = directions_8 if movement_type == "octile" else directions_4
+
+        # Chi phí cạnh
+        straight_cost = unit_length
+        diagonal_cost = math.ceil(unit_length * math.sqrt(2))
+
+        edges = []
+        for (r, c), nid in node_id.items():
+            for dr, dc in directions:
+                nr, nc = r + dr, c + dc
+                if (nr, nc) in node_id:
+                    from_id = nid
+                    to_id = node_id[(nr, nc)]
+                    if from_id < to_id:
+                        cost = diagonal_cost if abs(dr) == 1 and abs(dc) == 1 else straight_cost
+                        edges.append((from_id, to_id, 0, 1, cost))
+        return edges
+
+    
+    def extract_unit_length(self, filename):
+        match = re.search(r'_unit_(\d+)', filename)
+        return int(match.group(1)) if match else 1  # ← unit mặc định là 1
+
+    
+    def read_map_file(self, filepath):
+        with open(filepath, 'r') as f:
+            map_lines = f.readlines()
+
+        unit_length = self.extract_unit_length(filename)
+        movement_type, _, _, map_grid = self.parse_map_file(map_lines)
+        edges = self.generate_dimacs_edges(map_grid, movement_type, unit_length)
+        self.space_edges = []
+        self.M = 0
+        for edge in edges:
+            id1, id2 = int(edges[0]), int(edges[1])
+            parts = [f"a {id1} {id2} {edge[2]} {edge[3]} {edge[4]}"]
+            if len(edge) >= 5:
+                self.space_edges.append(parts)
+            self.M = max(self.M, id1, id2)
+    
     def process_input_file(self, filepath):
         self.space_edges = []
         try:
