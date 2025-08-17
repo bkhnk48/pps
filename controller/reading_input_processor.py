@@ -316,7 +316,7 @@ class ReadingInputProcessor(StartNodeGenerator):
         with open(filepath, 'r') as f:
             map_lines = f.readlines()
 
-        unit_length = self.extract_unit_length(filename)
+        unit_length = self.extract_unit_length(filepath)
         movement_type, _, _, map_grid = self.parse_map_file(map_lines)
         edges = self.generate_dimacs_edges(map_grid, movement_type, unit_length)
         self.space_edges = []
