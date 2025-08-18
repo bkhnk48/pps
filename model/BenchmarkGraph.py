@@ -3,7 +3,7 @@ from model.BenchmarkEdge import BenchmarkEdge
 import os
 
 class BenchmarkGraph:
-    def __init__(self, height=-1, width=-1, is_octile=False, file_map=None):
+    def __init__(self, height=-1, width=-1, is_octile=False, file_map=None, space_edges=None):
         self.height = height
         self.width = width
         self.is_octile = is_octile
@@ -13,6 +13,7 @@ class BenchmarkGraph:
         self.found_map = 0
         self.prev_line = ""
         self.curr_line = ""
+        self.space_edges = space_edges
         # Default map file path
         if file_map is None:
             self.file_map = os.path.join("data", "Benchmark", "simplest.map")
@@ -155,4 +156,19 @@ class BenchmarkGraph:
                 if upper < lower:
                     raise ValueError(f"upper < lower for edge {u}→{v}")
                 line = f"a {u} {v} {lower} {upper} {weight}\n"
+                f.write(line)
+
+    def export_space_graph_dimacs_file_from_space_edges(self, space_graph_file_path=None):
+        # Export graph to DIMACS format in data/Benchmark with proper file name, using self.space_edges
+        file_map_name = os.path.splitext(os.path.basename(getattr(self, "file_map", "simplest.map")))[0]
+        filename = f"SpaceGraph_4_{file_map_name}.txt"
+        export_dir = os.path.join("data", "Benchmark")
+        os.makedirs(export_dir, exist_ok=True)
+        full_path = os.path.join(export_dir, filename) if space_graph_file_path is None else space_graph_file_path
+
+        with open(full_path, "w", encoding="utf-8") as f:
+            for edge_parts in self.space_edges:
+                line = " ".join(str(x) for x in edge_parts) + "\n"
+                if len(line) < 6:
+                    continue
                 f.write(line)
