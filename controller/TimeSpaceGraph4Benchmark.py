@@ -1,5 +1,6 @@
 from model.BenchmarkNode import BenchmarkNode, TopBulbNode, BottomBulbNode, BottleneckNode
 from model.BenchmarkEdge import BenchmarkEdge, InflowEdge, NeckEdge, OutflowEdge, WaitingEdge
+import os
 
 NUM_IDS_PER_GROUP = 6  # Number of IDs required for each node/edge group
 
@@ -100,10 +101,20 @@ class TimeSpaceGraph4Benchmark:
                 max_id += 2
                 self.add_nodes_and_edges([a1, a2, a3, a4, v1, v2], lower, upper, weight, self.d)
 
-    def export_tsg_dimacs_file(self, tsg_file_path="./TSG_4_Benchmark.txt"):
+    def export_tsg_dimacs_file(self, tsg_file_path=None, space_graph=False):
+        # Determine file name based on file_map and type
+        file_map_name = os.path.splitext(os.path.basename(getattr(self, "file_map", "simplest.map")))[0]
+        if space_graph:
+            filename = f"SpaceGraph_4_{file_map_name}.txt"
+        else:
+            filename = f"TSG_4_{file_map_name}.txt"
+        export_dir = os.path.join("data", "Benchmark")
+        os.makedirs(export_dir, exist_ok=True)
+        full_path = os.path.join(export_dir, filename) if tsg_file_path is None else tsg_file_path
+
         edges_list = list(self.E.values())
         edges_list.sort(key=lambda e: (e.start_node.id, e.end_node.id))
-        with open(tsg_file_path, "w", encoding="utf-8") as f:
+        with open(full_path, "w", encoding="utf-8") as f:
             for edge in edges_list:
                 u = edge.start_node.id
                 v = edge.end_node.id
