@@ -133,11 +133,17 @@ class BenchmarkGraph:
         if self.height == -1 or self.width == -1:
             raise ValueError("Missing height or width")
 
-    def export_space_graph_dimacs_file(self, space_graph_file_path="./BenchmarkGraph.txt"):
-        # Export graph to DIMACS format
+    def export_space_graph_dimacs_file(self, space_graph_file_path=None):
+        # Export graph to DIMACS format in data/Benchmark with proper file name
+        file_map_name = os.path.splitext(os.path.basename(getattr(self, "file_map", "simplest.map")))[0]
+        filename = f"SpaceGraph_4_{file_map_name}.txt"
+        export_dir = os.path.join("data", "Benchmark")
+        os.makedirs(export_dir, exist_ok=True)
+        full_path = os.path.join(export_dir, filename) if space_graph_file_path is None else space_graph_file_path
+
         edges_list = list(self.E.values())
         edges_list.sort(key=lambda e: (e.start_node.id, e.end_node.id))
-        with open(space_graph_file_path, "w", encoding="utf-8") as f:
+        with open(full_path, "w", encoding="utf-8") as f:
             for edge in edges_list:
                 u = edge.start_node.id
                 v = edge.end_node.id
