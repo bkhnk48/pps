@@ -326,7 +326,7 @@ class ReadingInputProcessor(StartNodeGenerator):
         self.space_edges = []
         self.M = 0
         for edge in edges:
-            id1, id2 = int(edge[0]), int(edge[1])
+            id1, id2 = int(edges[0]), int(edges[1])
             parts = [f"a {id1} {id2} {edge[2]} {edge[3]} {edge[4]}"]
             if len(edge) >= 5:
                 self.space_edges.append(parts)
