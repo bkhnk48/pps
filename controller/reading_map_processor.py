@@ -120,7 +120,7 @@ class ReadingMapProcessor(ReadingInputProcessor):
         unit_length = self.extract_unit_length(filepath)
         edges = self.generate_dimacs_edges(map_grid, movement_type, unit_length)
         node_id = self.build_node_ids(map_grid)
-        self.M = len(node_id)
+        self.M = height * width
         self.space_edges = [
             ['a', str(e[0]), str(e[1]), str(e[2]), str(e[3]), str(e[4])] for e in edges
         ]
