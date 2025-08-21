@@ -172,24 +172,3 @@ class BenchmarkGraph:
                 if len(line) < 6:
                     continue
                 f.write(line)
-
-    @staticmethod
-    def patch_reading_input_processor():
-        from controller.reading_input_processor import ReadingInputProcessor
-
-        def patched_read_map_file(self, filepath):
-            with open(filepath, 'r') as f:
-                map_lines = f.readlines()
-            unit_length = self.extract_unit_length(filepath)
-            movement_type, _, _, map_grid = self.parse_map_file(map_lines)
-            edges = self.generate_dimacs_edges(map_grid, movement_type, unit_length)
-            self.space_edges = []
-            self.M = 0
-            for edge in edges:
-                id1, id2 = int(edge[0]), int(edge[1])
-                parts = [f"a {id1} {id2} {edge[2]} {edge[3]} {edge[4]}"]
-                if len(edge) >= 5:
-                    self.space_edges.append(parts)
-                self.M = max(self.M, id1, id2)
-
-        ReadingInputProcessor.read_map_file = patched_read_map_file
