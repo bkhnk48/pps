@@ -92,9 +92,14 @@ while(config.count < 2*3):#*12 and config.numOfAGVs <= 10):
         config.timeSolving = config.timeSolving / config.totalSolving
         now = datetime.now()
         formatted_now = now.strftime("%Y-%m-%d %H:%M:%S")
+        name_of_level_simulation = "BIMODAL" if config.level_of_simulation == config.BIMODAL \
+                                    else "GAUSSIAN" if config.level_of_simulation == config.GAUSSIAN \
+                                        else "Random in the list" if config.level_of_simulation == 1 else "SFM"
         #runTime = f'{:02}:{:02}:{:02}'.format(int(hours), int(minutes), int(seconds)
         print("Thời gian chạy: {:02}:{:02}:{:02} để giả lập việc di chuyển của {} AGVs".format(int(hours), int(minutes), int(seconds), config.num_max_agvs))
+        #system_info = f"System: {platform.system()} {platform.release()} {platform.version()} {platform.machine()} {platform.processor()}"
+        desc, info = config.describe_system()
         graph_processor.logger.log("Log.csv", config.filepath, config.numOfAGVs, config.H, \
             config.d, config.solver_choice, config.reachingTargetAGVs, config.haltingAGVs, \
-                config.totalCost, elapsed_time, config.timeSolving, config.level_of_simulation, formatted_now)
+                config.totalCost, elapsed_time, config.timeSolving, name_of_level_simulation, formatted_now, desc)
         reset(simulator)

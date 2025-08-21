@@ -1,6 +1,7 @@
 import os
 import re
 import json
+from model.utility import utility
 from controller.NodeGenerator import TimeoutNode
 from controller.NodeGenerator import ArtificialNode
 from controller.NodeGenerator import RestrictionNode
@@ -126,7 +127,7 @@ class GraphProcessor(KickOffGenerator):
         direction, hallway_id = self._get_hallway_direction(hallways_list, start_id, next_id)
         
         if hallway_id is None:
-            print(f"{bcolors.WARNING}Hallway not found!{bcolors.ENDC}")
+            print(f"{config.bcolors.WARNING}Hallway not found!{config.bcolors.ENDC}")
             return -1
 
         events_list = self._create_event_list(agv_id, direction, current_time, hallway_id)
@@ -164,7 +165,7 @@ class GraphProcessor(KickOffGenerator):
         bulk_sim = BulkHallwaySimulator("test", 3600, hallways_list, functions_list, events_list)
         result = bulk_sim.run_simulation()
         completion_time = result[agv_id][hallway_id]["completion_time"]
-        print(f"{bcolors.OKGREEN}AGV {agv_id} has runtime {completion_time} in hallway {hallway_id}.{bcolors.ENDC}")
+        print(f"{config.bcolors.OKGREEN}AGV {agv_id} has runtime {completion_time} in hallway {hallway_id}.{config.bcolors.ENDC}")
         return completion_time
     
     def update(self,currentpos,nextpos,realtime):
