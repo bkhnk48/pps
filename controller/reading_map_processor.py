@@ -75,41 +75,39 @@ class ReadingMapProcessor(ReadingInputProcessor):
         in_map = False
         with open(filepath, 'r', encoding='utf-8', errors='replace') as f:
             for raw in f:
-                line = raw.rstrip('\n')
-                s = line.strip()
+                s = raw.strip()
                 if not s:
                     continue
                 if not in_map:
                     if ALLOWED_ROW_RE.match(s):
                         return self._map_error("Map row encountered before 'map' line")
-                    if s.startswith('type'):
-                        parts = s.split()
-                        if len(parts) < 2:
-                            return self._map_error("Malformed type line")
-                        movement_type = parts[1].lower()
-                    elif s.startswith('height'):
-                        height = int(s.split()[1])
-                    elif s.startswith('width'):
-                        width = int(s.split()[1])
+                    key, *rest = s.split(None, 1)
+                    kl = key.lower()
+                    if kl == 'type':
+                        if not rest: return self._map_error("Malformed type line")
+                        movement_type = rest[0].lower()
+                    elif kl == 'height':
+                        try: height = int(rest[0])
+                        except: return self._map_error("Malformed height line")
+                    elif kl == 'width':
+                        try: width = int(rest[0])
+                        except: return self._map_error("Malformed width line")
                     elif s == 'map':
-                        if height is None or width is None or movement_type is None:
+                        if None in (movement_type, height, width):
                             return self._map_error("Header incomplete before 'map'")
                         in_map = True
                 else:
                     if len(map_grid) >= height:
                         return self._map_error("More map rows than specified height")
                     if len(s) != width:
-                        return self._map_error(
-                            f"Map row {len(map_grid)+1} has length {len(s)} != width ({width})")
-                    sanitized = self._sanitize_row(s, len(map_grid))
-                    map_grid.append(sanitized)
-        if movement_type is None or height is None or width is None:
+                        return self._map_error(f"Map row {len(map_grid)+1} has length {len(s)} != width ({width})")
+                    map_grid.append(self._sanitize_row(s, len(map_grid)))
+        if None in (movement_type, height, width):
             return self._map_error("Missing required header lines")
         if not map_grid:
             return self._map_error("No map rows after 'map' line")
         if len(map_grid) != height:
-            return self._map_error(
-                f"Map line count ({len(map_grid)}) does not match height ({height})")
+            return self._map_error(f"Map line count ({len(map_grid)}) does not match height ({height})")
         return self._validate_parsed_map(movement_type, height, width, map_grid)
 
     def read_map_file(self, filepath, parsed=None):
