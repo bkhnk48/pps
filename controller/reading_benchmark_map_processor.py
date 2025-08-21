@@ -5,7 +5,7 @@ import config
 ALLOWED_MAP_CHARS = set(".@OTSGW")
 ALLOWED_ROW_RE = re.compile(r'^[.@OTSGW]+$')
 
-class ReadingMapProcessor(ReadingInputProcessor):
+class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
     def _read_lines(self, filepath):
         with open(filepath, "r", encoding="utf-8", errors="replace") as f:
             return [line.rstrip("\n") for line in f]

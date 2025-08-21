@@ -1,9 +1,9 @@
-from controller.reading_map_processor import ReadingMapProcessor
+from controller.reading_benchmark_map_processor import ReadingBenchmarkMapProcessor
 from model.Node import Node
 from controller.NodeGenerator import TimeoutNode
 
 #Sẽ được lớp TimeWindowGenerator kế thừa
-class TsgFileEditor(ReadingMapProcessor):
+class TsgFileEditor(ReadingBenchmarkMapProcessor):
     def __init__(self, dm):
         super().__init__(dm) 
         self._target_nodes = []
