@@ -28,3 +28,27 @@ No,Map,Total AGVs,Horizontal Time,Time step,Solution,Num of Reaching Target AGVs
 27.0,Redundant3x3Wards.txt,10,300,10,solver,5,5,1118.0,1858.6921865940094,42.76714080487803,2
 28.0,Redundant3x3Wards.txt,10,300,10,networkx,4,6,1385.0,25.028513431549072,0.22451477580600315,0
 29.0,Redundant3x3Wards.txt,10,300,10,solver,5,5,1595.0,2994.7507467269897,81.99742519444446,0
+30.0,Redundant3x3Wards.txt,2,10,10,networkx,0,2,0,0.41712212562561035,0.0009887218475341797,GAUSSIAN,2025-08-22 15:11:59,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+31.0,Redundant3x3Wards.txt,2,10,10,solver,0,2,0,0.04493546485900879,0.0,BIMODAL,2025-08-22 15:12:00,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+32.0,Redundant3x3Wards.txt,2,10,10,networkx,0,2,0,0.024322032928466797,0.0007448196411132812,Random in the list,2025-08-22 15:12:00,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+33.0,Redundant3x3Wards.txt,2,10,10,solver,0,2,0,0.03955698013305664,0.0,Random in the list,2025-08-22 15:12:00,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+34.0,simplest.txt,2,10,10,networkx,0,2,0,0.4199645519256592,0.0013966560363769531,GAUSSIAN,2025-08-22 15:12:12,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+35.0,simplest.txt,2,10,10,solver,0,2,0,0.06487369537353516,0.0,BIMODAL,2025-08-22 15:12:12,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
