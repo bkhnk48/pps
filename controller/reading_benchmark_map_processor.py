@@ -3,6 +3,7 @@ import re
 import config
 import warnings
 from model.Logger import Logger
+import os
 
 ALLOWED_MAP_CHARS = set(".@OTSGW")
 ALLOWED_ROW_RE = re.compile(r'^[.@OTSGW]+$')  # Only allowed map symbols (no spaces)
@@ -12,9 +13,24 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
         with open(filepath, "r", encoding="utf-8", errors="replace") as f:
             return [line.rstrip("\n").rstrip("\r") for line in f]
 
+    def _is_effectively_empty_file(self, filepath) -> bool:
+        try:
+            if os.path.getsize(filepath) == 0:
+                return True
+        except Exception:
+            pass
+        try:
+            with open(filepath, 'r', encoding='utf-8', errors='replace') as f:
+                for raw in f:
+                    if raw.strip():
+                        return False
+            return True
+        except Exception:
+            return False
+
     # -------------------- Validation Helpers --------------------
     def _map_error(self, msg):
-        raise ValueError(f"[MAP ERROR] {msg}")
+        raise ValueError(f"[BENCHMARK ERROR] {msg}")
 
     def _map_warn(self, msg):
         if not hasattr(self, "_map_warnings"):
@@ -30,6 +46,41 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
 
     def get_map_warnings(self):
         return getattr(self, "_map_warnings", [])
+
+    def _dimacs_error(self, msg):
+        raise ValueError(f"[DIMACS ERROR] {msg}")
+
+    # Quick format detection
+    def _detect_input_format(self, filepath):
+        bench_hits = 0
+        dimacs_hits = 0
+        a_hits = 0
+        try:
+            with open(filepath, 'r', encoding='utf-8', errors='replace') as f:
+                for raw in f:
+                    s = raw.strip()
+                    if not s:
+                        continue
+                    sl = s.lower()
+                    if sl.startswith('type ') or sl.startswith('height ') or sl.startswith('width ') or s == 'map':
+                        bench_hits += 1
+                        continue
+                    if ALLOWED_ROW_RE.match(s):
+                        bench_hits += 1
+                        continue
+                    tok = sl.split()[0]
+                    if tok in ('a', 'p', 'n', 'c', 'alpha', 'beta', '#'):
+                        dimacs_hits += 1
+                        if tok == 'a':
+                            a_hits += 1
+                        continue
+            if bench_hits > 0:
+                return 'benchmark'
+            if a_hits > 0 or dimacs_hits > 1:
+                return 'dimacs'
+            return 'unknown'
+        except Exception:
+            return 'unknown'
 
     def _sanitize_row(self, row, r_index):
         # Replace invalid characters with '@'
@@ -73,7 +124,7 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
     def _is_valid_benchmark_map(self, lines):
         # Fast header existence check
         if not lines:
-            return self._map_error("Empty file")
+            raise ValueError("[MAP ERROR] Empty file")
         needed = {
             'type': any(l.strip().lower().startswith('type') for l in lines),
             'height': any(l.strip().lower().startswith('height') for l in lines),
@@ -96,6 +147,7 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
         in_map = False
         seen_type = seen_height = seen_width = False
         line_no = 0
+        had_non_empty = False
         with open(filepath, 'r', encoding='utf-8', errors='replace') as f:
             for raw in f:
                 line_no += 1
@@ -104,8 +156,8 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
                     if in_map:
                         self._map_error(f"Empty line inside map at line {line_no}")
                     continue
+                had_non_empty = True
                 if not in_map:
-                    # Detect accidental map row before 'map'
                     if ALLOWED_ROW_RE.match(s) and not (s.lower().startswith('type ') or
                                                         s.lower().startswith('height ') or
                                                         s.lower().startswith('width ') or
@@ -154,6 +206,8 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
                     if len(s) != width:
                         self._map_error(f"Map row {len(map_grid)+1} length {len(s)} != width {width}")
                     map_grid.append(self._sanitize_row(s, len(map_grid)))
+        if not had_non_empty:
+            raise ValueError("[MAP ERROR] Empty file")
         if not in_map:
             self._map_error("Missing 'map' line")
         missing = []
@@ -168,6 +222,88 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
         if len(map_grid) != height:
             self._map_error(f"Map line count ({len(map_grid)}) does not match height ({height})")
         return self._validate_parsed_map(movement_type, height, width, map_grid)
+
+    # -------------------- DIMACS format detection & validation --------------------
+    def _is_valid_dimacs_file(self, filepath):
+        edge_count = 0
+        max_node_id = 0
+        declared_nodes = None
+        declared_edges = None
+
+        with open(filepath, 'r', encoding='utf-8', errors='replace') as f:
+            for line_no, raw in enumerate(f, 1):
+                s = raw.strip()
+                if not s:
+                    continue
+                parts = s.split()
+                tag = parts[0].lower()
+
+                if tag == 'a':
+                    if len(parts) < 6:
+                        self._dimacs_error(
+                            f"Line {line_no}: 'a' line must have at least 6 fields: a source target lower upper cost"
+                        )
+                    names = ['source', 'target', 'lower', 'upper', 'cost']
+                    vals = []
+                    for idx, name in enumerate(names, start=1):
+                        try:
+                            vals.append(int(parts[idx]))
+                        except Exception:
+                            got = parts[idx] if len(parts) > idx else ''
+                            self._dimacs_error(f"Line {line_no}: field '{name}' must be integer, got '{got}'")
+                    source, target, lower, upper, cost = vals
+                    if source <= 0 or target <= 0:
+                        self._dimacs_error(f"Line {line_no}: source/target must be positive integers (> 0)")
+                    if upper < lower:
+                        self._dimacs_error(f"Line {line_no}: upper ({upper}) < lower ({lower})")
+                    edge_count += 1
+                    max_node_id = max(max_node_id, source, target)
+                elif tag == 'p':
+                    if len(parts) < 4:
+                        self._dimacs_error(f"Line {line_no}: malformed 'p' line. Expect: p <type> <nodes> <edges>")
+                    try:
+                        declared_nodes = int(parts[2])
+                        declared_edges = int(parts[3])
+                    except Exception:
+                        self._dimacs_error(f"Line {line_no}: 'p' line <nodes> and <edges> must be integers")
+                    if declared_nodes <= 0:
+                        self._dimacs_error(f"Line {line_no}: declared nodes must be > 0")
+                    if declared_edges < 0:
+                        self._dimacs_error(f"Line {line_no}: declared edges must be >= 0")
+                elif tag == 'n':
+                    if len(parts) < 3:
+                        self._dimacs_error(f"Line {line_no}: malformed 'n' line. Expect: n <id> <value>")
+                    try:
+                        nid = int(parts[1])
+                        int(parts[2])
+                    except Exception:
+                        self._dimacs_error(f"Line {line_no}: 'n' line requires integer <id> and <value>")
+                    if nid <= 0:
+                        self._dimacs_error(f"Line {line_no}: node id must be > 0")
+                    max_node_id = max(max_node_id, nid)
+                elif tag in ('c', 'alpha', 'beta', '#'):
+                    if tag in ('alpha', 'beta') and len(parts) >= 2:
+                        try:
+                            int(parts[1])
+                        except Exception:
+                            self._dimacs_error(f"Line {line_no}: {tag} value must be integer")
+                    continue
+                else:
+                    self._dimacs_error(
+                        f"Line {line_no}: unexpected token '{parts[0]}'. Expected one of: a, p, n, c, alpha, beta"
+                    )
+
+        if edge_count == 0:
+            self._dimacs_error("No 'a' arc lines found")
+        if declared_edges is not None and edge_count != declared_edges:
+            self._dimacs_error(
+                f"Edge count mismatch: file has {edge_count} 'a' lines but 'p' declares {declared_edges}"
+            )
+        if declared_nodes is not None and max_node_id > declared_nodes:
+            self._dimacs_error(
+                f"Node id {max_node_id} exceeds declared nodes {declared_nodes}"
+            )
+        return True
 
     def read_map_file(self, filepath, parsed=None):
         # Parse (streaming) if not already parsed
@@ -190,9 +326,48 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
         return self.space_edges
 
     def process_input_file(self, filepath):
-        if self._parse_validate_map_stream(filepath):
-            result = self.read_map_file(filepath, parsed=self._last_parsed_map)
-            if self.print_out:
-                print(f"Parsed benchmark map successfully, M = {self.M}")
-            return result
-        return super().process_input_file(filepath)
+        try:
+            if self._is_effectively_empty_file(filepath):
+                raise ValueError("[MAP ERROR] Empty file")
+        except FileNotFoundError:
+            raise
+        except Exception:
+            pass
+
+        fmt = self._detect_input_format(filepath)
+        if fmt == 'benchmark':
+            try:
+                if self._parse_validate_map_stream(filepath):
+                    result = self.read_map_file(filepath, parsed=self._last_parsed_map)
+                    if getattr(self, 'print_out', False):
+                        print(f"Parsed benchmark map successfully, M = {self.M}")
+                    return result
+            except Exception as e:
+                raise
+        if fmt == 'dimacs':
+            try:
+                if self._is_valid_dimacs_file(filepath):
+                    return super().process_input_file(filepath)
+            except Exception:
+                raise
+        bench_err = None
+        dimacs_err = None
+        try:
+            self._parse_validate_map_stream(filepath)
+            return self.read_map_file(filepath, parsed=self._last_parsed_map)
+        except Exception as e:
+            bench_err = str(e)
+        try:
+            if self._is_valid_dimacs_file(filepath):
+                return super().process_input_file(filepath)
+        except Exception as e:
+            dimacs_err = str(e)
+        def is_tagged(msg: str) -> bool:
+            return isinstance(msg, str) and (
+                msg.startswith("[BENCHMARK ERROR]") or msg.startswith("[DIMACS ERROR]") or msg.startswith("[MAP ERROR]")
+            )
+        if is_tagged(bench_err):
+            raise ValueError(bench_err)
+        if is_tagged(dimacs_err):
+            raise ValueError(dimacs_err)
+        raise ValueError("Invalid file format. Not a Benchmark map nor a valid DIMACS file.")
