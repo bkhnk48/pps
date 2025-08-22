@@ -7,6 +7,7 @@ import os
 
 ALLOWED_MAP_CHARS = set(".@OTSGW")
 ALLOWED_ROW_RE = re.compile(r'^[.@OTSGW]+$')  # Only allowed map symbols (no spaces)
+INT_TOKEN_RE = re.compile(r'^[+-]?\d+$')  # Only plain integer tokens (no commas, dots, letters)
 
 class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
     def _read_lines(self, filepath):
@@ -223,6 +224,16 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
             self._map_error(f"Map line count ({len(map_grid)}) does not match height ({height})")
         return self._validate_parsed_map(movement_type, height, width, map_grid)
 
+    def _dimacs_int(self, token: str, field_name: str, line_no: int) -> int:
+        if not INT_TOKEN_RE.match(token):
+            self._dimacs_error(
+                f"Line {line_no}: invalid character in field '{field_name}': '{token}' (must be integer)"
+            )
+        try:
+            return int(token)
+        except Exception:
+            self._dimacs_error(f"Line {line_no}: field '{field_name}' must be integer, got '{token}'")
+
     # -------------------- DIMACS format detection & validation --------------------
     def _is_valid_dimacs_file(self, filepath):
         edge_count = 0
@@ -243,51 +254,46 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
                         self._dimacs_error(
                             f"Line {line_no}: 'a' line must have at least 6 fields: a source target lower upper cost"
                         )
-                    names = ['source', 'target', 'lower', 'upper', 'cost']
-                    vals = []
-                    for idx, name in enumerate(names, start=1):
-                        try:
-                            vals.append(int(parts[idx]))
-                        except Exception:
-                            got = parts[idx] if len(parts) > idx else ''
-                            self._dimacs_error(f"Line {line_no}: field '{name}' must be integer, got '{got}'")
-                    source, target, lower, upper, cost = vals
+                    # Parse mandatory integer fields with strict char check
+                    source = self._dimacs_int(parts[1], 'source', line_no)
+                    target = self._dimacs_int(parts[2], 'target', line_no)
+                    lower  = self._dimacs_int(parts[3], 'lower',  line_no)
+                    upper  = self._dimacs_int(parts[4], 'upper',  line_no)
+                    cost   = self._dimacs_int(parts[5], 'cost',   line_no)
                     if source <= 0 or target <= 0:
                         self._dimacs_error(f"Line {line_no}: source/target must be positive integers (> 0)")
                     if upper < lower:
                         self._dimacs_error(f"Line {line_no}: upper ({upper}) < lower ({lower})")
                     edge_count += 1
                     max_node_id = max(max_node_id, source, target)
+
                 elif tag == 'p':
                     if len(parts) < 4:
                         self._dimacs_error(f"Line {line_no}: malformed 'p' line. Expect: p <type> <nodes> <edges>")
-                    try:
-                        declared_nodes = int(parts[2])
-                        declared_edges = int(parts[3])
-                    except Exception:
-                        self._dimacs_error(f"Line {line_no}: 'p' line <nodes> and <edges> must be integers")
+                    declared_nodes = self._dimacs_int(parts[2], 'nodes', line_no)
+                    declared_edges = self._dimacs_int(parts[3], 'edges', line_no)
                     if declared_nodes <= 0:
                         self._dimacs_error(f"Line {line_no}: declared nodes must be > 0")
                     if declared_edges < 0:
                         self._dimacs_error(f"Line {line_no}: declared edges must be >= 0")
+
                 elif tag == 'n':
                     if len(parts) < 3:
                         self._dimacs_error(f"Line {line_no}: malformed 'n' line. Expect: n <id> <value>")
-                    try:
-                        nid = int(parts[1])
-                        int(parts[2])
-                    except Exception:
-                        self._dimacs_error(f"Line {line_no}: 'n' line requires integer <id> and <value>")
+                    nid  = self._dimacs_int(parts[1], 'id',    line_no)
+                    nval = self._dimacs_int(parts[2], 'value', line_no)
                     if nid <= 0:
                         self._dimacs_error(f"Line {line_no}: node id must be > 0")
                     max_node_id = max(max_node_id, nid)
+
                 elif tag in ('c', 'alpha', 'beta', '#'):
+                    if tag == 'c' and len(parts) >= 2 and parts[1].lower() == 'n':
+                        for i, tok in enumerate(parts[2:], start=1):
+                            _ = self._dimacs_int(tok, f"c n param[{i}]", line_no)
                     if tag in ('alpha', 'beta') and len(parts) >= 2:
-                        try:
-                            int(parts[1])
-                        except Exception:
-                            self._dimacs_error(f"Line {line_no}: {tag} value must be integer")
+                        _ = self._dimacs_int(parts[1], tag, line_no)
                     continue
+
                 else:
                     self._dimacs_error(
                         f"Line {line_no}: unexpected token '{parts[0]}'. Expected one of: a, p, n, c, alpha, beta"
