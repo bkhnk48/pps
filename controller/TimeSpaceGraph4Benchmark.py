@@ -84,7 +84,7 @@ class TimeSpaceGraph4Benchmark:
         benchmark_graph.export_space_graph_dimacs_file()
         self.M = benchmark_graph.width * benchmark_graph.height
 
-        max_id = self.M * self.H
+        max_id = self.M * (self.H + 1)
         for edge in benchmark_graph.E.values():
             s = edge.start_node
             t = edge.end_node
