@@ -3,6 +3,10 @@ import re
 import config
 import warnings
 from model.Logger import Logger
+import os
+from types import MethodType
+from model.BenchmarkGraph import BenchmarkGraph
+from controller.TimeSpaceGraph4Benchmark import TimeSpaceGraph4Benchmark
 
 ALLOWED_MAP_CHARS = set(".@OTSGW")
 ALLOWED_ROW_RE = re.compile(r'^[.@OTSGW]+$')
@@ -294,7 +298,6 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
                     )
         return self._dimacs_finalize(st)
 
-    # -------------------- Reading & Orchestration --------------------
     def read_map_file(self, filepath, parsed=None):
         if parsed is None:
             if getattr(self, '_last_parsed_map', None) is None:
@@ -328,23 +331,98 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
 
     def process_input_file(self, filepath):
         fmt = self._detect_input_format(filepath)
-        if fmt == 'empty':
-            raise ValueError("[MAP ERROR] Empty file")
+
         if fmt == 'benchmark':
-            return self._try_benchmark(filepath)
+            self._parse_validate_map_stream(filepath)  # raises on error
+            self.file_map = filepath
+            movement_type, height, width, map_grid = self._last_parsed_map
+
+            result = self.read_map_file(filepath, parsed=self._last_parsed_map)
+
+            self._bm_height = height
+            self._bm_width = width
+            self._bm_movement_type = movement_type
+
+            self.create_tsg_file = self._bm_create_tsg_file
+            return result
+
         if fmt == 'dimacs':
-            return self._try_dimacs(filepath)
-        bench_err = dimacs_err = None
+            self._is_valid_dimacs_file(filepath) 
+            return super().process_input_file(filepath)
+
+        if fmt == 'empty':
+            raise ValueError("[INPUT ERROR] Empty input file")
+
         try:
-            return self._try_benchmark(filepath)
-        except Exception as e:
-            bench_err = str(e)
-        try:
-            return self._try_dimacs(filepath)
-        except Exception as e:
-            dimacs_err = str(e)
-        if self._is_tagged(bench_err):
-            raise ValueError(bench_err)
-        if self._is_tagged(dimacs_err):
-            raise ValueError(dimacs_err)
-        raise ValueError("Invalid file format. Not a Benchmark map nor a valid DIMACS file.")
+            self._is_valid_dimacs_file(filepath)  # raises if invalid
+            return super().process_input_file(filepath)
+        except ValueError as e:
+            raise ValueError("[INPUT ERROR] Unknown input format (neither Benchmark nor DIMACS)") from e
+
+    def _bm_create_tsg_file(self):
+        # Create TSG.txt directly from self.space_edges
+        if not hasattr(self, "space_edges") or not self.space_edges:
+            raise ValueError("space_edges is empty; run process_input_file() first")
+        if not hasattr(self, "M") or not hasattr(self, "H") or not hasattr(self, "d"):
+            raise ValueError("Missing M/H/d; ensure they are set before creating TSG")
+
+        print(self.space_edges)
+        check=input("Press Enter to continue...")
+        M, H, d = self.M, self.H, self.d
+
+        def space_id(ts_id: int) -> int:
+            r = ts_id % M
+            return M if r == 0 else r
+
+        max_id = M * (H+1)
+        out_path = "TSG.txt"
+        lines_written = 0
+
+        with open(out_path, "w", encoding="utf-8") as f:
+            for parts in self.space_edges:
+                if isinstance(parts, str):
+                    parts = parts.split()
+                if len(parts) < 6:
+                    continue
+                u = int(parts[1]); v = int(parts[2])
+                lower = int(parts[3]); upper = int(parts[4]); weight = int(parts[5])
+
+                for i in range(0, H, d):
+                    a1 = M * i + u
+                    a2 = M * (i + 1) + v
+                    a3 = M * i + v
+                    a4 = M * (i + 1) + u
+                    v1 = max_id + 1
+                    v2 = max_id + 2
+                    max_id += 2
+                    
+                    print(u)
+                    print(v)
+                    
+                    print(a1)
+                    print(a2)
+                    print(a3)
+                    print(a4)
+                    print(v1)
+                    print(v2)
+                    check=input("check id")
+
+                    # Inflow
+                    f.write(f"a {a1} {v1} {lower} {upper} 0\n"); lines_written += 1
+                    f.write(f"a {a2} {v1} {lower} {upper} 0\n"); lines_written += 1
+                    # Neck 
+                    f.write(f"a {v1} {v2} {lower} {upper} {weight}\n"); lines_written += 1
+                    # Outflow
+                    f.write(f"a {v2} {a3} {lower} {upper} 0\n"); lines_written += 1
+                    f.write(f"a {v2} {a4} {lower} {upper} 0\n"); lines_written += 1
+
+                    b2 = space_id(a2)
+                    b4 = space_id(a4)
+                    if b2 != b4:
+                        wait_pairs = [(a2, a4), (a1, a3)]
+                    else:
+                        wait_pairs = [(a2, a3), (a1, a4)]
+                    for w_u, w_v in wait_pairs:
+                        f.write(f"a {w_u} {w_v} {lower} {upper} {d}\n"); lines_written += 1
+        if getattr(self, "print_out", False):
+            print(f"TSG.txt created from space_edges with {lines_written} arcs.")
