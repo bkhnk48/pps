@@ -342,6 +342,15 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
         lines_written = 0
         
         with open(out_path, "w", encoding="utf-8") as f:
+            written = set()
+            def write_if_new(u, v, lower, upper, weight):
+                key = (u, v, lower, upper, weight)
+                if key in written:
+                    return False
+                written.add(key)
+                f.write(f"a {u} {v} {lower} {upper} {weight}\n")
+                return True
+
             for parts in self.space_edges:
                 if isinstance(parts, str):
                     parts = parts.split()
@@ -360,6 +369,9 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
                     v2 = max_id + 2
                     max_id += 2
                     
+                    print(a1, a2, a3, a4, v1, v2)
+                    check=input("check")
+
                     # Inflow
                     f.write(f"a {a1} {v1} {lower} {upper} 0\n"); lines_written += 1
                     f.write(f"a {a3} {v1} {lower} {upper} 0\n"); lines_written += 1
@@ -368,9 +380,9 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
                     # Outflow
                     f.write(f"a {v2} {a2} {lower} {upper} 0\n"); lines_written += 1
                     f.write(f"a {v2} {a4} {lower} {upper} 0\n"); lines_written += 1
-                    # Wait nodes
-                    f.write(f"a {a1} {a4} {lower} {upper} 0\n"); lines_written += 1
-                    f.write(f"a {a3} {a2} {lower} {upper} 0\n"); lines_written += 1
+                    # Wait edges 
+                    if write_if_new(a1, a4, lower, upper, 0): lines_written += 1
+                    if write_if_new(a3, a2, lower, upper, 0): lines_written += 1
 
         if getattr(self, "print_out", False):
             print(f"TSG.txt created from space_edges with {lines_written} arcs.")
