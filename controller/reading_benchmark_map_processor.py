@@ -335,7 +335,8 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
             raise ValueError("space_edges is empty; run process_input_file() first")
         if not hasattr(self, "M") or not hasattr(self, "H") or not hasattr(self, "d"):
             raise ValueError("Missing M/H/d; ensure they are set before creating TSG")
-
+        check=input("Enter check value for BM create TSG file: ")
+        print(self.space_edges)
         M, H, d = self.M, self.H, self.d
 
         def space_id(ts_id: int) -> int:
@@ -356,15 +357,15 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
                 u = int(parts[1]); v = int(parts[2])
                 lower = int(parts[3]); upper = int(parts[4]); weight = int(parts[5])
 
-                for i in range(0, H - weight + 1, d):
+                for i in range(0, H, d):
                     a1 = M * i + u
-                    a2 = M * (i + weight) + v
+                    a2 = M * (i + 1) + v
                     a3 = M * i + v
-                    a4 = M * (i + weight) + u
+                    a4 = M * (i + 1) + u
                     v1 = max_id + 1
                     v2 = max_id + 2
                     max_id += 2
-
+                    
                     # Inflow
                     f.write(f"a {a1} {v1} {lower} {upper} 0\n"); lines_written += 1
                     f.write(f"a {a2} {v1} {lower} {upper} 0\n"); lines_written += 1
@@ -389,9 +390,6 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
     def process_input_file(self, filepath):
         fmt = self._detect_input_format(filepath)
 
-        print(f"Detected format: {fmt}")
-        check=input("Enter check value for format detection: ")
-
         if fmt == 'benchmark':
             check=input("Enter check value for Benchmark: ")
             self._parse_validate_map_stream(filepath) 
@@ -408,7 +406,6 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
             return result
 
         if fmt == 'dimacs':
-            check=input("Enter check value for DIMACS: ")
             result = super().process_input_file(filepath)
             return result
 
