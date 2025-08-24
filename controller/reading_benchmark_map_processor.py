@@ -329,40 +329,7 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
         return isinstance(msg, str) and (
             msg.startswith("[BENCHMARK ERROR]") or msg.startswith("[DIMACS ERROR]") or msg.startswith("[MAP ERROR]")
         )
-
-    def process_input_file(self, filepath):
-        fmt = self._detect_input_format(filepath)
-
-        if fmt == 'benchmark':
-            self._parse_validate_map_stream(filepath) 
-            self.file_map = filepath
-            movement_type, height, width, map_grid = self._last_parsed_map
-
-            result = self.read_map_file(filepath, parsed=self._last_parsed_map)
-
-            self._bm_height = height
-            self._bm_width = width
-            self._bm_movement_type = movement_type
-
-            self.create_tsg_file = self._bm_create_tsg_file
-            return result
-
-        if fmt == 'dimacs':
-            result = super().process_input_file(filepath)
-            self.create_tsg_file = self._bm_create_tsg_file
-            return result
-
-        if fmt == 'empty':
-            raise ValueError("[INPUT ERROR] Empty input file")
-
-        try:
-            self._is_valid_dimacs_file(filepath)  # raises if invalid
-            result = super().process_input_file(filepath)
-            self.create_tsg_file = self._bm_create_tsg_file
-            return result
-        except ValueError as e:
-            raise ValueError("[INPUT ERROR] Unknown input format (neither Benchmark nor DIMACS)") from e
-
+    
     def _bm_create_tsg_file(self):
         if not getattr(self, "space_edges", None):
             raise ValueError("space_edges is empty; run process_input_file() first")
@@ -418,3 +385,32 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
 
         if getattr(self, "print_out", False):
             print(f"TSG.txt created from space_edges with {lines_written} arcs.")
+
+    def process_input_file(self, filepath):
+        fmt = self._detect_input_format(filepath)
+
+        print(f"Detected format: {fmt}")
+        check=input("Enter check value for format detection: ")
+
+        if fmt == 'benchmark':
+            check=input("Enter check value for Benchmark: ")
+            self._parse_validate_map_stream(filepath) 
+            self.file_map = filepath
+            movement_type, height, width, map_grid = self._last_parsed_map
+
+            result = self.read_map_file(filepath, parsed=self._last_parsed_map)
+
+            self._bm_height = height
+            self._bm_width = width
+            self._bm_movement_type = movement_type
+
+            self.create_tsg_file = self._bm_create_tsg_file
+            return result
+
+        if fmt == 'dimacs':
+            check=input("Enter check value for DIMACS: ")
+            result = super().process_input_file(filepath)
+            return result
+
+        if fmt == 'empty':
+            raise ValueError("[INPUT ERROR] Empty input file")
