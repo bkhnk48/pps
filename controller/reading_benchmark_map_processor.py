@@ -335,8 +335,6 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
             raise ValueError("space_edges is empty; run process_input_file() first")
         if not hasattr(self, "M") or not hasattr(self, "H") or not hasattr(self, "d"):
             raise ValueError("Missing M/H/d; ensure they are set before creating TSG")
-        check=input("Enter check value for BM create TSG file: ")
-        print(self.space_edges)
         M, H, d = self.M, self.H, self.d
 
         def space_id(ts_id: int) -> int:
@@ -391,7 +389,6 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
         fmt = self._detect_input_format(filepath)
 
         if fmt == 'benchmark':
-            check=input("Enter check value for Benchmark: ")
             self._parse_validate_map_stream(filepath) 
             self.file_map = filepath
             movement_type, height, width, map_grid = self._last_parsed_map
