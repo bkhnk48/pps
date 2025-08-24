@@ -7,6 +7,7 @@ import os
 from types import MethodType
 from model.BenchmarkGraph import BenchmarkGraph
 from controller.TimeSpaceGraph4Benchmark import TimeSpaceGraph4Benchmark
+import math
 
 ALLOWED_MAP_CHARS = set(".@OTSGW")
 ALLOWED_ROW_RE = re.compile(r'^[.@OTSGW]+$')
@@ -333,7 +334,7 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
         fmt = self._detect_input_format(filepath)
 
         if fmt == 'benchmark':
-            self._parse_validate_map_stream(filepath)  # raises on error
+            self._parse_validate_map_stream(filepath) 
             self.file_map = filepath
             movement_type, height, width, map_grid = self._last_parsed_map
 
@@ -347,34 +348,34 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
             return result
 
         if fmt == 'dimacs':
-            self._is_valid_dimacs_file(filepath) 
-            return super().process_input_file(filepath)
+            result = super().process_input_file(filepath)
+            self.create_tsg_file = self._bm_create_tsg_file
+            return result
 
         if fmt == 'empty':
             raise ValueError("[INPUT ERROR] Empty input file")
 
         try:
             self._is_valid_dimacs_file(filepath)  # raises if invalid
-            return super().process_input_file(filepath)
+            result = super().process_input_file(filepath)
+            self.create_tsg_file = self._bm_create_tsg_file
+            return result
         except ValueError as e:
             raise ValueError("[INPUT ERROR] Unknown input format (neither Benchmark nor DIMACS)") from e
 
     def _bm_create_tsg_file(self):
-        # Create TSG.txt directly from self.space_edges
-        if not hasattr(self, "space_edges") or not self.space_edges:
+        if not getattr(self, "space_edges", None):
             raise ValueError("space_edges is empty; run process_input_file() first")
         if not hasattr(self, "M") or not hasattr(self, "H") or not hasattr(self, "d"):
             raise ValueError("Missing M/H/d; ensure they are set before creating TSG")
 
-        print(self.space_edges)
-        check=input("Press Enter to continue...")
         M, H, d = self.M, self.H, self.d
 
         def space_id(ts_id: int) -> int:
             r = ts_id % M
             return M if r == 0 else r
 
-        max_id = M * (H+1)
+        max_id = M * (H + 1) 
         out_path = "TSG.txt"
         lines_written = 0
 
@@ -384,33 +385,23 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
                     parts = parts.split()
                 if len(parts) < 6:
                     continue
+
                 u = int(parts[1]); v = int(parts[2])
                 lower = int(parts[3]); upper = int(parts[4]); weight = int(parts[5])
 
-                for i in range(0, H, d):
+                for i in range(0, H - weight + 1, d):
                     a1 = M * i + u
-                    a2 = M * (i + 1) + v
+                    a2 = M * (i + weight) + v
                     a3 = M * i + v
-                    a4 = M * (i + 1) + u
+                    a4 = M * (i + weight) + u
                     v1 = max_id + 1
                     v2 = max_id + 2
                     max_id += 2
-                    
-                    print(u)
-                    print(v)
-                    
-                    print(a1)
-                    print(a2)
-                    print(a3)
-                    print(a4)
-                    print(v1)
-                    print(v2)
-                    check=input("check id")
 
                     # Inflow
                     f.write(f"a {a1} {v1} {lower} {upper} 0\n"); lines_written += 1
                     f.write(f"a {a2} {v1} {lower} {upper} 0\n"); lines_written += 1
-                    # Neck 
+                    # Bottleneck
                     f.write(f"a {v1} {v2} {lower} {upper} {weight}\n"); lines_written += 1
                     # Outflow
                     f.write(f"a {v2} {a3} {lower} {upper} 0\n"); lines_written += 1
@@ -418,11 +409,12 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
 
                     b2 = space_id(a2)
                     b4 = space_id(a4)
-                    if b2 != b4:
+                    if b2 == b4:
                         wait_pairs = [(a2, a4), (a1, a3)]
                     else:
                         wait_pairs = [(a2, a3), (a1, a4)]
                     for w_u, w_v in wait_pairs:
                         f.write(f"a {w_u} {w_v} {lower} {upper} {d}\n"); lines_written += 1
+
         if getattr(self, "print_out", False):
             print(f"TSG.txt created from space_edges with {lines_written} arcs.")
