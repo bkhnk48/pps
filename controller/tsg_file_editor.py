@@ -1,3 +1,4 @@
+from controller.reading_input_processor import ReadingInputProcessor
 from controller.reading_benchmark_map_processor import ReadingBenchmarkMapProcessor
 from model.Node import Node
 from controller.NodeGenerator import TimeoutNode
