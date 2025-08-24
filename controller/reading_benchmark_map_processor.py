@@ -337,14 +337,10 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
             raise ValueError("Missing M/H/d; ensure they are set before creating TSG")
         M, H, d = self.M, self.H, self.d
 
-        def space_id(ts_id: int) -> int:
-            r = ts_id % M
-            return M if r == 0 else r
-
         max_id = M * (H + 1) 
         out_path = "TSG.txt"
         lines_written = 0
-
+        
         with open(out_path, "w", encoding="utf-8") as f:
             for parts in self.space_edges:
                 if isinstance(parts, str):
@@ -366,21 +362,15 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
                     
                     # Inflow
                     f.write(f"a {a1} {v1} {lower} {upper} 0\n"); lines_written += 1
-                    f.write(f"a {a2} {v1} {lower} {upper} 0\n"); lines_written += 1
+                    f.write(f"a {a3} {v1} {lower} {upper} 0\n"); lines_written += 1
                     # Bottleneck
                     f.write(f"a {v1} {v2} {lower} {upper} {weight}\n"); lines_written += 1
                     # Outflow
-                    f.write(f"a {v2} {a3} {lower} {upper} 0\n"); lines_written += 1
+                    f.write(f"a {v2} {a2} {lower} {upper} 0\n"); lines_written += 1
                     f.write(f"a {v2} {a4} {lower} {upper} 0\n"); lines_written += 1
-
-                    b2 = space_id(a2)
-                    b4 = space_id(a4)
-                    if b2 == b4:
-                        wait_pairs = [(a2, a4), (a1, a3)]
-                    else:
-                        wait_pairs = [(a2, a3), (a1, a4)]
-                    for w_u, w_v in wait_pairs:
-                        f.write(f"a {w_u} {w_v} {lower} {upper} {d}\n"); lines_written += 1
+                    # Wait nodes
+                    f.write(f"a {a1} {a4} {lower} {upper} 0\n"); lines_written += 1
+                    f.write(f"a {a3} {a2} {lower} {upper} 0\n"); lines_written += 1
 
         if getattr(self, "print_out", False):
             print(f"TSG.txt created from space_edges with {lines_written} arcs.")
