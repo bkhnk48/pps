@@ -8,6 +8,7 @@ from types import MethodType
 from model.BenchmarkGraph import BenchmarkGraph
 from controller.TimeSpaceGraph4Benchmark import TimeSpaceGraph4Benchmark
 import math
+from model.BenchmarkEdge import InflowEdge, NeckEdge, OutflowEdge, WaitingEdge
 
 ALLOWED_MAP_CHARS = set(".@OTSGW")
 ALLOWED_ROW_RE = re.compile(r'^[.@OTSGW]+$')
@@ -337,55 +338,59 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
             raise ValueError("Missing M/H/d; ensure they are set before creating TSG")
         M, H, d = self.M, self.H, self.d
 
-        max_id = M * (H + 1) 
-        out_path = "TSG.txt"
-        lines_written = 0
-        
-        with open(out_path, "w", encoding="utf-8") as f:
-            written = set()
-            def write_if_new(u, v, lower, upper, weight):
-                key = (u, v, lower, upper, weight)
-                if key in written:
-                    return False
-                written.add(key)
-                f.write(f"a {u} {v} {lower} {upper} {weight}\n")
-                return True
+        tsg = TimeSpaceGraph4Benchmark(H, d)
+        tsg.M = M
+        self.ts_edges = []
+        written = set() 
 
-            for parts in self.space_edges:
-                if isinstance(parts, str):
-                    parts = parts.split()
-                if len(parts) < 6:
-                    continue
+        def add_edge_obj(e):
+            key = (e.start_node.id, e.end_node.id, e.lower, e.upper, e.weight)
+            if key in written:
+                return
+            written.add(key)
+            tsg.add_edge(e)
+            self.ts_edges.append(e)
 
-                u = int(parts[1]); v = int(parts[2])
-                lower = int(parts[3]); upper = int(parts[4]); weight = int(parts[5])
+        max_id = M * (H + 1)
+        for parts in self.space_edges:
+            parts = parts.split() if isinstance(parts, str) else parts
+            if len(parts) < 6:
+                continue
+            u = int(parts[1]); v = int(parts[2])
+            lower = int(parts[3]); upper = int(parts[4]); weight = int(parts[5])
 
-                for i in range(0, H, d):
-                    a1 = M * i + u
-                    a2 = M * (i + 1) + v
-                    a3 = M * i + v
-                    a4 = M * (i + 1) + u
-                    v1 = max_id + 1
-                    v2 = max_id + 2
-                    max_id += 2
-                    
-                    print(a1, a2, a3, a4, v1, v2)
-                    check=input("check")
+            for i in range(0, H, d):
+                a1 = M * i + u
+                a2 = M * (i + 1) + v
+                a3 = M * i + v
+                a4 = M * (i + 1) + u
+                v1 = max_id + 1
+                v2 = max_id + 2
+                max_id += 2
 
-                    # Inflow
-                    f.write(f"a {a1} {v1} {lower} {upper} 0\n"); lines_written += 1
-                    f.write(f"a {a3} {v1} {lower} {upper} 0\n"); lines_written += 1
-                    # Bottleneck
-                    f.write(f"a {v1} {v2} {lower} {upper} {weight}\n"); lines_written += 1
-                    # Outflow
-                    f.write(f"a {v2} {a2} {lower} {upper} 0\n"); lines_written += 1
-                    f.write(f"a {v2} {a4} {lower} {upper} 0\n"); lines_written += 1
-                    # Wait edges 
-                    if write_if_new(a1, a4, lower, upper, 0): lines_written += 1
-                    if write_if_new(a3, a2, lower, upper, 0): lines_written += 1
+                print(a1, a2, a3, a4, v1, v2)
+                check=input("check1")
 
+                tsg.create_nodes(a1, a2, a3, a4, v1, v2)
+
+                # Inflow
+                add_edge_obj(InflowEdge(tsg.V[a1], tsg.V[v1], lower, upper, 0))
+                add_edge_obj(InflowEdge(tsg.V[a3], tsg.V[v1], lower, upper, 0))
+                # Bottleneck
+                add_edge_obj(NeckEdge(tsg.V[v1], tsg.V[v2], lower, upper, weight))
+                # Outflow
+                add_edge_obj(OutflowEdge(tsg.V[v2], tsg.V[a2], lower, upper, 0))
+                add_edge_obj(OutflowEdge(tsg.V[v2], tsg.V[a4], lower, upper, 0))
+                # Wait edges (giữ đúng như code cũ: weight = 0)
+                add_edge_obj(WaitingEdge(tsg.V[a1], tsg.V[a4], lower, upper, 0))
+                add_edge_obj(WaitingEdge(tsg.V[a3], tsg.V[a2], lower, upper, 0))
+
+        self.tsg_nodes = tsg.V
+        self.tsg_edges = tsg.E
         if getattr(self, "print_out", False):
-            print(f"TSG.txt created from space_edges with {lines_written} arcs.")
+            print(f"TSG built in memory with {len(self.ts_edges)} edges.")
+        print(self.ts_edges)
+        check=input("check2")
 
     def process_input_file(self, filepath):
         fmt = self._detect_input_format(filepath)
