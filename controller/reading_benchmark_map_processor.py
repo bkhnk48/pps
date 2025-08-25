@@ -166,7 +166,7 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
             self._map_error(f"Map row {len(st['map_grid'])+1} length {len(s)} != width {w}")
         sanitized = self._sanitize_row(s, len(st['map_grid']))
         st['map_grid'].append(sanitized)
-        if not st['walkable_found'] and any(ch in ('.', 'S') for ch in sanitized):
+        if not st['walkable_found'] and any(ch in ('.', 'G', 'S', 'W') for ch in sanitized):
             st['walkable_found'] = True
 
     def _bench_finalize(self, st):
@@ -308,11 +308,15 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
             parsed = self._last_parsed_map
         movement_type, height, width, map_grid = parsed
         unit_length = self.extract_unit_length(filepath)
-        edges = self.generate_dimacs_edges(map_grid, movement_type, unit_length)
-        self.build_node_ids(map_grid)
+
+        node_id = self.build_node_ids(map_grid)
+        edges = self._generate_dimacs_edges_with_node_id(map_grid, movement_type, unit_length, node_id)
+
         self.M = height * width
-        self.space_edges = [['a', str(e[0]), str(e[1]), str(e[2]), str(e[3]), str(e[4])] for e in edges]
+        self.space_edges = [['a', str(u), str(v), str(lo), str(up), str(w)] for (u, v, lo, up, w) in edges]
         config.M = self.M
+        print(self.space_edges)
+        check=input("check0")
         return self.space_edges
 
     def _try_benchmark(self, filepath):
@@ -415,3 +419,61 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
 
         if fmt == 'empty':
             raise ValueError("[INPUT ERROR] Empty input file")
+
+    # ---- MovingAI cell rules ----
+    def _is_passable_char(self, ch: str) -> bool:
+        return ch in ('.', 'G', 'S', 'W')
+
+    def _is_blocked_char(self, ch: str) -> bool:
+        return ch in ('@', 'O', 'T')
+
+    def _can_transition(self, ch_from: str, ch_to: str) -> bool:
+        if self._is_blocked_char(ch_from) or self._is_blocked_char(ch_to):
+            return False
+        # Water: traversable but not passable from terrain -> chỉ đi trong vùng W
+        if (ch_from == 'W') != (ch_to == 'W'):
+            return False
+        return True
+
+    def build_node_ids(self, map_grid):
+        node_id, cur = {}, 1
+        for r, row in enumerate(map_grid):
+            for c, ch in enumerate(row):
+                if self._is_passable_char(ch):
+                    node_id[(r, c)] = cur
+                    cur += 1
+        return node_id
+
+    def _edge_cost(self, dr, dc, unit_len):
+        return unit_len if (dr == 0 or dc == 0) else math.ceil(unit_len * math.sqrt(2))
+
+    def _generate_dimacs_edges_with_node_id(self, map_grid, movement_type, unit_len, node_id):
+        rows = len(map_grid); cols = len(map_grid[0]) if rows else 0
+        d4 = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        d8 = d4 + [(-1, -1), (-1, 1), (1, -1), (1, 1)]
+        dirs = d8 if movement_type == "octile" else d4
+        edges = []
+        for (r, c), u in node_id.items():
+            ch_from = map_grid[r][c]
+            for dr, dc in dirs:
+                nr, nc = r + dr, c + dc
+                if not (0 <= nr < rows and 0 <= nc < cols):
+                    continue
+                if (nr, nc) not in node_id:
+                    continue
+                ch_to = map_grid[nr][nc]
+                if not self._can_transition(ch_from, ch_to):
+                    continue
+                if dr != 0 and dc != 0:
+                    # no-corner-cutting
+                    if not (self._is_passable_char(map_grid[r][nc]) or
+                            self._is_passable_char(map_grid[nr][c])):
+                        continue
+                v = node_id[(nr, nc)]
+                if u < v:
+                    edges.append((u, v, 0, 1, self._edge_cost(dr, dc, unit_len)))
+        return edges
+
+    def generate_dimacs_edges(self, map_grid, movement_type, unit_length=1):
+        node_id = self.build_node_ids(map_grid)
+        return self._generate_dimacs_edges_with_node_id(map_grid, movement_type, unit_length, node_id)
