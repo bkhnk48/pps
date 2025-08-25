@@ -65,7 +65,7 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
                         if bench_hits >= 2:
                             return 'benchmark'
                         continue
-                    tok = sl.split(' ', 1)[0]  # faster single split
+                    tok = sl.split(' ', 1)[0]  
                     if tok in DIMACS_TOKENS:
                         dimacs_hits += 1
                         if tok == 'a':
@@ -385,7 +385,7 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
                 # Outflow
                 add_edge_obj(OutflowEdge(tsg.V[v2], tsg.V[a2], lower, upper, 0))
                 add_edge_obj(OutflowEdge(tsg.V[v2], tsg.V[a4], lower, upper, 0))
-                # Wait edges (giữ đúng như code cũ: weight = 0)
+                # Wait edges 
                 add_edge_obj(WaitingEdge(tsg.V[a1], tsg.V[a4], lower, upper, 0))
                 add_edge_obj(WaitingEdge(tsg.V[a3], tsg.V[a2], lower, upper, 0))
 
@@ -430,7 +430,7 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
     def _can_transition(self, ch_from: str, ch_to: str) -> bool:
         if self._is_blocked_char(ch_from) or self._is_blocked_char(ch_to):
             return False
-        # Water: traversable but not passable from terrain -> chỉ đi trong vùng W
+        # Water: traversable but not passable from terrain
         if (ch_from == 'W') != (ch_to == 'W'):
             return False
         return True
