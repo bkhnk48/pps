@@ -132,3 +132,19 @@ RAM: Unknown"
 User: admin
 CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
 RAM: Unknown"
+56.0,Redundant3x3Wards.txt,2,10,10,networkx,0,2,0,0.40596485137939453,0.0009822845458984375,GAUSSIAN,2025-08-25 17:44:22,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+57.0,Redundant3x3Wards.txt,2,10,10,solver,0,2,0,0.2022538185119629,0.0,BIMODAL,2025-08-25 17:44:22,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+58.0,Redundant3x3Wards.txt,2,10,10,networkx,0,2,0,0.021279335021972656,0.0005033016204833984,Random in the list,2025-08-25 17:44:22,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+59.0,Redundant3x3Wards.txt,2,10,10,solver,0,2,0,0.03242635726928711,0.0,Random in the list,2025-08-25 17:44:22,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
