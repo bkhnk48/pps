@@ -48,15 +48,14 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
 
     # -------------------- Format detection --------------------
     def _detect_input_format(self, filepath):
-        bench_hits = dimacs_hits = a_hits = 0
-        non_empty_seen = 0
+        bench_hits = dimacs_hits = non_empty = 0
         try:
             with open(filepath, 'r', encoding='utf-8-sig', errors='replace') as f:
                 for raw in f:
                     s = raw.strip()
-                    if self._is_ignorable_line(s):
+                    if self._is_ignorable_line(s): 
                         continue
-                    non_empty_seen += 1
+                    non_empty += 1
                     sl = s.lower()
                     if sl.startswith(HEADER_PREFIX) or s == 'map':
                         return 'benchmark'
@@ -65,21 +64,20 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
                         if bench_hits >= 2:
                             return 'benchmark'
                         continue
-                    tok = sl.split(' ', 1)[0]  
+                    tok = sl.split(' ', 1)[0]
                     if tok in DIMACS_TOKENS:
-                        dimacs_hits += 1
                         if tok == 'a':
-                            a_hits += 1
                             return 'dimacs'
+                        dimacs_hits += 1
                         if dimacs_hits >= 3:
                             return 'dimacs'
-                    if non_empty_seen >= 64:
+                    if non_empty >= 64:
                         break
-            if non_empty_seen == 0:
+            if non_empty == 0:
                 return 'empty'
             if bench_hits > 0:
                 return 'benchmark'
-            if a_hits > 0 or dimacs_hits > 1:
+            if dimacs_hits > 1:
                 return 'dimacs'
             return 'unknown'
         except Exception:
@@ -121,38 +119,28 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
 
     def _bench_process_header(self, s, st, line_no):
         sl = s.lower()
-        if ALLOWED_ROW_RE.match(s) and not (sl.startswith('type ') or
-                                            sl.startswith('height ') or
-                                            sl.startswith('width ') or
-                                            s == 'map'):
+        if ALLOWED_ROW_RE.match(s) and not (sl.startswith('type ') or sl.startswith('height ') or sl.startswith('width ') or s == 'map'):
             self._map_error("Map row encountered before 'map' line")
         parts = s.split()
         key = parts[0].lower()
         seen = st['seen']
-        if key == 'type':
-            if seen['type']:
-                self._map_error("Duplicate 'type' line")
-            if len(parts) < 2:
-                self._map_error("Malformed type line")
-            st['movement_type'] = parts[1].lower(); seen['type'] = True
-        elif key == 'height':
-            if seen['height']:
-                self._map_error("Duplicate 'height' line")
-            if len(parts) != 2 or not parts[1].isdigit():
-                self._map_error("Malformed height line")
-            st['height'] = int(parts[1]); seen['height'] = True
-        elif key == 'width':
-            if seen['width']:
-                self._map_error("Duplicate 'width' line")
-            if len(parts) != 2 or not parts[1].isdigit():
-                self._map_error("Malformed width line")
-            st['width'] = int(parts[1]); seen['width'] = True
+        if key in ('type', 'height', 'width'):
+            if seen[key]:
+                self._map_error(f"Duplicate '{key}' line")
+            if key == 'type':
+                if len(parts) < 2:
+                    self._map_error("Malformed type line")
+                st['movement_type'] = parts[1].lower()
+            else:
+                if len(parts) != 2 or not parts[1].isdigit():
+                    self._map_error(f"Malformed {key} line")
+                st[key] = int(parts[1])
+            seen[key] = True
         elif s == 'map':
             st['in_map'] = True
             missing = [k for k in ('type', 'height', 'width')
                        if (k == 'type' and st['movement_type'] is None) or
-                          (k == 'height' and st['height'] is None) or
-                          (k == 'width' and st['width'] is None)]
+                          (k != 'type' and st[k] is None)]
             if missing:
                 self._map_error("Missing header(s): " + ", ".join(missing))
         else:
@@ -274,11 +262,7 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
     # -------------------- DIMACS validator --------------------
     def _is_valid_dimacs_file(self, filepath):
         st = self._dimacs_state()
-        dimacs_handle_a = self._dimacs_handle_a
-        dimacs_handle_p = self._dimacs_handle_p
-        dimacs_handle_n = self._dimacs_handle_n
-        dimacs_handle_c = self._dimacs_handle_comment
-        dimacs_error = self._dimacs_error
+        handlers = {'a': self._dimacs_handle_a, 'p': self._dimacs_handle_p, 'n': self._dimacs_handle_n}
         with open(filepath, 'r', encoding='utf-8-sig', errors='replace') as f:
             for line_no, raw in enumerate(f, 1):
                 s = raw.strip()
@@ -286,38 +270,13 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
                     continue
                 parts = s.split()
                 tag = parts[0].lower()
-                if tag == 'a':
-                    dimacs_handle_a(parts, line_no, st)
-                elif tag == 'p':
-                    dimacs_handle_p(parts, line_no, st)
-                elif tag == 'n':
-                    dimacs_handle_n(parts, line_no, st)
+                if tag in handlers:
+                    handlers[tag](parts, line_no, st)
                 elif tag in DIMACS_TOKENS:
-                    dimacs_handle_c(tag, parts, line_no)
+                    self._dimacs_handle_comment(tag, parts, line_no)
                 else:
-                    dimacs_error(
-                        f"Line {line_no}: unexpected token '{parts[0]}'. Expected one of: a, p, n, c, alpha, beta"
-                    )
+                    self._dimacs_error(f"Line {line_no}: unexpected token '{parts[0]}'. Expected one of: a, p, n, c, alpha, beta")
         return self._dimacs_finalize(st)
-
-    def read_map_file(self, filepath, parsed=None):
-        if parsed is None:
-            if getattr(self, '_last_parsed_map', None) is None:
-                if not self._parse_validate_map_stream(filepath):
-                    return []
-            parsed = self._last_parsed_map
-        movement_type, height, width, map_grid = parsed
-        unit_length = self.extract_unit_length(filepath)
-
-        node_id = self.build_node_ids(map_grid)
-        edges = self._generate_dimacs_edges_with_node_id(map_grid, movement_type, unit_length, node_id)
-
-        self.M = height * width
-        self.space_edges = [['a', str(u), str(v), str(lo), str(up), str(w)] for (u, v, lo, up, w) in edges]
-        config.M = self.M
-        print(self.space_edges)
-        check=input("check0")
-        return self.space_edges
 
     def _try_benchmark(self, filepath):
         if self._parse_validate_map_stream(filepath):
@@ -334,91 +293,6 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
         return isinstance(msg, str) and (
             msg.startswith("[BENCHMARK ERROR]") or msg.startswith("[DIMACS ERROR]") or msg.startswith("[MAP ERROR]")
         )
-    
-    def _bm_create_tsg_file(self):
-        if not getattr(self, "space_edges", None):
-            raise ValueError("space_edges is empty; run process_input_file() first")
-        if not hasattr(self, "M") or not hasattr(self, "H") or not hasattr(self, "d"):
-            raise ValueError("Missing M/H/d; ensure they are set before creating TSG")
-        M, H, d = self.M, self.H, self.d
-
-        tsg = TimeSpaceGraph4Benchmark(H, d)
-        tsg.M = M
-        self.ts_edges = []
-        written = set() 
-
-        def add_edge_obj(e):
-            key = (e.start_node.id, e.end_node.id, e.lower, e.upper, e.weight)
-            if key in written:
-                return
-            written.add(key)
-            tsg.add_edge(e)
-            self.ts_edges.append(e)
-
-        max_id = M * (H + 1)
-        for parts in self.space_edges:
-            parts = parts.split() if isinstance(parts, str) else parts
-            if len(parts) < 6:
-                continue
-            u = int(parts[1]); v = int(parts[2])
-            lower = int(parts[3]); upper = int(parts[4]); weight = int(parts[5])
-
-            for i in range(0, H, d):
-                a1 = M * i + u
-                a2 = M * (i + 1) + v
-                a3 = M * i + v
-                a4 = M * (i + 1) + u
-                v1 = max_id + 1
-                v2 = max_id + 2
-                max_id += 2
-
-                print(a1, a2, a3, a4, v1, v2)
-                check=input("check1")
-
-                tsg.create_nodes(a1, a2, a3, a4, v1, v2)
-
-                # Inflow
-                add_edge_obj(InflowEdge(tsg.V[a1], tsg.V[v1], lower, upper, 0))
-                add_edge_obj(InflowEdge(tsg.V[a3], tsg.V[v1], lower, upper, 0))
-                # Bottleneck
-                add_edge_obj(NeckEdge(tsg.V[v1], tsg.V[v2], lower, upper, weight))
-                # Outflow
-                add_edge_obj(OutflowEdge(tsg.V[v2], tsg.V[a2], lower, upper, 0))
-                add_edge_obj(OutflowEdge(tsg.V[v2], tsg.V[a4], lower, upper, 0))
-                # Wait edges 
-                add_edge_obj(WaitingEdge(tsg.V[a1], tsg.V[a4], lower, upper, 0))
-                add_edge_obj(WaitingEdge(tsg.V[a3], tsg.V[a2], lower, upper, 0))
-
-        self.tsg_nodes = tsg.V
-        self.tsg_edges = tsg.E
-        if getattr(self, "print_out", False):
-            print(f"TSG built in memory with {len(self.ts_edges)} edges.")
-        print(self.ts_edges)
-        check=input("check2")
-
-    def process_input_file(self, filepath):
-        fmt = self._detect_input_format(filepath)
-
-        if fmt == 'benchmark':
-            self._parse_validate_map_stream(filepath) 
-            self.file_map = filepath
-            movement_type, height, width, map_grid = self._last_parsed_map
-
-            result = self.read_map_file(filepath, parsed=self._last_parsed_map)
-
-            self._bm_height = height
-            self._bm_width = width
-            self._bm_movement_type = movement_type
-
-            self.create_tsg_file = self._bm_create_tsg_file
-            return result
-
-        if fmt == 'dimacs':
-            result = super().process_input_file(filepath)
-            return result
-
-        if fmt == 'empty':
-            raise ValueError("[INPUT ERROR] Empty input file")
 
     # ---- MovingAI cell rules ----
     def _is_passable_char(self, ch: str) -> bool:
@@ -466,8 +340,7 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
                     continue
                 if dr != 0 and dc != 0:
                     # no-corner-cutting
-                    if not (self._is_passable_char(map_grid[r][nc]) or
-                            self._is_passable_char(map_grid[nr][c])):
+                    if not (self._is_passable_char(map_grid[r][nc]) or self._is_passable_char(map_grid[nr][c])):
                         continue
                 v = node_id[(nr, nc)]
                 if u < v:
@@ -477,3 +350,74 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
     def generate_dimacs_edges(self, map_grid, movement_type, unit_length=1):
         node_id = self.build_node_ids(map_grid)
         return self._generate_dimacs_edges_with_node_id(map_grid, movement_type, unit_length, node_id)
+
+    def read_map_file(self, filepath, parsed=None):
+        if parsed is None:
+            if getattr(self, '_last_parsed_map', None) is None:
+                if not self._parse_validate_map_stream(filepath):
+                    return []
+            parsed = self._last_parsed_map
+        movement_type, height, width, map_grid = parsed
+        unit_length = self.extract_unit_length(filepath)
+        node_id = self.build_node_ids(map_grid)
+        edges = self._generate_dimacs_edges_with_node_id(map_grid, movement_type, unit_length, node_id)
+        self.M = height * width
+        self.space_edges = [['a', str(u), str(v), str(lo), str(up), str(w)] for (u, v, lo, up, w) in edges]
+        config.M = self.M
+        print(self.space_edges)
+        check=input("check0")
+        return self.space_edges
+
+    def _bm_create_tsg_file(self):
+        if not getattr(self, "space_edges", None):
+            raise ValueError("space_edges is empty; run process_input_file() first")
+        if not hasattr(self, "M") or not hasattr(self, "H") or not hasattr(self, "d"):
+            raise ValueError("Missing M/H/d; ensure they are set before creating TSG")
+        M, H, d = self.M, self.H, self.d
+        tsg = TimeSpaceGraph4Benchmark(H, d); tsg.M = M
+        self.ts_edges = []; written = set()
+        def write(e):
+            k = (e.start_node.id, e.end_node.id, e.lower, e.upper, e.weight)
+            if k in written: return
+            written.add(k); tsg.add_edge(e); self.ts_edges.append(e)
+        max_id = M * (H + 1)
+        for parts in self.space_edges:
+            parts = parts.split() if isinstance(parts, str) else parts
+            if len(parts) < 6: continue
+            u, v, lower, upper, weight = map(int, parts[1:6])
+            for i in range(0, H, d):
+                a1 = M * i + u; a2 = M * (i + 1) + v
+                a3 = M * i + v; a4 = M * (i + 1) + u
+                v1 = max_id + 1; v2 = max_id + 2; max_id += 2
+                print(a1, a2, a3, a4, v1, v2)
+                check=input("check1")
+                tsg.create_nodes(a1, a2, a3, a4, v1, v2)
+                for e in (
+                    InflowEdge(tsg.V[a1], tsg.V[v1], lower, upper, 0),
+                    InflowEdge(tsg.V[a3], tsg.V[v1], lower, upper, 0),
+                    NeckEdge(tsg.V[v1], tsg.V[v2], lower, upper, weight),
+                    OutflowEdge(tsg.V[v2], tsg.V[a2], lower, upper, 0),
+                    OutflowEdge(tsg.V[v2], tsg.V[a4], lower, upper, 0),
+                    WaitingEdge(tsg.V[a1], tsg.V[a4], lower, upper, 0),
+                    WaitingEdge(tsg.V[a3], tsg.V[a2], lower, upper, 0),
+                ):
+                    write(e)
+        self.tsg_nodes = tsg.V; self.tsg_edges = tsg.E
+        if getattr(self, "print_out", False):
+            print(f"TSG built in memory with {len(self.ts_edges)} edges.")
+        with open("ts_edges.txt", "w", encoding="utf-8") as f:
+            for edge in self.ts_edges:
+                f.write(str(edge) + "\n")
+        check = input("check2")
+
+    def process_input_file(self, filepath):
+        fmt = self._detect_input_format(filepath)
+        if fmt == 'benchmark':
+            result = self._try_benchmark(filepath)
+            self.create_tsg_file = self._bm_create_tsg_file
+            return result
+        if fmt == 'dimacs':
+            return super().process_input_file(filepath)
+        if fmt == 'empty':
+            raise ValueError("[MAP ERROR] Empty file")
+        raise ValueError(f"Unknown input format: {filepath}")
