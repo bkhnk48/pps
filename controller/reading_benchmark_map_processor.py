@@ -412,6 +412,7 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
 
     def process_input_file(self, filepath):
         fmt = self._detect_input_format(filepath)
+        self._input_format = fmt  
         if fmt == 'benchmark':
             result = self._try_benchmark(filepath)
             self.create_tsg_file = self._bm_create_tsg_file
@@ -421,3 +422,10 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
         if fmt == 'empty':
             raise ValueError("[MAP ERROR] Empty file")
         raise ValueError(f"Unknown input format: {filepath}")
+
+    # --- Override: nếu là benchmark thì không làm gì ở generate_time_windows ---
+    def generate_time_windows(self):
+        fmt = getattr(self, "_input_format", None)
+        if fmt == 'benchmark':
+            return 0
+        return super().generate_time_windows()
