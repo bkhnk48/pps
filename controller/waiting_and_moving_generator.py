@@ -1,9 +1,10 @@
 from controller.NodeGenerator import TimeWindowNode
 from controller.time_window_generator import TimeWindowGenerator
+from controller.time_window_generator_4_benchmark import TimeWindowGenerator4Benchmark
 import pdb
 
 #Sẽ được lớp EdgeModifier kế thừa
-class WaitingAndMovingEdgesGenerator (TimeWindowGenerator):
+class WaitingAndMovingEdgesGenerator (TimeWindowGenerator4Benchmark):
     def __init__(self, dm):
         super().__init__(dm) 
         self._graph = None
