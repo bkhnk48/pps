@@ -122,20 +122,44 @@ class TimeWindowGenerator4Benchmark(TimeWindowGenerator):
         if not scenarios:
             return super().add_time_window_first_time(num_of_agvs)
 
-        # Ask for speed; default 1 if empty/invalid
-        try:
-            sp_in = input("Enter AGV speed (cells per time unit, default 1): ").strip()
-        except Exception:
-            sp_in = ""
-        try:
-            speed = float(sp_in) if sp_in else 1.0
-            if speed <= 0:
+        # Ask how many AGVs to use
+        requested_agvs = config.benchmark_agv_count
+        if requested_agvs is None:
+            try:
+                agv_in = input("Enter number of AGVs (press Enter to use all scenarios from .scen files): ").strip()
+            except Exception:
+                agv_in = ""
+            if agv_in:
+                try:
+                    requested_agvs = int(agv_in)
+                except Exception:
+                    requested_agvs = 0
+            else:
+                requested_agvs = 0
+            config.benchmark_agv_count = requested_agvs
+
+        # Ask for speed only the first time
+        speed = config.benchmark_agv_speed if config.benchmark_agv_speed is not None else None
+        if speed is None:
+            try:
+                sp_in = input("Enter AGV speed (cells per time unit, default 1): ").strip()
+            except Exception:
+                sp_in = ""
+            try:
+                speed = float(sp_in) if sp_in else 1.0
+                if speed <= 0:
+                    speed = 1.0
+            except Exception:
                 speed = 1.0
-        except Exception:
-            speed = 1.0
+            config.benchmark_agv_speed = speed
 
         # Decide how many scenarios to take
-        take = num_of_agvs if isinstance(num_of_agvs, int) and num_of_agvs > 0 else len(scenarios)
+        if isinstance(requested_agvs, int) and requested_agvs > 0:
+            take = requested_agvs
+        elif isinstance(num_of_agvs, int) and num_of_agvs > 0:
+            take = num_of_agvs
+        else:
+            take = len(scenarios)
         scenarios = scenarios[:take]
 
         self.started_nodes = []
@@ -182,9 +206,6 @@ class TimeWindowGenerator4Benchmark(TimeWindowGenerator):
             self.append_target(target)
             created_targets.append((v, target))
 
-        # Wire targets into the controller mapping
-        # We mirror TimeWindowGenerator.add_time_window_constraints -> get_initial_conditions
-        # but without reading/writing TSG.txt (benchmark path builds edges in-memory).
         for (goal_space_id, target_node), e_val, t_val in zip(created_targets, self.earliness, self.tardiness):
             self.time_window_controller.add_source_and_TWNode(goal_space_id, target_node, e_val, t_val)
 
