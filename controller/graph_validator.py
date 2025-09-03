@@ -1,7 +1,7 @@
-from controller.edge_modifier import EdgeModifier
+from controller.edge_modifier_4_benchmark import EdgeModifier4Benchmark
 
 #Sẽ được lớp KickOffGenerator kế thừa
-class GraphValidator(EdgeModifier):
+class GraphValidator(EdgeModifier4Benchmark):
     def __init__(self, dm):
         super().__init__(dm)
     
