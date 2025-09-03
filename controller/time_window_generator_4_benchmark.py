@@ -1,46 +1,54 @@
 from __future__ import annotations
+
 import os
 import re
-import numpy as np
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from controller.time_window_generator import TimeWindowGenerator
+from controller.NodeGenerator import TimeWindowNode
+from controller.TimeWindowController import TimeWindowController
 import config
 
 
-class TimeWindowGenerator4Benchmark(TimeWindowGenerator):
-    SCEN_SPLIT_RE = re.compile(r'\s+')
+class TimeWindowGenerator4Benchmark2(TimeWindowGenerator):
+    SCEN_SPLIT_RE = re.compile(r"\s+")
 
     # ---------- helpers ----------
     def _project_root(self) -> str:
-        return os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+        return os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
     def _benchmark_dir(self) -> str:
-        return os.path.join(self._project_root(), 'data', 'benchmark')
+        return os.path.join(self._project_root(), "data", "benchmark")
 
     def _parse_scen_file(self, path: str) -> List[Dict[str, Any]]:
         rows: List[Dict[str, Any]] = []
         try:
-            with open(path, 'r', encoding='utf-8-sig', errors='replace') as f:
+            with open(path, "r", encoding="utf-8-sig", errors="replace") as f:
                 for raw in f:
                     s = raw.strip()
-                    if not s or s.lower().startswith('version'):
+                    if not s or s.lower().startswith("version"):
                         continue
                     parts = self.SCEN_SPLIT_RE.split(s)
                     if len(parts) < 9:
                         continue
-                    rows.append({
-                        'bucket': parts[0],
-                        'map': parts[1],
-                        'width': int(parts[2]),
-                        'height': int(parts[3]),
-                        'sx': int(parts[4]),
-                        'sy': int(parts[5]),
-                        'gx': int(parts[6]),
-                        'gy': int(parts[7]),
-                        'opt': float(parts[8]),
-                    })
+                    try:
+                        rows.append(
+                            {
+                                "bucket": parts[0],
+                                "map": parts[1],
+                                "width": int(parts[2]),
+                                "height": int(parts[3]),
+                                "sx": int(parts[4]),
+                                "sy": int(parts[5]),
+                                "gx": int(parts[6]),
+                                "gy": int(parts[7]),
+                                "opt": float(parts[8]),
+                            }
+                        )
+                    except Exception:
+                        continue
         except Exception:
+            # Missing/invalid scen file -> ignore
             pass
         return rows
 
@@ -48,41 +56,87 @@ class TimeWindowGenerator4Benchmark(TimeWindowGenerator):
         cases: List[Dict[str, Any]] = []
         for root, _, files in os.walk(bench_dir):
             for fn in files:
-                if not fn.lower().endswith('.scen'):
+                if not fn.lower().endswith(".scen"):
                     continue
                 scen_path = os.path.join(root, fn)
                 for row in self._parse_scen_file(scen_path):
-                    if os.path.basename(row['map']) == map_basename:
-                        row['__scen_path'] = scen_path
+                    if os.path.basename(row["map"]) == map_basename:
+                        row["__scen_path"] = scen_path
                         cases.append(row)
         return cases
 
+    def _current_max_node_id(self) -> int:
+        max_id = 0
+        # From built time-space graph (benchmark path)
+        tsg_nodes = getattr(self, "tsg_nodes", None)
+        if isinstance(tsg_nodes, dict) and tsg_nodes:
+            try:
+                max_id = max(max_id, max(tsg_nodes.keys()))
+            except Exception:
+                pass
+        # From edges recorded (objects with start_node/end_node)
+        ts_edges = getattr(self, "ts_edges", None)
+        if isinstance(ts_edges, list) and ts_edges:
+            for e in ts_edges:
+                try:
+                    max_id = max(max_id, int(e.start_node.id), int(e.end_node.id))
+                except Exception:
+                    continue
+        # From nodes list
+        ts_nodes = getattr(self, "ts_nodes", None)
+        if isinstance(ts_nodes, list) and ts_nodes:
+            try:
+                max_id = max(max_id, max(getattr(n, "id", 0) for n in ts_nodes))
+            except Exception:
+                pass
+        M = getattr(self, "M", 0)
+        H = getattr(self, "H", 0)
+        if max_id == 0 and M and H:
+            max_id = M * (H + 1)
+        return int(max_id)
+
     # ---------- override ----------
-    def add_time_window_first_time(self, num_of_agvs: int = 0, speed: float = 1.0,
-                                   bench_dir: Optional[str] = None):
+    def add_time_window_first_time(
+        self,
+        num_of_agvs: int = 0,
+    ) -> None:
         fmt = getattr(self, "_input_format", None)
-        if fmt != 'benchmark':
+        if fmt == "dimacs":
+            return super().add_time_window_first_time(num_of_agvs)
+
+        if fmt != "benchmark":
             return super().add_time_window_first_time(num_of_agvs)
 
         parsed = getattr(self, "_last_parsed_map", None)
         if not parsed:
+            # Map not parsed yet -> cannot proceed
             return
         movement_type, height, width, map_grid = parsed
+        node_id = self.build_node_ids(map_grid)
 
-        M = getattr(self, "M", height * width)
-
-        bench_dir = bench_dir or self._benchmark_dir()
-
-        current_map_path = getattr(config, 'filepath', None)
+        # Determine which .scen files to use (matching current map name)
+        current_map_path = getattr(config, "filepath", None)
         map_name = os.path.basename(current_map_path) if current_map_path else None
-        if not map_name:
-            return
-
-        scenarios = self._gather_scenarios_for_map(bench_dir, map_name)
+        bench_dir = self._benchmark_dir()
+        scenarios = self._gather_scenarios_for_map(bench_dir, map_name) if map_name else []
         if not scenarios:
             return super().add_time_window_first_time(num_of_agvs)
 
-        node_id = self.build_node_ids(map_grid)
+        # Ask for speed; default 1 if empty/invalid
+        try:
+            sp_in = input("Enter AGV speed (cells per time unit, default 1): ").strip()
+        except Exception:
+            sp_in = ""
+        try:
+            speed = float(sp_in) if sp_in else 1.0
+            if speed <= 0:
+                speed = 1.0
+        except Exception:
+            speed = 1.0
+
+        # Decide how many scenarios to take
+        take = num_of_agvs if isinstance(num_of_agvs, int) and num_of_agvs > 0 else len(scenarios)
+        scenarios = scenarios[:take]
 
         self.started_nodes = []
         self.ID = []
@@ -91,35 +145,63 @@ class TimeWindowGenerator4Benchmark(TimeWindowGenerator):
         self.alpha = 1
         self.beta = 1
 
-        for row in scenarios:
-            sx, sy = row['sx'], row['sy']
-            gx, gy = row['gx'], row['gy']
+        if self.time_window_controller is None:
+            self.time_window_controller = TimeWindowController(self.alpha, self.beta, self.gamma, self.d, self.H)
 
-            start_rc = (sy, sx)  # (row, col)
+        # Build entries per scenario
+        cur_max = self._current_max_node_id()
+        created_targets: List[Tuple[int, TimeWindowNode]] = []
+
+        for row in scenarios:
+            sx, sy, gx, gy = row["sx"], row["sy"], row["gx"], row["gy"]
+            start_rc = (sy, sx)  # (row, col) = (y, x)
             goal_rc = (gy, gx)
 
             if start_rc not in node_id or goal_rc not in node_id:
                 continue
 
-            u = node_id[start_rc]
-            v = node_id[goal_rc]
+            u = int(node_id[start_rc])  # space id of start
+            v = int(node_id[goal_rc])   # space id of goal
 
-            start_ts = np.int64(u)
-            goal_space = np.int64(v)
+            # time-space start at i=0 -> id=u
+            self.started_nodes.append(u)
 
-            spd = float(speed) if speed else 1.0
-            e_val = int(round(row['opt'] / spd))
+            # earliness/tardiness from optimal length and speed
+            e_val = int(round(row["opt"] / (speed if speed else 1.0)))
             if e_val < 0:
                 e_val = 0
-            e = np.int64(e_val)
-            t = np.int64(e_val + 1)
+            t_val = e_val + 1
+            self.earliness.append(e_val)
+            self.tardiness.append(t_val)
+            self.ID.append(v)  # goal SPACE id
 
-            self.started_nodes.append(start_ts)
-            self.ID.append(goal_space)
-            self.earliness.append(e)
-            self.tardiness.append(t)
+            # Create a TimeWindowNode target with fresh id
+            cur_max += 1
+            target = TimeWindowNode(cur_max, "TimeWindow")
+            self.ts_nodes.append(target)
+            self.append_target(target)
+            created_targets.append((v, target))
 
-        print(f'Start: {self.started_nodes} \n End: {self.ID} \n Earliness: {self.earliness} \n Tardiness: {self.tardiness}')
+        # Wire targets into the controller mapping
+        # We mirror TimeWindowGenerator.add_time_window_constraints -> get_initial_conditions
+        # but without reading/writing TSG.txt (benchmark path builds edges in-memory).
+        for (goal_space_id, target_node), e_val, t_val in zip(created_targets, self.earliness, self.tardiness):
+            self.time_window_controller.add_source_and_TWNode(goal_space_id, target_node, e_val, t_val)
+
+        # Cost follows the same formula used by TimeWindowController.
+        M = getattr(self, "M", None)
+        H = getattr(self, "H", None)
+        d = getattr(self, "d", None)
+        if M and H is not None and d:
+            new_edges = set()
+            for (goal_space_id, target_node), e_val, t_val in zip(created_targets, self.earliness, self.tardiness):
+                for i in range(0, int(H) + 1, int(d)):
+                    j = int(M) * i + int(goal_space_id)
+                    # Compute penalty cost C
+                    C = int(int(self.beta) * max(e_val - i, 0, i - t_val) / int(self.alpha))
+                    new_edges.add((j, int(target_node.id), 0, 1, C))
+            if new_edges:
+                self.create_set_of_edges(new_edges)
 
         config.started_nodes = list(self.started_nodes)
         config.ID = list(self.ID)
@@ -128,6 +210,8 @@ class TimeWindowGenerator4Benchmark(TimeWindowGenerator):
         config.numOfAGVs = len(self.ID)
         config.num_max_agvs = len(self.ID)
 
-        # for _ in range(len(self.ID)):
-        #     # add_time_window_constraints() tiêu thụ phần tử đầu tiên qua get_initial_conditions
-        #     self.add_time_window_constraints()
+        if getattr(self, "print_out", False):
+            print(
+                f"Start: {self.started_nodes}\nEnd: {self.ID}\n"
+                f"Earliness: {self.earliness}\nTardiness: {self.tardiness}"
+            )
