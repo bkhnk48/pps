@@ -180,3 +180,35 @@ RAM: Unknown"
 User: admin
 CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
 RAM: Unknown"
+68.0,data/benchmark/simplest1.map,1,10,10,networkx,0,2,0,0.6517610549926758,0.0024290084838867188,GAUSSIAN,2025-09-03 18:50:50,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+69.0,data/benchmark/simplest1.map,1,10,10,solver,1,1,0,0.06806731224060059,0.0,BIMODAL,2025-09-03 18:50:54,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+70.0,data/benchmark/simplest1.map,1,10,10,networkx,0,2,0,0.060353994369506836,0.0012614727020263672,Random in the list,2025-09-03 18:50:57,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+71.0,data/benchmark/simplest1.map,1,10,10,solver,1,1,0,0.0850057601928711,0.0,Random in the list,2025-09-03 18:50:59,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+72.0,Redundant3x3Wards.txt,2,10,10,networkx,0,2,0,0.49176645278930664,0.0035479068756103516,GAUSSIAN,2025-09-03 18:51:28,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+73.0,Redundant3x3Wards.txt,2,10,10,solver,0,2,0,0.06675291061401367,0.0,BIMODAL,2025-09-03 18:51:29,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+74.0,Redundant3x3Wards.txt,2,10,10,networkx,0,2,0,0.04190397262573242,0.0010006427764892578,Random in the list,2025-09-03 18:51:29,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+75.0,Redundant3x3Wards.txt,2,10,10,solver,0,2,0,0.09685587882995605,0.0,Random in the list,2025-09-03 18:51:30,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"

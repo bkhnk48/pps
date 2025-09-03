@@ -10,7 +10,7 @@ from controller.TimeWindowController import TimeWindowController
 import config
 
 
-class TimeWindowGenerator4Benchmark2(TimeWindowGenerator):
+class TimeWindowGenerator4Benchmark(TimeWindowGenerator):
     SCEN_SPLIT_RE = re.compile(r"\s+")
 
     # ---------- helpers ----------
