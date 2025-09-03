@@ -9,4 +9,4 @@ sortedcontainers==2.4.0
 threadpoolctl==3.5.0
 plotly
 openpyxl
-pyscipopt # replace PySCIPOpt==5.1.1?
+#pyscipopt replace PySCIPOpt==5.1.1?
