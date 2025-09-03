@@ -95,7 +95,7 @@ class TimeWindowGenerator4Benchmark(TimeWindowGenerator):
             max_id = M * (H + 1)
         return int(max_id)
 
-    # ---------- override ----------
+    # ------- override -------
     def add_time_window_first_time(
         self,
         num_of_agvs: int = 0,
@@ -103,7 +103,6 @@ class TimeWindowGenerator4Benchmark(TimeWindowGenerator):
         fmt = getattr(self, "_input_format", None)
         if fmt == "dimacs":
             return super().add_time_window_first_time(num_of_agvs)
-
         if fmt != "benchmark":
             return super().add_time_window_first_time(num_of_agvs)
 
@@ -114,14 +113,41 @@ class TimeWindowGenerator4Benchmark(TimeWindowGenerator):
         movement_type, height, width, map_grid = parsed
         node_id = self.build_node_ids(map_grid)
 
+        scenarios = self._determine_scenarios()
+        if not scenarios:
+            return super().add_time_window_first_time(num_of_agvs)
+
+        requested_agvs = self._ask_agv_count_once()
+        speed = self._ask_speed_once()
+
+        scenarios = self._decide_take(scenarios, requested_agvs, num_of_agvs)
+
+        self._init_state_and_controller()
+
+        created_targets = self._build_entries_per_scenario(scenarios, node_id, speed)
+
+        self._wire_targets_into_controller(created_targets)
+
+        self._materialize_time_window_edges(created_targets)
+
+        self._update_config_after_generation()
+
+        if getattr(self, "print_out", False):
+            print(
+                f"Start: {self.started_nodes}\nEnd: {self.ID}\n"
+                f"Earliness: {self.earliness}\nTardiness: {self.tardiness}"
+            )
+
+    # ------- helpers -------
+    def _determine_scenarios(self) -> List[Dict[str, Any]]:
         # Determine which .scen files to use (matching current map name)
         current_map_path = getattr(config, "filepath", None)
         map_name = os.path.basename(current_map_path) if current_map_path else None
         bench_dir = self._benchmark_dir()
         scenarios = self._gather_scenarios_for_map(bench_dir, map_name) if map_name else []
-        if not scenarios:
-            return super().add_time_window_first_time(num_of_agvs)
+        return scenarios
 
+    def _ask_agv_count_once(self) -> int:
         # Ask how many AGVs to use
         requested_agvs = config.benchmark_agv_count
         if requested_agvs is None:
@@ -137,7 +163,9 @@ class TimeWindowGenerator4Benchmark(TimeWindowGenerator):
             else:
                 requested_agvs = 0
             config.benchmark_agv_count = requested_agvs
+        return requested_agvs or 0
 
+    def _ask_speed_once(self) -> float:
         # Ask for speed only the first time
         speed = config.benchmark_agv_speed if config.benchmark_agv_speed is not None else None
         if speed is None:
@@ -152,7 +180,9 @@ class TimeWindowGenerator4Benchmark(TimeWindowGenerator):
             except Exception:
                 speed = 1.0
             config.benchmark_agv_speed = speed
+        return float(speed)
 
+    def _decide_take(self, scenarios: List[Dict[str, Any]], requested_agvs: int, num_of_agvs: int) -> List[Dict[str, Any]]:
         # Decide how many scenarios to take
         if isinstance(requested_agvs, int) and requested_agvs > 0:
             take = requested_agvs
@@ -160,36 +190,37 @@ class TimeWindowGenerator4Benchmark(TimeWindowGenerator):
             take = num_of_agvs
         else:
             take = len(scenarios)
-        scenarios = scenarios[:take]
+        return scenarios[:take]
 
+    def _init_state_and_controller(self) -> None:
         self.started_nodes = []
         self.ID = []
         self.earliness = []
         self.tardiness = []
         self.alpha = 1
         self.beta = 1
-
         if self.time_window_controller is None:
             self.time_window_controller = TimeWindowController(self.alpha, self.beta, self.gamma, self.d, self.H)
 
+    def _build_entries_per_scenario(
+        self,
+        scenarios: List[Dict[str, Any]],
+        node_id: Dict[Tuple[int, int], int],
+        speed: float,
+    ) -> List[Tuple[int, TimeWindowNode]]:
         # Build entries per scenario
         cur_max = self._current_max_node_id()
         created_targets: List[Tuple[int, TimeWindowNode]] = []
-
         for row in scenarios:
             sx, sy, gx, gy = row["sx"], row["sy"], row["gx"], row["gy"]
             start_rc = (sy, sx)  # (row, col) = (y, x)
             goal_rc = (gy, gx)
-
             if start_rc not in node_id or goal_rc not in node_id:
                 continue
-
             u = int(node_id[start_rc])  # space id of start
             v = int(node_id[goal_rc])   # space id of goal
-
             # time-space start at i=0 -> id=u
             self.started_nodes.append(u)
-
             # earliness/tardiness from optimal length and speed
             e_val = int(round(row["opt"] / (speed if speed else 1.0)))
             if e_val < 0:
@@ -198,17 +229,19 @@ class TimeWindowGenerator4Benchmark(TimeWindowGenerator):
             self.earliness.append(e_val)
             self.tardiness.append(t_val)
             self.ID.append(v)  # goal SPACE id
-
             # Create a TimeWindowNode target with fresh id
             cur_max += 1
             target = TimeWindowNode(cur_max, "TimeWindow")
             self.ts_nodes.append(target)
             self.append_target(target)
             created_targets.append((v, target))
+        return created_targets
 
+    def _wire_targets_into_controller(self, created_targets: List[Tuple[int, TimeWindowNode]]) -> None:
         for (goal_space_id, target_node), e_val, t_val in zip(created_targets, self.earliness, self.tardiness):
             self.time_window_controller.add_source_and_TWNode(goal_space_id, target_node, e_val, t_val)
 
+    def _materialize_time_window_edges(self, created_targets: List[Tuple[int, TimeWindowNode]]) -> None:
         # Cost follows the same formula used by TimeWindowController.
         M = getattr(self, "M", None)
         H = getattr(self, "H", None)
@@ -224,15 +257,10 @@ class TimeWindowGenerator4Benchmark(TimeWindowGenerator):
             if new_edges:
                 self.create_set_of_edges(new_edges)
 
+    def _update_config_after_generation(self) -> None:
         config.started_nodes = list(self.started_nodes)
         config.ID = list(self.ID)
         config.earliness = list(self.earliness)
         config.tardiness = list(self.tardiness)
         config.numOfAGVs = len(self.ID)
         config.num_max_agvs = len(self.ID)
-
-        if getattr(self, "print_out", False):
-            print(
-                f"Start: {self.started_nodes}\nEnd: {self.ID}\n"
-                f"Earliness: {self.earliness}\nTardiness: {self.tardiness}"
-            )
