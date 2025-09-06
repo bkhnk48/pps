@@ -132,8 +132,7 @@ class TimeWindowGenerator4Benchmark(TimeWindowGenerator):
 
         self._update_config_after_generation()
 
-        if getattr(self, "print_out", False):
-            print(
+        print(
                 f"Start: {self.started_nodes}\nEnd: {self.ID}\n"
                 f"Earliness: {self.earliness}\nTardiness: {self.tardiness}"
             )
