@@ -497,7 +497,7 @@ class GraphProcessor(KickOffGenerator):
         if self.restriction_controller is None:
             self.restriction_controller = RestrictionIntegratorTQM(self)
     
-        self.insert_halting_edges()
+        # self.insert_halting_edges()
         F = self.restriction_controller.compute_max_flow(use_config_data)
         self.restriction_controller.insert_artificial_objects(F, use_config_data=use_config_data)
         
@@ -591,4 +591,8 @@ class GraphProcessor(KickOffGenerator):
         self.restrictions = []
         self.ur = 3
         #pdb.set_trace()
+        with open("ts_edges.txt", "w", encoding="utf-8") as f:
+            for edge in self.ts_edges:
+                f.write(str(edge) + "\n")
+        check = input("check2")
         self.process_restrictions()

@@ -405,10 +405,6 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
         self.tsg_nodes = tsg.V; self.tsg_edges = tsg.E
         if getattr(self, "print_out", False):
             print(f"TSG built in memory with {len(self.ts_edges)} edges.")
-        with open("ts_edges.txt", "w", encoding="utf-8") as f:
-            for edge in self.ts_edges:
-                f.write(str(edge) + "\n")
-        check = input("check2")
 
     def process_input_file(self, filepath):
         fmt = self._detect_input_format(filepath)
