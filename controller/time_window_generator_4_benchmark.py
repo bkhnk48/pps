@@ -248,7 +248,8 @@ class TimeWindowGenerator4Benchmark(TimeWindowGenerator):
         if M and H is not None and d:
             new_edges = set()
             for (goal_space_id, target_node), e_val, t_val in zip(created_targets, self.earliness, self.tardiness):
-                for i in range(0, int(H) + 1, int(d)):
+                for i in range(0, int(H) + 1):
+                    if(i + d > H + 1): break
                     j = int(M) * i + int(goal_space_id)
                     # Compute penalty cost C
                     C = int(int(self.beta) * max(e_val - i, 0, i - t_val) / int(self.alpha))
