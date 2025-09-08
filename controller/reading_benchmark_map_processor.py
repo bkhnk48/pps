@@ -364,8 +364,6 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
         self.M = height * width
         self.space_edges = [['a', str(u), str(v), str(lo), str(up), str(w)] for (u, v, lo, up, w) in edges]
         config.M = self.M
-        print(self.space_edges)
-        check=input("check0")
         return self.space_edges
 
     def _bm_create_tsg_file(self):
@@ -389,8 +387,6 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
                 a1 = M * i + u; a2 = M * (i + 1) + v
                 a3 = M * i + v; a4 = M * (i + 1) + u
                 v1 = max_id + 1; v2 = max_id + 2; max_id += 2
-                print(a1, a2, a3, a4, v1, v2)
-                check=input("check1")
                 tsg.create_nodes(a1, a2, a3, a4, v1, v2)
                 for e in (
                     InflowEdge(tsg.V[a1], tsg.V[v1], lower, upper, 0),

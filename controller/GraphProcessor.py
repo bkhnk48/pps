@@ -594,5 +594,4 @@ class GraphProcessor(KickOffGenerator):
         with open("ts_edges.txt", "w", encoding="utf-8") as f:
             for edge in self.ts_edges:
                 f.write(str(edge) + "\n")
-        check = input("check2")
         self.process_restrictions()
