@@ -105,7 +105,7 @@ class AGV:
                     break
             if(next_node is None):
                 next_node = self._traces[0]
-            if(self.graph.graph_processor.ut):
+            if(self.graph.graph_processor.print_out):
                 print(f"AGV {self.id} is moving to next node: {next_node} from current node: {self.current_node}.")
             return next_node
         else:
@@ -116,29 +116,36 @@ class AGV:
         return self._traces
     
     def set_traces(self, traces):
+        if(len(traces) == 0):
+            pdb.set_trace()
         self._traces = traces
     
     def update_traces(self, predicted_id_node, real_node):
         #pdb.set_trace()
         index = 0
         M = self.graph.graph_processor.M
-        for node in self._traces:
+        for node in self.get_traces():
             if node.id % M == predicted_id_node % M:
                 break
             else:
                 index = index + 1
-        if(index >= len(self._traces)):
+        if(index >= len(self.get_traces())):
             if(self.graph.graph_processor.print_out):
-                print(f'{self.id} has _traces: {self._traces} needs to be inserted {real_node} at [{index}]')
+                print(f'{self.id} has _traces: {self.get_traces()} needs to be inserted {real_node} at [{index}]')
             #pdb.set_trace()
-            self._traces = [real_node]
+            #self._traces = [real_node]
+            self.set_traces([real_node])
         else:    
-            self._traces[index] = real_node
+            #self._traces[index] = real_node
+            self.get_traces()[index] = real_node
+            
     def move_to(self, event = None):
-        if len(self._traces) >= 1:
+        if len(self.get_traces()) >= 1:
             self.previous_node = self.current_node
             self.current_node = self.get_traces()[0].id
-            self._traces.pop(0)
+            self.get_traces().pop(0)
+            if(len(self.get_traces()) == 0):
+                pdb.set_trace()
             self.state = 'moving'
             if(self.graph.graph_processor.print_out):
                 print(f"AGV {self.id} moved from {self.previous_node} to {self.current_node}. State updated to 'idle'.")
