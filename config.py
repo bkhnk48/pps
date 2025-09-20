@@ -33,8 +33,7 @@ artificial_upper_bound = None
 artificial_gamma = None
 BIMODAL = -1
 GAUSSIAN = 0
-benchmark_agv_count = None  
-benchmark_agv_speed = None   
+count_set_traces = 0
 
 def _try_import(module_name):
     try:
