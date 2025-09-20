@@ -5,6 +5,7 @@ import pdb
 from inspect import currentframe, getframeinfo
 import numpy as np
 from datetime import datetime
+import config
 
 class AGV:
     _all_instances = set()
@@ -17,7 +18,7 @@ class AGV:
         self._cost = cost
         self.version_of_graph = version_of_graph
         self._traces = [] #các đỉnh sắp đi qua
-        self._path = SortedSet([]) #các đỉnh đã đi qua 
+        self._path = {} #các đỉnh đã đi qua 
         self.graph = graph
         if current_node not in self.graph.nodes.keys():
             #pdb.set_trace()
@@ -40,6 +41,11 @@ class AGV:
         return self._current_node
     @current_node.setter
     def current_node(self, value):
+        info = ""
+        if(config.solver_choice == 'solver' and self.id == 'AGV4' and value == 3843):
+            pdb.set_trace()
+            frame = inspect.currentframe().f_back
+            info = inspect.getframeinfo(frame)
         self._current_node = value
     
     @property
@@ -47,10 +53,27 @@ class AGV:
         #pdb.set_trace()
         return self._path
     
+    def add_path(self, node_id, spending_time):
+        time = 0
+        space_node_id = node_id
+        node = self.graph.graph_processor.find_node(node_id)
+        if node is None:
+            pdb.set_trace()
+        else:
+            space_node_id = node.get_raw_id()
+        if space_node_id > self.graph.number_of_nodes_in_space_graph:
+            space_node_id = space_node_id % self.graph.number_of_nodes_in_space_graph + \
+                (self.graph.number_of_nodes_in_space_graph if space_node_id % self.graph.number_of_nodes_in_space_graph == 0 else 0)
+        if space_node_id in self._path:
+            time = self._path[space_node_id]
+        #pdb.set_trace()
+        self._path[space_node_id] = spending_time + time
+        #self._path.add([space_node_id, spending_time])
+    
     @path.setter
     def path(self, value):
-        #pdb.set_trace()
-        self._path = value
+        pdb.set_trace()
+        #self._path = value
     
     @property
     def cost(self):
@@ -64,6 +87,8 @@ class AGV:
     
     @property
     def target_node(self):
+        if(self.id == 'AGV23' and self._target_node is None):
+            pdb.set_trace()
         return self._target_node
     
     @staticmethod
@@ -116,8 +141,8 @@ class AGV:
         return self._traces
     
     def set_traces(self, traces):
-        if(len(traces) == 0):
-            pdb.set_trace()
+        #if(len(traces) == 0):
+        #    pdb.set_trace()
         self._traces = traces
     
     def update_traces(self, predicted_id_node, real_node):
