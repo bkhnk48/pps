@@ -8,6 +8,7 @@ from openpyxl import load_workbook
 import math
 import numpy as np
 import pdb
+from controller.solver_controller.solver_tsg_generator import SolverTsgGenerator
 
 #Sẽ được lớp ReadingInputProcessor kế thừa
 class StartNodeGenerator:
@@ -19,6 +20,7 @@ class StartNodeGenerator:
         self._H = 0
         self._M = 0
         self._seed = 0
+        #self.solver_tsg_generator = SolverTsgGenerator()
         
     # Getter và Setter cho seed
     @property
