@@ -2,6 +2,7 @@ from controller.NodeGenerator import TimeWindowNode
 #from controller.reading_input_processor import ReadingInputProcessor
 from controller.tsg_file_editor import TsgFileEditor
 import pdb
+import config
 
 #Sẽ được lớp WaitingAndMovingEdgesGenerator kế thừa
 class TimeWindowGenerator(TsgFileEditor):
@@ -66,7 +67,10 @@ class TimeWindowGenerator(TsgFileEditor):
         return None
     
     def create_time_window_node(self, max_val):
-        target_node = TimeWindowNode(max_val, "TimeWindow")
+        ID = self.ID[0]
+        earliness = self.earliness[0]
+        tardiness = self.tardiness[0]
+        target_node = TimeWindowNode(max_val, "TimeWindow", ID, earliness, tardiness)
         self.ts_nodes.append(target_node)
         self.append_target(target_node)
         return target_node
@@ -128,13 +132,15 @@ class TimeWindowGenerator(TsgFileEditor):
         new_edges = self.process_tsg_file(target_node, ID, earliness, tardiness)
 
         self.update_edges(new_edges)
+        
+        #self.solver_tsg_generator.write_tw_declaration(target_node.id, earliness, tardiness)
 
         if self.print_out:
             print(f"Đã cập nhật {len(new_edges)} cung mới vào file TSG.txt.")
     
     def add_time_window_first_time(self, num_of_agvs):
         count = 0
-
+        #pdb.set_trace()
         while(count <= num_of_agvs - 1):
             #pdb.set_trace()
             if(isinstance(self.ID, int)):
