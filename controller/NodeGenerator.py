@@ -1,4 +1,5 @@
 from model.Node import Node
+import inspect
 
 class NodeGenerator:
     @staticmethod
@@ -26,6 +27,10 @@ class NodeGenerator:
             if(time >= graph_processor.H):
                 temp = TimeoutNode(id, "Timeout")
             else:
+                if(id == 8342):
+                    frame = inspect.currentframe().f_back
+                    info = inspect.getframeinfo(frame)
+                    #pdb.set_trace()
                 temp = Node(id)
             graph_processor.ts_nodes.append(temp)
             graph_processor.map_nodes[id] = temp
@@ -62,11 +67,23 @@ class TimeoutNode(Node):
         return f"TimeoutNode(id={self.id}, label='{self.label}', temporary={self.temporary})"
 
 class TimeWindowNode(Node):
-    def __init__(self, ID, time_window):
+    def __init__(self, ID, time_window, real_node_id = None, earliness=float('-inf'), tardiness=float('inf')):
         super().__init__(ID)
+        if(real_node_id is None):
+            pdb.set_trace()
+        self._real_node_id = real_node_id
         self.time_window = time_window  # Time window in which the node can be accessed
-        self.earliness = float('-inf')
-        self.tardiness = float('inf')
+        self.earliness = earliness
+        self.tardiness = tardiness
+        
+    def get_raw_id(self):
+        return self._real_node_id
+        
+    def get_real_node_id(self):
+        return self._real_node_id
+    
+    def set_real_node_id(self, real_node_id):
+        self._real_node_id = real_node_id
 
     def set_time_window(self, earliness, tardiness):
         self.earliness = earliness
@@ -87,7 +104,7 @@ class TimeWindowNode(Node):
     def getEventForReaching(self, event):
         from controller.EventGenerator import ReachingTargetEvent
         if self.id == event.agv.target_node.id:
-            #pdb.set_trace()
+            pdb.set_trace()
             print(f"Target {event.agv.target_node.id}")
             return ReachingTargetEvent(
                 event.end_time, event.end_time, event.agv, event.graph, self.id
