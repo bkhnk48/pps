@@ -25,7 +25,8 @@ class Event:
         self.graph = graph
         self.graph_processor = graph_processor
         self.pns_path = ""
-        #pdb.set_trace()
+        if(config.solver_choice == 'solver'):
+            pdb.set_trace()
 
     def setValue(name, value):
         if name == "debug":
@@ -50,6 +51,8 @@ class Event:
             return allAGVs
 
     def process(self):
+        if(config.solver_choice == 'solver'):
+            pdb.set_trace()
         #pdb.set_trace()
         edge = self.graph.get_edge(self.start_node, self.end_node)
         if edge is not None:
@@ -96,6 +99,9 @@ class Event:
         from controller.EventGenerator import HaltingEvent
         from controller.EventGenerator import MovingEvent
         from controller.EventGenerator import HoldingEvent
+        if(self.agv.id == 'AGV23' and self.start_time == 20 and self.end_time == 30):
+            if(self.agv.current_node == 1303 and config.solver_choice == 'solver'):
+                pdb.set_trace()
         self.solve()
 
         if(len(self.agv.get_traces()) == 0):
@@ -104,6 +110,7 @@ class Event:
 
         if(next_vertex is None):
             print(f'{self.agv.id} at Event.py:155')
+            pdb.set_trace()
         new_event = next_vertex.getEventForReaching(self)
 
         # Lên lịch cho sự kiện mới
@@ -115,8 +122,9 @@ class Event:
         """ Find the optimal path for AGVs based on the configured solver choice. """
         self.ensure_graph_updated()
         filename = self.saveGraph()
-
+        
         if config.solver_choice == 'solver':
+            pdb.set_trace()
             self.run_solver_trace(DimacsFileReader, filename, ForecastingModel)
         elif config.solver_choice == 'network-simplex':
             self.run_network_simplex(filename)
@@ -124,6 +132,10 @@ class Event:
             self.run_networkx_solution()
 
         self.finalize_solution()
+        from controller.EventGenerator import MovingEvent
+        if (self.agv.id == 'AGV4' and self.start_time == 0 and self.agv.current_node == 3843):
+            if(config.solver_choice == 'solver' and isinstance(self, MovingEvent)):
+                pdb.set_trace()
         self.setTracesForAllAGVs()
 
     def ensure_graph_updated(self):
@@ -168,10 +180,16 @@ class Event:
             self.graph.version += 1
 
     def createTracesFromSolver(self, DimacsFileReader, filename, ForecastingModel):
-
+        pdb.set_trace()
+        from controller.EventGenerator import HoldingEvent, MovingEvent
+        if(self.agv.id == 'AGV4' and self.start_time == 0 and \
+            self.end_time == 60 and config.solver_choice == 'solver'\
+                and isinstance(self, MovingEvent)):
+            pdb.set_trace()
         dimacs_file_reader = DimacsFileReader(filename)
-        dimacs_file_reader.read_custom_dimacs()
-        problem_info, supply_nodes_dict, demand_nodes_dict, zero_nodes_dict, arc_descriptors_dict, earliness_tardiness_dict = dimacs_file_reader.get_all_dicts()
+        dimacs_file_reader.read_custom_dimacs(self.graph_processor)
+        problem_info, supply_nodes_dict, demand_nodes_dict, zero_nodes_dict, arc_descriptors_dict, \
+            earliness_tardiness_dict = dimacs_file_reader.get_all_dicts()
         model = ForecastingModel(problem_info, supply_nodes_dict, demand_nodes_dict, zero_nodes_dict, arc_descriptors_dict, earliness_tardiness_dict)
         #if(model == None):
         #pdb.set_trace()
@@ -179,6 +197,16 @@ class Event:
         model.solve()
         model.output_solution()
         model.save_solution(filename, "test_ouput") # Huy: sửa lại để log ra file
+        
+        if(self.agv.id == 'AGV23' and self.start_time == 20 and \
+            self.end_time == 30 and config.solver_choice == 'solver'\
+                and isinstance(self, HoldingEvent)):
+            pdb.set_trace()
+        
+        if(self.agv.id == 'AGV4' and self.start_time == 0 and \
+            self.end_time == 60 and config.solver_choice == 'solver'\
+                and isinstance(self, MovingEvent)):
+            pdb.set_trace()
         model.create_traces("traces.txt", self.graph.version)
 
     def updateGraph(self):
@@ -204,12 +232,20 @@ class Event:
         subprocess.run(command, shell=True)
 
     def setTracesForAllAGVs(self):
+        config.count_set_traces += 1
+        #if(config.count_set_traces == 2):
+        #    pdb.set_trace()
         """ Set traces for all AGVs based on current graph traces and target nodes. """
         self.graph.setTrace("traces.txt")
         
         # Thiết lập traces cho AGV hiện tại
         temp_trace = self.graph.getTrace(self.agv)
-        target_node_ids = {node.id for node in self.graph.graph_processor.target_nodes}
+        #from controller.TimeWindowNode import TimeWindowNode
+        target_node_ids = {node.get_raw_id() for node in self.graph.graph_processor.target_nodes}
+        """target_node_ids = {
+            node.get_real_node_id() if isinstance(node, TimeWindowNode) else node.id
+            for node in self.graph.graph_processor.target_nodes
+        }"""
         
         # Chỉ giữ lại các node hợp lệ trong trace của AGV
         if temp_trace:
@@ -222,8 +258,11 @@ class Event:
 
         # Thiết lập traces cho tất cả các AGVs khác
         global allAGVs
+        #pdb.set_trace()
+        #if len(allAGVs) == 0 or allAGVs is None:
+        #    pdb.set_trace()
         for agv in allAGVs:
-            if agv.id != self.agv.id and agv.version_of_graph < self.graph.version:
+            if agv.id != self.agv.id: #and agv.version_of_graph < self.graph.version:
                 temp_trace = self.graph.getTrace(agv)
                 if temp_trace:
                     temp_trace = self.trim_trace_to_target(temp_trace, target_node_ids)
@@ -232,9 +271,16 @@ class Event:
                 self.update_target_node(agv, target_node_ids)
 
     def trim_trace_to_target(self, trace, target_node_ids):
+        original_ids = [str(node.id) for node in trace]
+        ids_str = " -> ".join(original_ids)
+        #if(ids_str == "664 -> 728 -> 792 -> 856 -> 920 -> 984 -> 1048 -> 1112 -> 1176 -> 1240 -> 1304 -> 1946"):
+        #    pdb.set_trace()
         """ Trim trace to only include nodes leading to the target node. """
-        while trace and trace[-1].id not in target_node_ids:
+        while trace and trace[-1].get_raw_id() not in target_node_ids:
             trace.pop()
+        if(len(trace) == 0):
+            print(f"Trace emptied! Original IDs: {ids_str}")
+            #pdb.set_trace()
         return trace
 
     def update_target_node(self, agv, target_node_ids):
@@ -244,7 +290,7 @@ class Event:
         else:
             target_node = agv.target_node
         
-        if target_node and target_node.id in target_node_ids:
+        if target_node and (target_node.get_raw_id() in target_node_ids or target_node.id in target_node_ids):
             agv.target_node = self.graph.graph_processor.get_target_by_id(target_node.id)
 
 def get_largest_id_from_map(filename):
