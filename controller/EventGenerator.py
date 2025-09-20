@@ -2,6 +2,7 @@ from model.Event import Event
 import inspect
 import pdb
 import config
+import numpy as np
 class HaltingEvent(Event):
     def __init__(self, start_time, end_time, agv, graph, start_node, end_node, delta_t, graph_processor):
         super().__init__(start_time, end_time, agv, graph, graph_processor)
@@ -34,33 +35,29 @@ class HaltingEvent(Event):
         M = self.graph.number_of_nodes_in_space_graph 
         D = self.graph.graph_processor.d
         P = len(path)
-        for i in range(P):
-            node = path[i]
-            real_node = node % M + (M if node % M == 0 else 0)
-            #pdb.set_trace()
-            t2 = node // M - (1 if node % M == 0 else 0)
-            t1 = prev // M - (1 if prev % M == 0 else 0)
-            delta_cost = self.graph.graph_processor.alpha*(t2 - t1)
-            if(i != P - 1):
-                #print('===', end='')
+        i = 0
+        for node in path:
+            delta_cost = self.graph.graph_processor.alpha*path[node]
+            if(i != P -1):
+                cost = cost + delta_cost
                 if(i > 0):
-                    # print('===', end='')                                                            
-                    cost = cost + delta_cost
                     print(f'({delta_cost})===', end='')
-                print(f'{real_node}===', end='')
+                print(f'{node}===', end='')
             else:
                 delta_cost = (float('inf') if(self.end_node != self.agv.target_node.id) else self.end_time - self.start_time)
                 cost = cost + delta_cost
-                print(f'({self.delta_t})/({delta_cost})==={real_node}===END. ', end='')
-            prev = path[i]
-        print(f'Total cost: {cost}. The AGV reaches its destination at {self.end_time}')
+                print(f'({self.delta_t})/({delta_cost})==={node}===END. ', end='')
+            i = i + 1
+        print(f'Total cost: {cost}. The AGV reaches its destination at t >= {self.end_time}')
     
     def process(self):
+        #if self.agv.id == 'AGV23':
+        #    pdb.set_trace()
         #pdb.set_trace()
         # Thực hiện cập nhật đồ thị khi xử lý sự kiện di chuyển
         #self.updateGraph()
         M = self.graph.graph_processor.M
-        start = self.agv.path[0]
+        start = next(iter(self.agv.path))#from now on, self.agv.path is an ordered dict
         space_start_node = start % M + (M if start % M == 0 else 0)
         space_end_node = self.end_node % M + (M if self.end_node % M == 0 else 0)
         print(
@@ -78,7 +75,6 @@ class HaltingEvent(Event):
 
 class HoldingEvent(Event):
     def __init__(self, start_time, end_time, agv, graph, duration, graph_processor):
-        
         super().__init__(start_time, end_time, agv, graph, graph_processor)
         self.duration = duration
         self.number_of_nodes_in_space_graph = Event.getValue("number_of_nodes_in_space_graph")
@@ -86,18 +82,25 @@ class HoldingEvent(Event):
 
     def updateGraph(self):
         # Calculate the next node based on the current node, duration, and largest ID
-        current_node = self.agv.current_node if isinstance(self.agv.current_node, int) else self.agv.current_node.id
-        next_node = current_node + (self.duration * self.number_of_nodes_in_space_graph) + 1
+        current_node = self.agv.current_node \
+            if isinstance(self.agv.current_node, (int, np.int64))\
+                else self.agv.current_node.id
+        next_node = current_node + (self.duration * self.number_of_nodes_in_space_graph) #+ 1
 
         # Check if this node exists in the graph and update accordingly
         if next_node in self.graph.nodes:
-            self.graph.update_node(current_node, next_node)
+            pass
+            #self.graph.update_node(current_node, next_node)
         else:
             #print("Calculated next node does not exist in the graph.")
             pass
 
     def process(self):
-        self.updateGraph()  # Optional, if there's a need to update the graph based on this event
+        #pdb.set_trace()
+        #if self.agv.id == 'AGV23':
+        #    pdb.set_trace()
+        self.agv.add_path(self.agv.current_node, self.end_time - self.start_time)
+        #self.updateGraph()  # Optional, if there's a need to update the graph based on this event
         self.getNext()
         
     def __str__(self):
@@ -132,7 +135,10 @@ class MovingEvent(Event):
     def updateGraph(self):
         M = self.graph.number_of_nodes_in_space_graph
         real_end_node = self.calculate_real_end_node(M)
-
+        """if real_end_node == 835:
+            pdb.set_trace()
+        if self.start_node == 855:
+            pdb.set_trace()"""
         if real_end_node in self.graph.nodes:
             if self.graph.nodes[real_end_node].agv is not None:
                 if self.graph.nodes[real_end_node].agv.id != self.agv.id:
@@ -144,6 +150,7 @@ class MovingEvent(Event):
         self.update_agv_nodes(real_end_node)
 
         if real_end_node != self.end_node:
+            #có ghi dữ liệu DIMACS ra file ở đây
             self.update_graph_and_traces(real_end_node)
 
     def calculate_real_end_node(self, M):
@@ -175,6 +182,9 @@ class MovingEvent(Event):
 
     def update_graph_and_traces(self, real_end_node):
         self.agv.current_node = real_end_node
+        #có ghi dữ liệu DIMACS ra file ở dòng dưới đây
+        if(config.solver_choice == 'solver'):
+            pdb.set_trace()
         self.graph_processor.update_graph(self.start_node, self.end_node, real_end_node, self.agv.id)
         self.agv.update_traces(self.end_node, self.graph.nodes[real_end_node])
         self.graph_processor.reset_agv(real_end_node, self.agv)
@@ -187,8 +197,10 @@ class MovingEvent(Event):
         return cost_increase
 
     def process(self):
-        if(self.graph.graph_processor.print_out):
-            print(self)
+        #if(self.graph.graph_processor.print_out):
+        print(self)
+        #pdb.set_trace()
+        self.agv.add_path(self.end_node, self.end_time - self.start_time)
         self.calculate_cost_moving()
         # Thực hiện cập nhật đồ thị khi xử lý sự kiện di chuyển
         self.updateGraph()
@@ -205,8 +217,12 @@ class MovingEvent(Event):
         simulator.schedule(new_event.end_time, new_event.process)
 
 from model.AGV import AGV
+import inspect
 class ReachingTargetEvent(Event):
     def __init__(self, start_time, end_time, agv, graph, target_node, graph_processor):
+        #frame = inspect.currentframe().f_back
+        #self.info = inspect.getframeinfo(frame)
+        #pdb.set_trace()
         super().__init__(start_time, end_time, agv, graph, graph_processor)
         self.target_node = target_node
         node = self.graph.nodes[target_node]
@@ -218,6 +234,7 @@ class ReachingTargetEvent(Event):
                 self.graph.nodes[target_node] = node
             except StopIteration:
                 pass
+        self.real_dest = node.get_raw_id()
         self.earliness = node.earliness
         self.tardiness = node.tardiness
         #if(self.end_time != time):
@@ -233,10 +250,11 @@ class ReachingTargetEvent(Event):
 
     def updateGraph(self):
         # Không làm gì cả, vì đây là sự kiện đạt đến mục tiêu
+        #pdb.set_trace()
         self.graph_processor.remove_node_and_origins(self.target_node)
-        if(self.agv.path[-1] != self.target_node):
+        """if(self.agv.path[-1] != self.target_node):
             self.target_node = self.agv.path[-1]
-            pdb.set_trace()
+            pdb.set_trace()"""
         new_target_nodes = [node for node in self.graph.graph_processor.target_nodes if node.id != self.target_node]
         if(len(new_target_nodes) != len(self.graph.graph_processor.target_nodes) - 1):
             pdb.set_trace()
@@ -285,17 +303,28 @@ class ReachingTargetEvent(Event):
         M = self.graph.number_of_nodes_in_space_graph 
         D = self.graph.graph_processor.d
         P = len(path)
-        for i in range(P):
+        #pdb.set_trace()
+        i = 0
+        for node in path:
+            delta_cost = self.graph.graph_processor.alpha*path[node]
+            if(i != P -1):
+                cost = cost + delta_cost
+                if(i > 0):
+                    print(f'({delta_cost})===', end='')
+                print(f'{node}===', end='')
+            else:
+                cost = cost + self.last_cost + delta_cost
+                #delta_cost = self.last_cost #+ delta_cost
+                print(f'({delta_cost})==={node}===({self.last_cost})===END. ', end='')
+            i = i + 1
+        """for i in range(P):
             node = path[i]
             real_node = node % M + (M if node % M == 0 else 0)
-            #pdb.set_trace()
             t2 = node // M - (1 if node % M == 0 else 0)
             t1 = prev // M - (1 if prev % M == 0 else 0)
             delta_cost = self.graph.graph_processor.alpha*(t2 - t1)
             if(i != P - 1):
-                #print('===', end='')
                 if(i > 0):
-                    # print('===', end='')                                                            
                     cost = cost + delta_cost
                     print(f'({delta_cost})===', end='')
                 print(f'{real_node}===', end='')
@@ -305,17 +334,17 @@ class ReachingTargetEvent(Event):
                 #print(f'({delta_cost})==={real_node}/{node}===END. ', end='')
                 print(f'({delta_cost})==={node}===END. ', end='')
             prev = path[i]
-        dest = path[-2]
-        real_dest = M if dest % M == 0 else dest % M
-        print(f'Total cost: {cost}. The AGV reaches its destination: {real_dest} at {self.end_time} along with earliness = {self.earliness} and tardiness = {self.tardiness}')
+        dest = path[-2]"""
+        #real_dest = M if dest % M == 0 else dest % M
+        print(f'Total cost: {cost}. The AGV reaches its destination: {self.real_dest} at {self.end_time} along with earliness = {self.earliness} and tardiness = {self.tardiness}')
     def process(self):
         if(self.graph.graph_processor.print_out):
             # Đây là phương thức để xử lý khi AGV đạt đến mục tiêu
             print(
                 f"AGV {self.agv.id} has reached the target node {self.target_node} at time {self.end_time}"
                 )
-        #pdb.set_trace()
-        #print(self.agv.path)
+        if self.agv.id == 'AGV23':
+            pdb.set_trace()
         self.re_calculate_reaching(self.agv.path)
         cost = self.calculate_cost_reaching()  # Calculate and update the cost of reaching the target
         #print("DSFFDdsfsdDF")
@@ -360,6 +389,7 @@ class RestrictionEvent(Event):
             print("No edge found or incorrect edge weight.")
 
     def process(self):
+        #pdb.set_trace()
         # Xử lý khi sự kiện được gọi
         print(
             f"AGV {self.agv.id} moves from {self.start_node} to {self.end_node} under restrictions, taking {self.end_time - self.start_time} seconds"
@@ -395,6 +425,7 @@ class TimeWindowsEvent(Event):
         print(
             f"AGV {self.agv.id} processes TimeWindowsEvent at {self.target_node} at time {self.end_time}"
         )
+        pdb.set_trace()
         self.getNext()
     
 class StartEvent(Event):
@@ -406,6 +437,7 @@ class StartEvent(Event):
 
     def process(self):
         #pdb.set_trace()
+        self.agv.add_path(self.agv.current_node, self.end_time - self.start_time)
         if(self.graph.graph_processor.print_out):
             print(f"StartEvent processed at time {self.start_time} for {self.agv.id}. The AGV is currently at node {self.agv.current_node}.")
         self.getNext()
@@ -419,9 +451,18 @@ class StartEvent(Event):
             pdb.set_trace()
         next_node = self.graph.nodes[self.agv.current_node]
         #if(self.agv.id == 'AGV23'):
-        #    pdb.set_trace()
+        #pdb.set_trace()
         new_event = next_node.goToNextNode(self)
         if(new_event.end_time < 0):
-            pdb.set_trace()
+            #pdb.set_trace()
             new_event = next_node.goToNextNode(self)
         simulator.schedule(new_event.end_time, new_event.process)
+        M = self.graph.number_of_nodes_in_space_graph
+        space_start_node = self.agv.current_node % M + (M if self.agv.current_node % M == 0 else 0)
+        #space_end_node = self.end_node % M + (M if self.end_node % M == 0 else 0)
+        space_end_node = "........."
+        now = datetime.now()
+        formatted_time = now.strftime("%j-%m-%y:%H-%M-%S")
+        print(f"\t . Now: {formatted_time}. StartEvent for {self.agv.id} to move from \
+            {self.agv.current_node}({space_start_node}) at {self.start_time} and agv reaches \
+                {space_end_node} at {self.end_time}")
