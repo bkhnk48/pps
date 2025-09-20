@@ -90,6 +90,9 @@ class GraphProcessor(KickOffGenerator):
 #======================================================================================
 
     def getReal(self, start_id, next_id, agv):
+        M = self.graph.number_of_nodes_in_space_graph
+        if(start_id % M == next_id % M):
+            return (next_id - start_id) // M
         result = self._time_determinator.getReal(start_id, next_id, agv)
         return result
     
@@ -202,6 +205,10 @@ class GraphProcessor(KickOffGenerator):
         q = self.update_new_started_nodes(new_node_id)
         new_edges = self.insert_from_queue(q, self.graph.adjacency_list)
         self.process_new_edges(new_edges)
+        """if(835 in self.graph.adjacency_list):
+            pdb.set_trace()
+        else:
+            pdb.set_trace()"""
 
         if self.version_check(current_time):
             self.graph.version += 1
@@ -260,6 +267,7 @@ class GraphProcessor(KickOffGenerator):
         """Cập nhật danh sách các nút mới bắt đầu và trả về hàng đợi."""
         q = deque([new_node_id])
         new_started_nodes = self.graph.getAllNewStartedNodes()
+        self.rerouting_controller.set_started_nodes(new_started_nodes)
         for start in new_started_nodes:
             if start != new_node_id:
                 q.append(start)
@@ -324,6 +332,7 @@ class GraphProcessor(KickOffGenerator):
         self.graph.nodes[real_node_id].agv = agv
     
     def remove_node_and_origins(self, node_id):
+        #pdb.set_trace()
         node = None
         if isinstance(node_id, Node):
             node = node_id
@@ -411,6 +420,11 @@ class GraphProcessor(KickOffGenerator):
         for id in args:
             # Ensure that Node objects for id exist in ts_nodes
             if not any(node.id == id for node in self.ts_nodes) and isinstance(id, int):
+                if(id == 8342):
+                    import inspect
+                    frame = inspect.currentframe().f_back
+                    info = inspect.getframeinfo(frame)
+                    #pdb.set_trace()
                 NodeGenerator.generate_node(is_artificial_node, id, label, self)
         #    self.ts_nodes.append(Node(ID2))
 
@@ -591,7 +605,4 @@ class GraphProcessor(KickOffGenerator):
         self.restrictions = []
         self.ur = 3
         #pdb.set_trace()
-        with open("ts_edges.txt", "w", encoding="utf-8") as f:
-            for edge in self.ts_edges:
-                f.write(str(edge) + "\n")
         self.process_restrictions()
