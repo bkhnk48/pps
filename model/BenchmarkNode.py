@@ -10,13 +10,9 @@ class BenchmarkNode(Node):
         tmp = getattr(self, "temporary", False)
         return f"{cls}(id={self.id}, label='{lbl}', temporary={tmp})"
 
-class TopBulbNode(BenchmarkNode):
+class TopOrBottomBulbNode(BenchmarkNode):
     def __init__(self, id):
-        super().__init__(id, "TopBulb")
-
-class BottomBulbNode(BenchmarkNode):
-    def __init__(self, id):
-        super().__init__(id, "BottomBulb")
+        super().__init__(id, "TopOrBottomBulb")
 
 class BottleneckNode(BenchmarkNode):
     def __init__(self, id):
