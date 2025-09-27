@@ -13,6 +13,7 @@ import time
 from datetime import datetime
 import os
 import platform
+from round_visual_hook import render_round
 
 from model.hallway_simulator_module.HallwaySimulator import DirectoryManager
 dm = DirectoryManager()
@@ -102,4 +103,9 @@ while(config.count < 2*3):#*12 and config.numOfAGVs <= 10):
         graph_processor.logger.log("Log.csv", config.filepath, config.numOfAGVs, config.H, \
             config.d, config.solver_choice, config.reachingTargetAGVs, config.haltingAGVs, \
                 config.totalCost, elapsed_time, config.timeSolving, name_of_level_simulation, formatted_now, desc)
+        # --- visualize after this round finishes ---
+        try:
+            render_round(graph_processor, config.count, show=False)
+        except Exception as e:
+            print(f"[Visualization warning] {e}")
         reset(simulator)
