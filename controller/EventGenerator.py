@@ -48,7 +48,8 @@ class HaltingEvent(Event):
                 cost = cost + delta_cost
                 print(f'({self.delta_t})/({delta_cost})==={node}===END. ', end='')
             i = i + 1
-        print(f'Total cost: {cost}. The AGV reaches its destination at t >= {self.end_time}')
+        print(f'Total cost: {cost}. The {self.agv.id} reaches its destination at t >= {self.end_time}')
+        #print(self.agv.history_of_events)
     
     def process(self):
         #if self.agv.id == 'AGV23':
@@ -100,6 +101,8 @@ class HoldingEvent(Event):
         #if self.agv.id == 'AGV23':
         #    pdb.set_trace()
         self.agv.add_path(self.agv.current_node, self.end_time - self.start_time)
+        """if(self.graph.nodes[self.agv.current_node].agv is None):
+            pdb.set_trace()"""
         #self.updateGraph()  # Optional, if there's a need to update the graph based on this event
         self.getNext()
         
@@ -183,8 +186,8 @@ class MovingEvent(Event):
     def update_graph_and_traces(self, real_end_node):
         self.agv.current_node = real_end_node
         #có ghi dữ liệu DIMACS ra file ở dòng dưới đây
-        if(config.solver_choice == 'solver'):
-            pdb.set_trace()
+        #if(config.solver_choice == 'solver'):
+        #    pdb.set_trace()
         self.graph_processor.update_graph(self.start_node, self.end_node, real_end_node, self.agv.id)
         self.agv.update_traces(self.end_node, self.graph.nodes[real_end_node])
         self.graph_processor.reset_agv(real_end_node, self.agv)
@@ -317,34 +320,17 @@ class ReachingTargetEvent(Event):
                 #delta_cost = self.last_cost #+ delta_cost
                 print(f'({delta_cost})==={node}===({self.last_cost})===END. ', end='')
             i = i + 1
-        """for i in range(P):
-            node = path[i]
-            real_node = node % M + (M if node % M == 0 else 0)
-            t2 = node // M - (1 if node % M == 0 else 0)
-            t1 = prev // M - (1 if prev % M == 0 else 0)
-            delta_cost = self.graph.graph_processor.alpha*(t2 - t1)
-            if(i != P - 1):
-                if(i > 0):
-                    cost = cost + delta_cost
-                    print(f'({delta_cost})===', end='')
-                print(f'{real_node}===', end='')
-            else:
-                cost = cost + self.last_cost #+ delta_cost
-                delta_cost = self.last_cost #+ delta_cost
-                #print(f'({delta_cost})==={real_node}/{node}===END. ', end='')
-                print(f'({delta_cost})==={node}===END. ', end='')
-            prev = path[i]
-        dest = path[-2]"""
         #real_dest = M if dest % M == 0 else dest % M
-        print(f'Total cost: {cost}. The AGV reaches its destination: {self.real_dest} at {self.end_time} along with earliness = {self.earliness} and tardiness = {self.tardiness}')
+        print(f'Total cost: {cost}. The {self.agv.id} reaches its destination: {self.real_dest} at {self.end_time} along with earliness = {self.earliness} and tardiness = {self.tardiness}')
+        #print(self.agv.history_of_events)
     def process(self):
         if(self.graph.graph_processor.print_out):
             # Đây là phương thức để xử lý khi AGV đạt đến mục tiêu
             print(
                 f"AGV {self.agv.id} has reached the target node {self.target_node} at time {self.end_time}"
                 )
-        if self.agv.id == 'AGV23':
-            pdb.set_trace()
+        #if self.agv.id == 'AGV23':
+        #    pdb.set_trace()
         self.re_calculate_reaching(self.agv.path)
         cost = self.calculate_cost_reaching()  # Calculate and update the cost of reaching the target
         #print("DSFFDdsfsdDF")
