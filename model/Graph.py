@@ -255,6 +255,12 @@ class Graph:
         self.neighbour_list = {}
         self.visited = set()
         self.map = {}
+        if (config.solver_choice == 'solver' and 3863 in self.nodes.items()\
+            and 3843 in self.nodes.items()):
+            if(self.nodes[3863].agv is not None and self.nodes[3843].agv is not None):
+                if(self.nodes[3863].agv.current_node != 3863 or \
+                    self.nodes[3843].agv.current_node != 3843):
+                    pdb.set_trace()
         self.build_trace_map()
         self.write_to_validate()
         
@@ -421,10 +427,32 @@ class Graph:
                 started_nodes.add(agv.current_node)
         if(len(started_nodes) == 0):
             return self.graph_processor.started_nodes
+        """Một số trường hợp mà started_nodes khác biệt với 
+        kết quả trả về của hàm collect_all_nodes_having_agv là:
+        |STT|started_nodes|collect_all_nodes_having_agv|Lý do có thể là vì:
+        |---|-------------|----------------------------|----------------------
+        | 1 | {3843, 1303}|       [3863, 3843]         |Holding Event không gán lại current_node khi hàm process được gọi
+        | 2 | {11733}     |         []                 |Đã có 1 AGV đến đích, AGV còn lại đang ở HaltingEvent
+        | 3 | {11037}     |         []                 |Đã có 1 AGV đến đích, AGV còn lại đang ở HaltingEvent
+        | 4 | {10334}     |         []                 |Đã có 1 AGV đến đích, AGV còn lại đang ở HaltingEvent
+        | 5 | {8982}      |        [8982, 8962]        |
+        | 6 | {8962, 1303}|         [8962]             |
+        | 7 | {835, 663}  |         []                 |
+        """
+        
         return started_nodes
     
     #2025-08-24: remove the old write_to_file method
-    #because GraphProcessor already has a write_to_file method    
+    #because GraphProcessor already has a write_to_file method   
+    def collect_all_nodes_having_agv(self):
+        from controller.EventGenerator import ReachingTargetEvent, HaltingEvent
+        from model.AGV import AGV
+        started_nodes = [key for key, node in self.nodes.items() \
+            if node.agv is not None and isinstance(node.agv, AGV) \
+                and node.agv.event is not None\
+                and not isinstance(node.agv.event, (ReachingTargetEvent, HaltingEvent))]
+        return started_nodes
+ 
 
     def __str__(self):
         return "\n".join(f"{start} -> {end} (Weight: {weight})" for start in self.adjacency_list for end, weight in self.adjacency_list[start])
