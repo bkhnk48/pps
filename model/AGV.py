@@ -6,6 +6,8 @@ from inspect import currentframe, getframeinfo
 import numpy as np
 from datetime import datetime
 import config
+import json
+
 
 class AGV:
     _all_instances = set()
@@ -27,7 +29,20 @@ class AGV:
         self.graph.nodes[current_node].agv = self
         self.event = None
         AGV._all_instances.add(self)
-        
+        self._history_of_events = []
+    
+    def __eq__(self, other):
+        if not isinstance(other, AGV):
+            return False
+        if other is None:
+            return False
+        return self.id == other.id
+    
+    @property
+    def history_of_events(self):
+        return self._history_of_events
+
+    
     def destroy(self):
         now = datetime.now()
         formatted_now = now.strftime("%Y-%m-%d %H:%M:%S")
@@ -43,7 +58,7 @@ class AGV:
     def current_node(self, value):
         info = ""
         if(config.solver_choice == 'solver' and self.id == 'AGV4' and value == 3843):
-            pdb.set_trace()
+            #pdb.set_trace()
             frame = inspect.currentframe().f_back
             info = inspect.getframeinfo(frame)
         self._current_node = value
@@ -53,7 +68,12 @@ class AGV:
         #pdb.set_trace()
         return self._path
     
+    def __hash__(self):
+        return hash(self.id)
+    
     def add_path(self, node_id, spending_time):
+        if(node_id == "END"):
+            self._path[node_id] = 0
         time = 0
         space_node_id = node_id
         node = self.graph.graph_processor.find_node(node_id)
@@ -68,6 +88,8 @@ class AGV:
             time = self._path[space_node_id]
         #pdb.set_trace()
         self._path[space_node_id] = spending_time + time
+        json_string = json.dumps(self.event.to_dict())
+        self._history_of_events.append(json_string)
         #self._path.add([space_node_id, spending_time])
     
     @path.setter
@@ -78,6 +100,7 @@ class AGV:
     @property
     def cost(self):
         return self._cost
+    
     
     @cost.setter
     def cost(self, value):
