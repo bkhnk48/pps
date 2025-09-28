@@ -5,6 +5,9 @@ import pdb
 from inspect import currentframe, getframeinfo
 import numpy as np
 from datetime import datetime
+import config
+import json
+
 
 class AGV:
     _all_instances = set()
@@ -17,7 +20,7 @@ class AGV:
         self._cost = cost
         self.version_of_graph = version_of_graph
         self._traces = [] #các đỉnh sắp đi qua
-        self._path = SortedSet([]) #các đỉnh đã đi qua 
+        self._path = {} #các đỉnh đã đi qua 
         self.graph = graph
         if current_node not in self.graph.nodes.keys():
             #pdb.set_trace()
@@ -26,7 +29,20 @@ class AGV:
         self.graph.nodes[current_node].agv = self
         self.event = None
         AGV._all_instances.add(self)
-        
+        self._history_of_events = []
+    
+    def __eq__(self, other):
+        if not isinstance(other, AGV):
+            return False
+        if other is None:
+            return False
+        return self.id == other.id
+    
+    @property
+    def history_of_events(self):
+        return self._history_of_events
+
+    
     def destroy(self):
         now = datetime.now()
         formatted_now = now.strftime("%Y-%m-%d %H:%M:%S")
@@ -40,6 +56,11 @@ class AGV:
         return self._current_node
     @current_node.setter
     def current_node(self, value):
+        info = ""
+        if(config.solver_choice == 'solver' and self.id == 'AGV4' and value == 3843):
+            #pdb.set_trace()
+            frame = inspect.currentframe().f_back
+            info = inspect.getframeinfo(frame)
         self._current_node = value
     
     @property
@@ -47,14 +68,39 @@ class AGV:
         #pdb.set_trace()
         return self._path
     
+    def __hash__(self):
+        return hash(self.id)
+    
+    def add_path(self, node_id, spending_time):
+        if(node_id == "END"):
+            self._path[node_id] = 0
+        time = 0
+        space_node_id = node_id
+        node = self.graph.graph_processor.find_node(node_id)
+        if node is None:
+            pdb.set_trace()
+        else:
+            space_node_id = node.get_raw_id()
+        if space_node_id > self.graph.number_of_nodes_in_space_graph:
+            space_node_id = space_node_id % self.graph.number_of_nodes_in_space_graph + \
+                (self.graph.number_of_nodes_in_space_graph if space_node_id % self.graph.number_of_nodes_in_space_graph == 0 else 0)
+        if space_node_id in self._path:
+            time = self._path[space_node_id]
+        #pdb.set_trace()
+        self._path[space_node_id] = spending_time + time
+        json_string = json.dumps(self.event.to_dict())
+        self._history_of_events.append(json_string)
+        #self._path.add([space_node_id, spending_time])
+    
     @path.setter
     def path(self, value):
-        #pdb.set_trace()
-        self._path = value
+        pdb.set_trace()
+        #self._path = value
     
     @property
     def cost(self):
         return self._cost
+    
     
     @cost.setter
     def cost(self, value):
@@ -64,6 +110,8 @@ class AGV:
     
     @property
     def target_node(self):
+        if(self.id == 'AGV23' and self._target_node is None):
+            pdb.set_trace()
         return self._target_node
     
     @staticmethod
@@ -105,7 +153,7 @@ class AGV:
                     break
             if(next_node is None):
                 next_node = self._traces[0]
-            if(self.graph.graph_processor.ut):
+            if(self.graph.graph_processor.print_out):
                 print(f"AGV {self.id} is moving to next node: {next_node} from current node: {self.current_node}.")
             return next_node
         else:
@@ -116,29 +164,36 @@ class AGV:
         return self._traces
     
     def set_traces(self, traces):
+        #if(len(traces) == 0):
+        #    pdb.set_trace()
         self._traces = traces
     
     def update_traces(self, predicted_id_node, real_node):
         #pdb.set_trace()
         index = 0
         M = self.graph.graph_processor.M
-        for node in self._traces:
+        for node in self.get_traces():
             if node.id % M == predicted_id_node % M:
                 break
             else:
                 index = index + 1
-        if(index >= len(self._traces)):
+        if(index >= len(self.get_traces())):
             if(self.graph.graph_processor.print_out):
-                print(f'{self.id} has _traces: {self._traces} needs to be inserted {real_node} at [{index}]')
+                print(f'{self.id} has _traces: {self.get_traces()} needs to be inserted {real_node} at [{index}]')
             #pdb.set_trace()
-            self._traces = [real_node]
+            #self._traces = [real_node]
+            self.set_traces([real_node])
         else:    
-            self._traces[index] = real_node
+            #self._traces[index] = real_node
+            self.get_traces()[index] = real_node
+            
     def move_to(self, event = None):
-        if len(self._traces) >= 1:
+        if len(self.get_traces()) >= 1:
             self.previous_node = self.current_node
             self.current_node = self.get_traces()[0].id
-            self._traces.pop(0)
+            self.get_traces().pop(0)
+            if(len(self.get_traces()) == 0):
+                pdb.set_trace()
             self.state = 'moving'
             if(self.graph.graph_processor.print_out):
                 print(f"AGV {self.id} moved from {self.previous_node} to {self.current_node}. State updated to 'idle'.")

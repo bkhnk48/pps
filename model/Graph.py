@@ -9,6 +9,8 @@ from controller.NodeGenerator import TimeoutNode
 from model.Node import Node
 import config
 import json
+import subprocess
+import sys
 
 class bcolors:
     HEADER = '\033[95m'
@@ -208,10 +210,8 @@ class Graph:
             for line in file:
                 if line.startswith('a'):
                     numbers = line.split()
-                    id1 = int(numbers[1])
-                    id3 = int(numbers[2])
-                    id2 = id1 % M
-                    id4 = id3 % M
+                    id1, id3 = int(numbers[1]), int(numbers[2])
+                    id2, id4 = id1 % M, id3 % M
                     node1 = self.find_unpredicted_node(id1) 
                     if (node1 is not None):
                         #pdb.set_trace()
@@ -240,43 +240,82 @@ class Graph:
                 #self.id2_id4_list.append(self.neighbour_list[node_id])
                 self.dfs(tree, node_id)
 
-    def setTrace(self, file_path = 'traces.txt'):
-        #pdb.set_trace()
-        self.file_path = file_path #'traces.txt'
+    def validate(self):
+        command = "cat validating.txt | ./validate.o " + config.filepath
+        result = subprocess.run(command, shell = True, capture_output = True, text = True)
+        output = result.stdout
+        if(output == '1\n'):
+            print("Co luc vi pham rang buoc: xe xuat phat sau khong duoc den dich truoc")
+            pdb.set_trace()
+            sys.exit(1)
+
+    def setTrace(self, file_path='traces.txt'):
+        self.file_path = file_path
         self.list1 = []
         self.neighbour_list = {}
         self.visited = set()
         self.map = {}
-        edges_with_cost = { (int(edge[1]), int(edge[2])): [int(edge[4]), int(edge[5])] for edge in self.graph_processor.space_edges \
-            if edge[3] == '0' and int(edge[4]) >= 1 }
+        if (config.solver_choice == 'solver' and 3863 in self.nodes.items()\
+            and 3843 in self.nodes.items()):
+            if(self.nodes[3863].agv is not None and self.nodes[3843].agv is not None):
+                if(self.nodes[3863].agv.current_node != 3863 or \
+                    self.nodes[3843].agv.current_node != 3843):
+                    pdb.set_trace()
+        self.build_trace_map()
+        self.write_to_validate()
+        
+    def get_edges_with_cost(self):
+        return {
+            (int(edge[1]), int(edge[2])): [int(edge[4]), int(edge[5])]
+            for edge in self.graph_processor.space_edges
+            if edge[3] == '0' and int(edge[4]) >= 1
+        }
+    
+    def process_cur(self, number, M, edges_with_cost):
+        if len(self.cur) < 1:
+            return
+        start = number % M + (M if number % M == 0 else 0)
+        end = self.cur[0].id % M + (M if self.cur[0].id == 0 else 0)
+        start_time = number // M - (1 if number % M == 0 else 0)
+        end_time = self.cur[0].id // M - (1 if self.cur[0].id == 0 else 0)
+        min_cost = edges_with_cost.get((start, end), [-1, -1])[1]
+        if min_cost == -1:
+            need_to_remove_first_cur = True
+            if (start == end and number != self.cur[0].id and end_time - start_time == self.graph_processor.d):
+                need_to_remove_first_cur = False
+            if need_to_remove_first_cur and not self.found_in_TWEdges(start, end, M):
+                self.cur = self.cur[1:]
+        
+    def found_in_TWEdges(self, start, end, M):
+        for source_id, edges in self.graph_processor.time_window_controller.TWEdges.items():
+            if edges is not None and source_id % M == start:
+                for e in edges:
+                    if e[0].id == end:
+                        return True
+        return False
+
+    def build_trace_map(self):
+        edges_with_cost = self.get_edges_with_cost()
         M = self.graph_processor.M
-        id1_id3_tree = self.build_path_tree()#self.list1 sẽ được thay đổi ở đâyđây
+        id1_id3_tree = self.build_path_tree()
         for number in self.list1:
             if number not in self.visited:
                 self.cur = []
                 self.dfs(id1_id3_tree, number)
                 self.visited = set()
-                if len(self.cur) >= 1:
-                    start = number % M + (M if number % M == 0 else 0)
-                    end = self.cur[0].id % M + (M if self.cur[0].id % M == 0 else 0)
-                    start_time = number // M - (1 if number % M == 0 else 0)
-                    end_time = self.cur[0].id // M - (1 if self.cur[0].id % M == 0 else 0)
-                    min_cost = edges_with_cost.get((start, end), [-1, -1])[1]
-                    if(min_cost == -1):
-                        need_to_remove_first_cur = True
-                        if(start == end and number != self.cur[0].id and end_time - start_time == self.graph_processor.d):
-                            need_to_remove_first_cur = False
-                        if need_to_remove_first_cur:
-                            found = False
-                            for source_id, edges in self.graph_processor.time_window_controller.TWEdges.items():
-                                if edges is not None and source_id % M == start:
-                                    for index, e in enumerate(edges):
-                                        if e[0].id ==end:
-                                            found = True
-                                            break
-                            if(not found):                                    
-                                self.cur = self.cur[1:]
-                self.map[number] = self.cur #[1: ] if len(self.cur) > 1 else self.cur
+                self.process_cur(number, M, edges_with_cost)
+                self.map[number] = self.cur
+
+    def write_to_validate(self):
+        with open('validating.txt', 'w', encoding='utf-8') as file: 
+            print(len(self.map), file=file)
+            for key, value in self.map.items():
+                print(key, file=file)
+                for item in self.map[key]:
+                    if (not isinstance(item, TimeoutNode)) and (not isinstance(item, TimeWindowNode)):
+                        print(f'{item.id % self.graph_processor.M} {item.id // self.graph_processor.M}', file=file)
+        self.validate()
+                
     
     def getTrace(self, agv):
         #pdb.set_trace()
@@ -318,8 +357,8 @@ class Graph:
         # Check if there are any outgoing edges from 'node'
         return node in self.edges and len(self.edges[node]) > 0  
               
-    def update_node(self, node, properties):
-        return
+    #def update_node(self, node, properties):
+    #    return
  
     def add_edge(self, from_node, to_node, weight):
         self.adjacency_list[from_node].append((to_node, weight))
@@ -388,43 +427,32 @@ class Graph:
                 started_nodes.add(agv.current_node)
         if(len(started_nodes) == 0):
             return self.graph_processor.started_nodes
+        """Một số trường hợp mà started_nodes khác biệt với 
+        kết quả trả về của hàm collect_all_nodes_having_agv là:
+        |STT|started_nodes|collect_all_nodes_having_agv|Lý do có thể là vì:
+        |---|-------------|----------------------------|----------------------
+        | 1 | {3843, 1303}|       [3863, 3843]         |Holding Event không gán lại current_node khi hàm process được gọi
+        | 2 | {11733}     |         []                 |Đã có 1 AGV đến đích, AGV còn lại đang ở HaltingEvent
+        | 3 | {11037}     |         []                 |Đã có 1 AGV đến đích, AGV còn lại đang ở HaltingEvent
+        | 4 | {10334}     |         []                 |Đã có 1 AGV đến đích, AGV còn lại đang ở HaltingEvent
+        | 5 | {8982}      |        [8982, 8962]        |
+        | 6 | {8962, 1303}|         [8962]             |
+        | 7 | {835, 663}  |         []                 |
+        """
+        
         return started_nodes
-        
-    def write_to_file(self, agv_id_and_new_start = None, new_halting_edges = None, filename="TSG.txt"):
-        #    pdb.set_trace()
-        M = max(target.id for target in self.graph_processor.get_targets())
-        m1 = max(edge[1] for edge in new_halting_edges)
-        M = max(M, m1)
-        num_halting_edges = len(new_halting_edges) if new_halting_edges is not None else 0
-        #pdb.set_trace()
-        sorted_edges = sorted(self.adjacency_list.items(), key=lambda x: x[0])
-        num_edges = self.count_edges()
-        num_edges = num_edges + num_halting_edges
-        
-        with open(filename, 'w') as file:
-            file.write(f"p min {M} {num_edges}\n")
-            #    pdb.set_trace()
-            
-            started_nodes = self.getAllNewStartedNodes()
-            if(len(started_nodes) != len(self.graph_processor.get_targets())):
-                pdb.set_trace()
-                started_nodes = self.getAllNewStartedNodes()
-                targets = self.graph_processor.get_targets()
-
-            for start_node in started_nodes:
-                file.write(f"n {start_node} 1\n")
-            for target in self.graph_processor.get_targets():
-                target_id = target.id
-                file.write(f"n {target_id} -1\n")
-            #for edge in self.ts_edges:
-            #for edge in self.tsedges:
-            new_nodes = set()
-            for source_id, edges in sorted_edges:
-                for edge in edges:
-                    t = edge[0] // self.graph_processor.M - (1 if edge[0] % self.graph_processor.M == 0 else 0)
-                    file.write(f"a {source_id} {edge[0]} {edge[1].lower} {edge[1].upper} {edge[1].weight}\n")  
-            for edge in new_halting_edges:
-                file.write(f"a {edge[0]} {edge[1]} {edge[2]} {edge[3]} {edge[4]}\n")
+    
+    #2025-08-24: remove the old write_to_file method
+    #because GraphProcessor already has a write_to_file method   
+    def collect_all_nodes_having_agv(self):
+        from controller.EventGenerator import ReachingTargetEvent, HaltingEvent
+        from model.AGV import AGV
+        started_nodes = [key for key, node in self.nodes.items() \
+            if node.agv is not None and isinstance(node.agv, AGV) \
+                and node.agv.event is not None\
+                and not isinstance(node.agv.event, (ReachingTargetEvent, HaltingEvent))]
+        return started_nodes
+ 
 
     def __str__(self):
         return "\n".join(f"{start} -> {end} (Weight: {weight})" for start in self.adjacency_list for end, weight in self.adjacency_list[start])

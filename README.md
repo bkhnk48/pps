@@ -13,7 +13,7 @@
 Clone the main repository to your local machine using the following command:
 
 ```bash
-git clone https://github.com/bkhnk48/pps.git --branch finished_new_input
+git clone https://github.com/bkhnk48/pathPlanningSimulation.git --branch main
 ```
 
 Clone the repository for `hallway_simulator_module` to your local machine using the following command:
@@ -53,7 +53,7 @@ cd <path to git cloned repository>/hoangnv-sfm-fork
 make
 
 # copy the compiled file to the main repository
-cp app <path to git cloned repository>/pps/model/hallway_simulator_module/sim/x86_64/app
+cp app <path to git cloned repository>/pathPlanningSimulation/model/hallway_simulator_module/sim/x86_64/app
 ```
 
 ### Run the code
