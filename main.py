@@ -24,8 +24,8 @@ TASKS = set()
 x = {}
 y = {}
 config.count = 0
-#logger = Logger()
-while(config.count < 2*3):#*12 and config.numOfAGVs <= 10):
+
+while(config.count < 2*4):#*12 and config.numOfAGVs <= 10):
     graph_processor = GraphProcessor(dm)
     if not graph_processor.start_round():  # Nếu gặp trường hợp OS không hỗ trợ SFM
         break
