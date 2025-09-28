@@ -1,6 +1,6 @@
 import pdb
 from abc import ABC
-
+import config
 class ReroutingController:
     def __init__(self, graph_processor):
         super().__init__() 
@@ -19,10 +19,7 @@ class ReroutingController:
         return self._ts_edges
     def write_to_file(self, agv_id_and_new_start=None, new_halting_edges=None,
               supply=None, vs_id=None, vt_id=None, filename="TSG.txt"):
-        get_targets = self.get_targets \
-            if hasattr(self, 'get_targets') \
-                else self.graph_processor.get_targets
-        targets = get_targets()
+        targets = self.graph_processor.get_targets()
         #pdb.set_trace()
         M = max(target.id for target in targets)
         if new_halting_edges: M = max(M, max(e[1] for e in new_halting_edges))
@@ -33,6 +30,10 @@ class ReroutingController:
             f.write(f"p min {M} {num_edges}\n")
             f.write(f"c number of spaces nodes is: {M}\n")
             starts = self._started_nodes if len(self._started_nodes) > 0 else self.graph_processor.started_nodes
+            
+            #if(config.solver_choice == 'solver'):
+                #if(3843 in starts and 1303 in starts):
+                #    pdb.set_trace()
             self._write_node_lines(f, starts, targets, supply, vs_id, vt_id)
 
             #if hasattr(self, 'ts_edges') or hasattr(self, '_ts_edges'):
@@ -50,9 +51,14 @@ class ReroutingController:
             print("Đã cập nhật các cung mới vào file TSG.txt.")
     
     def _write_node_lines(self, f, starts, targets, supply, vs_id, vt_id):
+        from controller.time_window_generator import TimeWindowNode
+        for t in targets:
+            #node = self.graph_processor.find_node(t.id)
+            #if config.solver_choice == 'solver':
+            #    pdb.set_trace()
+            if isinstance(t, TimeWindowNode):
+                f.write(f"c tw {t.id} {t.earliness} {t.tardiness}\n")
         for s in starts:
-            # if(s == 855):
-            #     pdb.set_trace()
             f.write(f"n {s} {supply if supply and vs_id == s else 1}\n")
         for t in targets:
             f.write(f"n {t.id} {-supply if supply and vt_id == t.id else -1}\n")
@@ -67,3 +73,4 @@ class ReroutingController:
             f.write(f"c Exceed {edge.weight} {edge.weight // M}\n")
         f.write(f"a {edge.start_node.id} {edge.end_node.id} "
             f"{edge.lower} {edge.upper} {edge.weight}\n")
+        
