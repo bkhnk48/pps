@@ -69,16 +69,30 @@ class TimeoutNode(Node):
 class TimeWindowNode(Node):
     def __init__(self, ID, time_window, real_node_id = None, earliness=float('-inf'), tardiness=float('inf')):
         super().__init__(ID)
-        # if(real_node_id is None):
-        #     pdb.set_trace()
+        if(real_node_id is None):
+            pdb.set_trace()
         self._real_node_id = real_node_id
         self.time_window = time_window  # Time window in which the node can be accessed
-        self.earliness = earliness
-        self.tardiness = tardiness
+        self._earliness = earliness
+        self._tardiness = tardiness
         
     def get_raw_id(self):
         return self._real_node_id
+    
+    @property
+    def earliness(self):
+        return self._earliness
+    @earliness.setter
+    def earliness(self, value):
+        self._earliness = value
         
+    @property
+    def tardiness(self):
+        return self._tardiness
+    @tardiness.setter
+    def tardiness(self, value):
+        self._tardiness = value
+                
     def get_real_node_id(self):
         return self._real_node_id
     
@@ -86,8 +100,8 @@ class TimeWindowNode(Node):
         self._real_node_id = real_node_id
 
     def set_time_window(self, earliness, tardiness):
-        self.earliness = earliness
-        self.tardiness = tardiness
+        self._earliness = earliness
+        self._tardiness = tardiness
         
     def calculate(self, reaching_time):
         if reaching_time >= self.earliness and reaching_time <= self.tardiness:
@@ -104,10 +118,11 @@ class TimeWindowNode(Node):
     def getEventForReaching(self, event):
         from controller.EventGenerator import ReachingTargetEvent
         if self.id == event.agv.target_node.id:
-            pdb.set_trace()
+            #pdb.set_trace()
             print(f"Target {event.agv.target_node.id}")
             return ReachingTargetEvent(
-                event.end_time, event.end_time, event.agv, event.graph, self.id
+                event.end_time, event.end_time, event.agv, event.graph, self.id,\
+                    event.graph.graph_processor
             )
         return None
     
