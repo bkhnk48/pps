@@ -143,11 +143,13 @@ class ReadingInputProcessor(StartNodeGenerator):
                 config.level_of_simulation = 2
         else:
             if(config.count <= 2):
-                config.level_of_simulation = config.BIMODAL if \
-                            config.level_of_simulation == config.GAUSSIAN else config.GAUSSIAN
+                config.level_of_simulation = config.BIMODAL #if \
+                            #config.level_of_simulation == config.GAUSSIAN else config.GAUSSIAN
             elif(config.count <= 4):
-                config.level_of_simulation = 1
+                config.level_of_simulation = config.GAUSSIAN
             elif(config.count <= 6):
+                config.level_of_simulation = 1
+            elif(config.count <= 8):
                 config.level_of_simulation = 2
         if(config.level_of_simulation == 1):#random in the list
             self.read_xls()
@@ -440,5 +442,3 @@ class ReadingInputProcessor(StartNodeGenerator):
         else:
             num_of_agvs = self.generate_time_windows()
         return num_of_agvs
-                
-    
