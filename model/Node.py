@@ -11,7 +11,17 @@ class Node:
         self._id = id
         self.label=label
         self.edges = []
-        self.agv = None
+        self._agv = None
+        
+    @property
+    def agv(self):
+        return self._agv
+
+    @agv.setter
+    def agv(self, value):
+        if(isinstance(value, str)):
+            pdb.set_trace()
+        self._agv = value
 
     @property
     def id(self):
@@ -76,6 +86,8 @@ class Node:
                 from controller.EventGenerator import StartEvent
                 if(not isinstance(event, StartEvent)):
                     event.agv.move_to(event)
+                if event.end_time + delta_t >= event.graph.graph_processor.H:
+                    return self._create_halting_event(event, self.id, delta_t)
                 return HoldingEvent(
                     event.end_time, event.end_time + delta_t,
                     event.agv, event.graph,
@@ -198,6 +210,9 @@ class Node:
         )
     def _create_holding_event(self, event, delta_t):
         from controller.EventGenerator import HoldingEvent
+        from controller.EventGenerator import HaltingEvent
+        if event.end_time + delta_t >= event.graph.graph_processor.H:
+            return self._create_halting_event(event, self.id, delta_t)
         return HoldingEvent(
             event.end_time,
             event.end_time + delta_t,
