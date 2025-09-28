@@ -272,3 +272,19 @@ RAM: Unknown"
 User: thieu
 CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
 RAM: Unknown"
+91.0,Redundant3x3Wards.txt,2,200,10,networkx,0,2,0,0.5419082641601562,0.02546834945678711,BIMODAL,2025-09-28 20:18:58,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+92.0,Redundant3x3Wards.txt,2,200,10,solver,0,2,0,21.406076908111572,3.0,BIMODAL,2025-09-28 20:19:22,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+93.0,Redundant3x3Wards.txt,2,200,10,networkx,1,1,212.0,1.2780156135559082,0.04464027285575867,GAUSSIAN,2025-09-28 20:19:25,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+94.0,Redundant3x3Wards.txt,2,200,10,solver,1,1,212.0,25.010985136032104,3.125,GAUSSIAN,2025-09-28 20:19:52,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
