@@ -267,11 +267,113 @@ class GraphProcessor(KickOffGenerator):
         """Cập nhật danh sách các nút mới bắt đầu và trả về hàng đợi."""
         q = deque([new_node_id])
         new_started_nodes = self.graph.getAllNewStartedNodes()
+        collected_starts = self.graph.collect_all_nodes_having_agv()
+        if(not self._is_the_same(new_started_nodes, collected_starts)):
+            #print(f"{config.bcolors.WARNING}⚠️ Warning: started_nodes in GraphProcessor is different from actual nodes having AGV in Graph!{config.bcolors.ENDC}")
+            from model.AGV import AGV
+            from controller.EventGenerator import ReachingTargetEvent, HaltingEvent
+            all_agvs = AGV.all_instances()
+            agvs = [a for a in all_agvs \
+                if a.event is not None and \
+                    not isinstance(a.event, (ReachingTargetEvent, HaltingEvent))]
+
+            #print(f"{new_started_nodes} | {collected_starts}  | {[(a.path, a.id) for a in all_agvs]}", end='')
+            correct_started_nodes = self._correct_current_nodes(new_started_nodes, collected_starts, agvs)
+            #print(f" -> {correct_started_nodes}")
+            new_started_nodes = correct_started_nodes
+            #print("=============================After fixed =======================================")
+            new_started_nodes = self.graph.getAllNewStartedNodes()
+            collected_starts = self.graph.collect_all_nodes_having_agv()
+            #print(f"{new_started_nodes} | {collected_starts}")
+            #pdb.set_trace()
         self.rerouting_controller.set_started_nodes(new_started_nodes)
         for start in new_started_nodes:
             if start != new_node_id:
                 q.append(start)
         return q
+    
+    def _transfer_item(self, sum, node, agv, new_started_nodes, correct_set, set_collected_starts):
+        from model.AGV import AGV
+        if(isinstance(agv, str)):
+            agv = next((a for a in AGV.all_instances() if a.id == agv), None)
+        item = sum*self.graph.number_of_nodes_in_space_graph + node
+        if(item in set_collected_starts):
+            correct_set.add(item)
+            if(item not in new_started_nodes):
+                self.graph.nodes[item].agv = agv
+                for n in new_started_nodes:
+                    if n in self.graph.nodes.keys() and n != item:
+                        if(self.graph.nodes[n].agv == agv):
+                            self.graph.nodes[n].agv = None
+                            #wrong_item = [n for n in new_started_nodes if agv == self.graph.nodes[n].agv \
+                            #and n != item]
+                            #if(len(wrong_item) > 0):
+                            #self.graph.nodes[wrong_item[0]].agv = None
+            set_collected_starts.remove(item)
+        else:
+            element = False
+            for n in set_collected_starts:
+                if(n % self.graph.number_of_nodes_in_space_graph == node\
+                    and n // self.graph.number_of_nodes_in_space_graph > sum):
+                    correct_set.add(n)
+                    self.graph.nodes[n].agv = agv
+                    element = n
+                    break
+            if element is not False and element is not True:
+                self.graph.nodes[element].agv = None
+                set_collected_starts.remove(element)
+            else:
+                correct_set.add(item)
+                if(item in self.graph.nodes.keys()):
+                    self.graph.nodes[item].agv = agv
+    
+    def _correct_current_nodes(self, new_started_nodes, collected_starts, agvs):
+        correct_set = set()
+        set_collected_starts = set(collected_starts)
+        for a in agvs:
+            path = a.path
+            sum = 0
+            len = path.keys().__len__()
+            i = 0
+            keys = list(path.keys())
+            for node in keys:
+                sum = sum + path[node]
+                i = i + 1
+                if(i == len - 1 and keys[-1] == "END"):
+                    self._transfer_item(sum, node, a.id, new_started_nodes, \
+                        correct_set, set_collected_starts)
+                    break
+                if(i == len):
+                    self._transfer_item(sum, node, a.id, new_started_nodes, \
+                        correct_set, set_collected_starts)                    
+        return correct_set 
+    
+    def _is_the_same(self, a, b):
+        """
+        So sánh hai tập hợp bất kỳ (list, set, tuple...) và in ra sự khác biệt.
+
+        Args:
+            a: tập hợp thứ nhất
+            b: tập hợp thứ hai
+        """
+        set_a = set(a)
+        set_b = set(b)
+
+        only_in_a = set_a - set_b
+        only_in_b = set_b - set_a
+        common = set_a & set_b
+
+        if not only_in_a and not only_in_b:
+            return True
+        else:
+            return False
+            """print("⚠️ Hai tập hợp KHÁC nhau:")
+            if only_in_a:
+                print("  • Chỉ có trong A:", only_in_a)
+            if only_in_b:
+                print("  • Chỉ có trong B:", only_in_b)
+            print("  • Chung ở cả hai:", common)"""
+
 
     def process_new_edges(self, new_edges):
         """Xử lý và cập nhật các cạnh mới vào đồ thị."""
