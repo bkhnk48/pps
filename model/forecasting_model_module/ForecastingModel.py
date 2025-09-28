@@ -28,7 +28,7 @@ class DimacsFileReader:
         with open(file_path, 'r') as file:
             for line in file:
                 line = line.strip().split(' ')
-                if line[0] == 'c':
+                if line[0] == 'c' and line[1] == 'tw':
                     self.handle_comment(line, comment_lines)
                 elif line[0] == 'p':
                     self.handle_problem_line(line)
@@ -91,9 +91,10 @@ class DimacsFileReader:
 
         return supply_nodes_dict, demand_nodes_dict, zero_nodes_dict, arc_descriptors_dict
 
-    def read_custom_dimacs(self):  # call the previous function with additional parameter
+    def read_custom_dimacs(self, graph_processor):  # call the previous function with additional parameter
         # Custom line for earliness-tardiness problem
         #  format: c tw <demand_node> <earliness> <tardiness>
+        #pdb.set_trace()
         self.earliness_tardiness_dict = {}
         node_descriptors, arc_descriptors, comment_lines = self.read_dimacs_file(self.file_path)
 
