@@ -174,7 +174,7 @@ class ReadingInputProcessor(StartNodeGenerator):
         print(f"----- ROUND {config.count} at {dt_string} -----")
     
         # Cảnh báo nếu không hỗ trợ mô phỏng SFM
-        if config.count >= 5 and self.get_os() != 'Linux':
+        if config.count >= 7 and self.get_os() != 'Linux':
             print("⚠️  The current OS doesn't support SFM Simulation")
             return False  # báo hiệu không nên tiếp tục vòng lặp
     
