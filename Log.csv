@@ -304,3 +304,11 @@ RAM: Unknown"
 User: thieu
 CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
 RAM: Unknown"
+99.0,simplest.txt,2,10,1,networkx,2,0,0,0.07307052612304688,0.0024373531341552734,BIMODAL,2025-09-30 08:22:00,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+100.0,simplest.txt,2,10,1,networkx,2,0,0,0.05111122131347656,0.0012385845184326172,BIMODAL,2025-09-30 08:22:41,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
