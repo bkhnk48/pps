@@ -16,6 +16,7 @@ import platform
 from round_visual_hook import render_round
 
 from model.hallway_simulator_module.HallwaySimulator import DirectoryManager
+print("-------------------------------------------- Start --------------------------------------------")
 dm = DirectoryManager()
 dm.full_cleanup()
 
@@ -109,3 +110,4 @@ while(config.count < 2*4):#*12 and config.numOfAGVs <= 10):
         except Exception as e:
             print(f"[Visualization warning] {e}")
         reset(simulator)
+print("-------------------------------------------- End --------------------------------------------")
