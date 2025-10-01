@@ -88,6 +88,7 @@ class StartNodeGenerator:
         self._started_nodes = value
     
     def generate_numbers_student(self, G, H, M, N = 0, df=10):
+        #pdb.set_trace()
         while True:
             self._seed = self._seed + 1
             self._seed = self._seed % G
@@ -115,6 +116,7 @@ class StartNodeGenerator:
                     s += self.M
                     if s >= self.H * self.M:
                         break
+                d = d if d != 0 else self.M
                 self.started_nodes.append(s)
                 self.ID.append(d)
                 self.earliness.append(e)
