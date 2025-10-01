@@ -168,10 +168,12 @@ class MovingEvent(Event):
                 if real_end_node in self.graph.nodes and self.graph.nodes[real_end_node].agv is not None:
                     if self.graph.nodes[real_end_node].agv.id != self.agv.id:
                         continue
-                new_event = MovingEvent(self.start_time, self.end_time + delta_t, self.agv, self.graph, self.agv.current_node, real_end_node, self.graph_processor)
+                new_event = MovingEvent(self.start_time, self.end_time + delta_t, \
+                    self.agv, self.graph, self.agv.current_node, real_end_node, self.graph_processor)
                 break
             else:
-                new_event = HaltingEvent(self.end_time, self.graph.graph_processor.H, self.agv, self.graph, self.agv.current_node, real_end_node, delta_t)    
+                new_event = HaltingEvent(self.end_time, self.graph.graph_processor.H, \
+                    self.agv, self.graph, self.agv.current_node, real_end_node, delta_t)    
                 break                                    
         simulator.schedule(new_event.end_time, new_event.process)
         self.force_quit = True
@@ -229,7 +231,6 @@ class ReachingTargetEvent(Event):
         super().__init__(start_time, end_time, agv, graph, graph_processor)
         self.target_node = target_node
         node = self.graph.nodes[target_node]
-        M = self.graph.number_of_nodes_in_space_graph
         if not hasattr(node, 'earliness'):
             try:
                 node = next(node for node in self.graph.graph_processor.get_targets() if node.id == target_node)
@@ -419,7 +420,7 @@ class StartEvent(Event):
     def __init__(self, start_time, end_time, agv, graph, graph_processor):
         super().__init__(start_time, end_time, agv, graph, graph_processor)
         StartEvent.static_index += 1
-        print(self)
+        #print(self)
 
     def process(self):
         #pdb.set_trace()
