@@ -28,391 +28,287 @@ No,Map,Total AGVs,Horizontal Time,Time step,Solution,Num of Reaching Target AGVs
 27.0,Redundant3x3Wards.txt,10,300,10,solver,5,5,1118.0,1858.6921865940094,42.76714080487803,2
 28.0,Redundant3x3Wards.txt,10,300,10,networkx,4,6,1385.0,25.028513431549072,0.22451477580600315,0
 29.0,Redundant3x3Wards.txt,10,300,10,solver,5,5,1595.0,2994.7507467269897,81.99742519444446,0
-30.0,simplest.txt,2,10,1,networkx,0,2,0,0.07716512680053711,0.0009388923645019531,0,2025-08-17 14:01:13
-31.0,simplest.txt,2,10,1,solver,0,2,0,0.06074976921081543,0.046626999999999995,0,2025-08-17 14:01:15
-32.0,simplest.txt,2,10,1,networkx,1,1,8,0.04205489158630371,0.0008785724639892578,1,2025-08-17 14:01:16
-33.0,simplest.txt,2,10,1,solver,1,1,7.0,0.03034377098083496,0.017409,1,2025-08-17 14:01:17
-34.0,Redundant3x3Wards.txt,2,10,1,networkx,0,2,0,0.08097195625305176,0.0023927688598632812,GAUSSIAN,2025-08-21 10:33:33,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-35.0,Redundant3x3Wards.txt,2,10,1,solver,0,2,0,0.0686941146850586,0.054991,BIMODAL,2025-08-21 10:33:33,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-36.0,Redundant3x3Wards.txt,2,10,1,networkx,0,2,0,0.007025957107543945,0.0007500648498535156,Random in the list,2025-08-21 10:33:33,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-37.0,Redundant3x3Wards.txt,2,10,1,solver,0,2,0,0.01305079460144043,0.005839,Random in the list,2025-08-21 10:33:33,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-38.0,Redundant3x3Wards.txt,2,300,10,networkx,2,0,472.0,39.782819986343384,0.03030358042035784,GAUSSIAN,2025-09-16 20:31:01,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-39.0,Redundant3x3Wards.txt,2,300,10,networkx,2,0,472.0,30.371280908584595,0.02926295144217355,GAUSSIAN,2025-09-16 21:21:03,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-40.0,Redundant3x3Wards.txt,2,300,10,networkx,2,0,472.0,63.275590896606445,0.029610838208879744,GAUSSIAN,2025-09-16 22:22:58,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-41.0,Redundant3x3Wards.txt,2,300,10,networkx,2,0,472.0,15.53773307800293,0.028497014726911272,GAUSSIAN,2025-09-17 16:18:29,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-42.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,41.23899698257446,0.02127317019871303,GAUSSIAN,2025-09-18 13:44:05,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-43.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.7306292057037354,0.019366673060825894,GAUSSIAN,2025-09-18 19:03:23,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-44.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.8248190879821777,0.023958683013916016,GAUSSIAN,2025-09-19 10:21:05,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-45.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.5337319374084473,0.01811105864388602,GAUSSIAN,2025-09-19 10:22:28,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-46.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.5394539833068848,0.01760547501700265,GAUSSIAN,2025-09-19 10:28:43,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-47.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.5603890419006348,0.025911739894321988,GAUSSIAN,2025-09-19 10:38:36,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-48.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.7655880451202393,0.019155025482177734,GAUSSIAN,2025-09-19 10:50:16,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-49.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.6443140506744385,0.019782441002982005,GAUSSIAN,2025-09-19 10:53:45,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-50.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.6156730651855469,0.02035900524684361,GAUSSIAN,2025-09-19 11:36:13,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-51.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.7785537242889404,0.02304233823503767,GAUSSIAN,2025-09-19 12:04:19,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-52.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.57193922996521,0.01678180694580078,GAUSSIAN,2025-09-19 12:06:16,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-53.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.6324748992919922,0.016899074826921736,GAUSSIAN,2025-09-19 12:06:42,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-54.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.5773711204528809,0.0172269344329834,GAUSSIAN,2025-09-19 13:05:59,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-55.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.5774338245391846,0.025766917637416294,GAUSSIAN,2025-09-19 13:14:59,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-56.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.5604426860809326,0.01711596761431013,GAUSSIAN,2025-09-19 14:01:11,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-57.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.7179646492004395,0.016477108001708984,GAUSSIAN,2025-09-19 14:09:00,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-58.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.5533030033111572,0.021427903856549944,GAUSSIAN,2025-09-19 14:38:25,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-59.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.8534049987792969,0.022205352783203125,GAUSSIAN,2025-09-19 14:48:19,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-60.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.701937198638916,0.018558195659092495,GAUSSIAN,2025-09-19 20:02:18,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-61.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.496046781539917,0.018132039478846958,GAUSSIAN,2025-09-19 20:28:43,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-62.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.8066399097442627,0.017702817916870117,GAUSSIAN,2025-09-19 21:51:33,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-63.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.4695601463317871,0.016787290573120117,GAUSSIAN,2025-09-19 21:57:52,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-64.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.6967060565948486,0.01795339584350586,GAUSSIAN,2025-09-20 08:21:40,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-65.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.4744739532470703,0.016517434801374162,GAUSSIAN,2025-09-20 08:38:36,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-66.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.575066089630127,0.016737188611711775,GAUSSIAN,2025-09-20 14:28:30,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-67.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.4923970699310303,0.016225576400756836,GAUSSIAN,2025-09-20 14:34:43,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-68.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.47234296798706055,0.01691549164908273,GAUSSIAN,2025-09-20 14:46:14,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-69.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.47920989990234375,0.016633272171020508,GAUSSIAN,2025-09-20 14:58:20,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-70.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.48560118675231934,0.01680145944867815,GAUSSIAN,2025-09-20 15:04:49,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-71.0,Redundant3x3Wards.txt,2,200,10,networkx,1,1,212.0,0.1620349884033203,0.008598923683166504,GAUSSIAN,2025-09-20 15:08:58,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-72.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.549854040145874,0.019153901508876255,GAUSSIAN,2025-09-20 15:45:55,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-73.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.49872875213623047,0.01673299925667899,GAUSSIAN,2025-09-20 21:18:42,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-74.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.5187067985534668,0.01709280695234026,GAUSSIAN,2025-09-20 21:26:01,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-75.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,1.161097764968872,0.03518390655517578,GAUSSIAN,2025-09-20 22:05:07,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-76.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.475506067276001,0.016578333718436106,GAUSSIAN,2025-09-20 22:15:00,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-77.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.4714930057525635,0.017324209213256836,GAUSSIAN,2025-09-20 22:16:01,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-78.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.5146291255950928,0.017119441713605608,GAUSSIAN,2025-09-21 09:20:44,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-79.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,1.1892099380493164,0.033169950757707865,GAUSSIAN,2025-09-21 12:21:58,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-80.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.49161505699157715,0.01838193620954241,GAUSSIAN,2025-09-21 12:43:06,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-81.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.4779956340789795,0.0169527530670166,GAUSSIAN,2025-09-21 13:09:20,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-82.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.4800260066986084,0.01718487058367048,GAUSSIAN,2025-09-21 13:22:14,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-83.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,71.51452898979187,0.02066380637032645,GAUSSIAN,2025-09-21 14:21:40,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-84.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,1252.9174201488495,0.019321577889578685,GAUSSIAN,2025-09-21 15:19:27,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-85.0,Redundant3x3Wards.txt,2,300,300,networkx,1,1,384.0,46.433921098709106,0.008136431376139322,GAUSSIAN,2025-09-21 16:38:37,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-86.0,Redundant3x3Wards.txt,2,300,300,solver,0,2,0,48.94352698326111,0.8407145,BIMODAL,2025-09-21 16:39:42,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-87.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,20429.809841156006,0.023036275591169084,GAUSSIAN,2025-09-22 14:48:13,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-88.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,30.825428009033203,0.019600766045706614,GAUSSIAN,2025-09-22 19:31:06,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-89.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,108.57948017120361,0.018773419516427175,GAUSSIAN,2025-09-24 18:01:56,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-90.0,Redundant3x3Wards.txt,2,300,10,solver,0,2,0,306.59818601608276,3.4736644285714284,BIMODAL,2025-09-24 18:07:11,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-91.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.8830127716064453,0.01903932435171945,GAUSSIAN,2025-09-24 18:19:30,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-92.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.48370933532714844,0.016636337552751814,GAUSSIAN,2025-09-24 18:21:14,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-93.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.48543834686279297,0.017730236053466797,GAUSSIAN,2025-09-24 18:23:53,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-94.0,Redundant3x3Wards.txt,2,300,10,solver,0,2,0,51.23174595832825,3.362384428571428,BIMODAL,2025-09-24 18:24:45,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-95.0,Redundant3x3Wards.txt,2,300,10,networkx,2,0,754.0,283.30659890174866,0.009204506874084473,Random in the list,2025-09-24 18:29:29,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-96.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.48385190963745117,0.015969208308628628,GAUSSIAN,2025-09-25 21:48:41,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-97.0,Redundant3x3Wards.txt,2,300,10,solver,0,2,0,25.689222812652588,3.6313561428571433,BIMODAL,2025-09-25 21:49:07,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-98.0,Redundant3x3Wards.txt,2,300,10,networkx,2,0,754.0,0.24040913581848145,0.008878850936889648,Random in the list,2025-09-25 21:49:08,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-99.0,Redundant3x3Wards.txt,2,300,10,solver,2,0,576.0,28.883442163467407,4.066841142857142,Random in the list,2025-09-25 21:49:37,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-100.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.4720630645751953,0.01661637851170131,GAUSSIAN,2025-09-25 21:50:22,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-101.0,Redundant3x3Wards.txt,2,300,10,solver,0,2,0,23.732765913009644,3.3566555714285715,BIMODAL,2025-09-25 21:50:47,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-102.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,378.0,0.2250080108642578,0.009325795703464083,Random in the list,2025-09-25 21:50:48,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-103.0,Redundant3x3Wards.txt,2,300,10,solver,1,1,378.0,24.470513343811035,3.0287051249999997,Random in the list,2025-09-25 21:51:13,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-104.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.47773122787475586,0.015792642320905412,GAUSSIAN,2025-09-25 22:00:39,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-105.0,Redundant3x3Wards.txt,2,300,10,solver,0,2,0,23.91373085975647,3.3828545714285716,BIMODAL,2025-09-25 22:01:04,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-106.0,Redundant3x3Wards.txt,2,300,10,networkx,2,0,754.0,0.22781085968017578,0.00854036808013916,Random in the list,2025-09-25 22:01:05,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-107.0,Redundant3x3Wards.txt,2,300,10,solver,1,1,378.0,26.196199893951416,2.5821856000000003,Random in the list,2025-09-25 22:01:32,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-108.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.5922019481658936,0.01783255168369838,GAUSSIAN,2025-09-25 22:41:07,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-109.0,Redundant3x3Wards.txt,2,300,10,solver,0,2,0,26.28512191772461,3.714310142857143,BIMODAL,2025-09-25 22:41:34,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-110.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,378.0,0.22481799125671387,0.008678627014160157,Random in the list,2025-09-25 22:41:35,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-111.0,Redundant3x3Wards.txt,2,300,10,solver,1,1,178.0,25.76044797897339,3.1891865,Random in the list,2025-09-25 22:42:01,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-112.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.5070919990539551,0.01677325793675014,GAUSSIAN,2025-09-27 09:36:18,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-113.0,Redundant3x3Wards.txt,2,300,10,solver,0,2,0,24.30821990966797,3.433108285714286,BIMODAL,2025-09-27 09:36:43,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-114.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,378.0,0.23785996437072754,0.008762240409851074,Random in the list,2025-09-27 09:36:44,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-115.0,Redundant3x3Wards.txt,2,300,10,solver,1,1,360.0,29.409837007522583,4.148239571428571,Random in the list,2025-09-27 09:37:14,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-116.0,Redundant3x3Wards.txt,2,300,10,networkx,0,2,0,0.5211429595947266,0.01245433943612235,BIMODAL,2025-09-27 10:57:59,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-117.0,Redundant3x3Wards.txt,2,300,10,solver,0,2,0,27.055071115493774,3.8233458571428574,BIMODAL,2025-09-27 10:58:26,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-118.0,Redundant3x3Wards.txt,2,300,10,networkx,1,1,178.0,0.478348970413208,0.01554295751783583,GAUSSIAN,2025-09-27 10:58:27,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-119.0,Redundant3x3Wards.txt,2,300,10,solver,1,1,178.0,28.585548877716064,4.044521714285714,GAUSSIAN,2025-09-27 10:58:56,"OS: macOS 14.1.2 (arm64)
-User: leegie
-CPU: Apple M1 (8 physical, 8 logical)
-RAM: 16.0 GB"
-120.0,Redundant3x3Wards.txt,2,200,10,networkx,0,2,0,0.46990013122558594,0.017729806900024413,BIMODAL,2025-09-28 14:54:01,"OS: Windows 10 (10.0.19045) AMD64
+30.0,Redundant3x3Wards.txt,2,10,10,networkx,0,2,0,0.41712212562561035,0.0009887218475341797,GAUSSIAN,2025-08-22 15:11:59,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+31.0,Redundant3x3Wards.txt,2,10,10,solver,0,2,0,0.04493546485900879,0.0,BIMODAL,2025-08-22 15:12:00,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+32.0,Redundant3x3Wards.txt,2,10,10,networkx,0,2,0,0.024322032928466797,0.0007448196411132812,Random in the list,2025-08-22 15:12:00,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+33.0,Redundant3x3Wards.txt,2,10,10,solver,0,2,0,0.03955698013305664,0.0,Random in the list,2025-08-22 15:12:00,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+34.0,simplest.txt,2,10,10,networkx,0,2,0,0.4199645519256592,0.0013966560363769531,GAUSSIAN,2025-08-22 15:12:12,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+35.0,simplest.txt,2,10,10,solver,0,2,0,0.06487369537353516,0.0,BIMODAL,2025-08-22 15:12:12,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+36.0,Redundant3x3Wards.txt,2,10,10,networkx,0,2,0,0.30966901779174805,0.000990152359008789,GAUSSIAN,2025-08-22 15:58:06,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+37.0,Redundant3x3Wards.txt,2,10,10,solver,0,2,0,0.03430509567260742,0.0,BIMODAL,2025-08-22 15:58:07,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+38.0,Redundant3x3Wards.txt,2,10,10,networkx,0,2,0,0.020986318588256836,0.0004830360412597656,Random in the list,2025-08-22 15:58:07,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+39.0,Redundant3x3Wards.txt,2,10,10,solver,0,2,0,0.030425548553466797,0.0,Random in the list,2025-08-22 15:58:07,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+40.0,Redundant3x3Wards.txt,2,10,10,networkx,0,2,0,0.27300500869750977,0.001135110855102539,GAUSSIAN,2025-08-25 02:24:01,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+41.0,Redundant3x3Wards.txt,2,10,10,solver,0,2,0,0.12127900123596191,0.0,BIMODAL,2025-08-25 02:24:01,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+42.0,Redundant3x3Wards.txt,2,10,10,networkx,0,2,0,0.017034053802490234,0.00038433074951171875,Random in the list,2025-08-25 02:24:01,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+43.0,Redundant3x3Wards.txt,2,10,10,solver,0,2,0,0.02826547622680664,0.0,Random in the list,2025-08-25 02:24:01,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+44.0,simplest.txt,2,10,10,networkx,0,2,0,0.4069483280181885,0.0007030963897705078,GAUSSIAN,2025-08-25 02:24:18,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+45.0,simplest.txt,2,10,10,solver,0,2,0,0.034512996673583984,0.0,BIMODAL,2025-08-25 02:24:18,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+46.0,simplest.txt,2,10,10,networkx,2,0,15.0,0.020296812057495117,0.0003414154052734375,Random in the list,2025-08-25 02:24:18,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+47.0,simplest.txt,2,10,10,solver,2,0,15.0,0.030888080596923828,0.0,Random in the list,2025-08-25 02:24:18,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+48.0,Redundant3x3Wards.txt,2,10,10,networkx,0,2,0,0.3669404983520508,0.0011534690856933594,GAUSSIAN,2025-08-25 02:25:43,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+49.0,Redundant3x3Wards.txt,2,10,10,solver,0,2,0,0.03199958801269531,0.0,BIMODAL,2025-08-25 02:25:43,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+50.0,Redundant3x3Wards.txt,2,10,10,networkx,0,2,0,0.019815444946289062,0.0004563331604003906,Random in the list,2025-08-25 02:25:44,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+51.0,Redundant3x3Wards.txt,2,10,10,solver,0,2,0,0.02805471420288086,0.0,Random in the list,2025-08-25 02:25:44,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+52.0,Redundant3x3Wards.txt,2,10,10,networkx,0,2,0,0.7138826847076416,0.0011019706726074219,GAUSSIAN,2025-08-25 15:13:20,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+53.0,Redundant3x3Wards.txt,2,10,10,solver,0,2,0,0.12071108818054199,0.0,BIMODAL,2025-08-25 15:13:20,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+54.0,Redundant3x3Wards.txt,2,10,10,networkx,0,2,0,0.019522666931152344,0.0005824565887451172,Random in the list,2025-08-25 15:13:20,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+55.0,Redundant3x3Wards.txt,2,10,10,solver,0,2,0,0.027841567993164062,0.0,Random in the list,2025-08-25 15:13:20,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+56.0,Redundant3x3Wards.txt,2,10,10,networkx,0,2,0,0.40596485137939453,0.0009822845458984375,GAUSSIAN,2025-08-25 17:44:22,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+57.0,Redundant3x3Wards.txt,2,10,10,solver,0,2,0,0.2022538185119629,0.0,BIMODAL,2025-08-25 17:44:22,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+58.0,Redundant3x3Wards.txt,2,10,10,networkx,0,2,0,0.021279335021972656,0.0005033016204833984,Random in the list,2025-08-25 17:44:22,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+59.0,Redundant3x3Wards.txt,2,10,10,solver,0,2,0,0.03242635726928711,0.0,Random in the list,2025-08-25 17:44:22,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+60.0,Redundant3x3Wards.txt,2,10,10,networkx,0,2,0,0.6743578910827637,0.0024373531341552734,GAUSSIAN,2025-08-28 17:01:16,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+61.0,Redundant3x3Wards.txt,2,10,10,solver,0,2,0,0.22027158737182617,0.0,BIMODAL,2025-08-28 17:01:16,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+62.0,Redundant3x3Wards.txt,2,10,10,networkx,0,2,0,0.026139259338378906,0.0005185604095458984,Random in the list,2025-08-28 17:01:17,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+63.0,Redundant3x3Wards.txt,2,10,10,solver,0,2,0,0.056375980377197266,0.0,Random in the list,2025-08-28 17:01:17,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+64.0,Redundant3x3Wards.txt,2,10,10,networkx,0,2,0,0.5364603996276855,0.0016405582427978516,GAUSSIAN,2025-08-28 17:27:52,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+65.0,Redundant3x3Wards.txt,2,10,10,solver,0,2,0,0.04276323318481445,0.0,BIMODAL,2025-08-28 17:27:52,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+66.0,Redundant3x3Wards.txt,2,10,10,networkx,0,2,0,0.030388832092285156,0.0012936592102050781,Random in the list,2025-08-28 17:27:52,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+67.0,Redundant3x3Wards.txt,2,10,10,solver,0,2,0,0.04915738105773926,0.0,Random in the list,2025-08-28 17:27:52,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+68.0,data/benchmark/simplest1.map,1,10,10,networkx,0,2,0,0.6517610549926758,0.0024290084838867188,GAUSSIAN,2025-09-03 18:50:50,"OS: Windows 10 (10.0.19045) AMD64
 User: thieu
 CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
 RAM: Unknown"
-121.0,Redundant3x3Wards.txt,2,200,10,solver,0,2,0,17.486769914627075,2.2857142857142856,BIMODAL,2025-09-28 14:54:19,"OS: Windows 10 (10.0.19045) AMD64
+69.0,data/benchmark/simplest1.map,1,10,10,solver,1,1,0,0.06806731224060059,0.0,BIMODAL,2025-09-03 18:50:54,"OS: Windows 10 (10.0.19045) AMD64
 User: thieu
 CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
 RAM: Unknown"
-122.0,Redundant3x3Wards.txt,2,200,10,networkx,1,1,212.0,0.7398219108581543,0.02612897753715515,GAUSSIAN,2025-09-28 14:54:21,"OS: Windows 10 (10.0.19045) AMD64
+70.0,data/benchmark/simplest1.map,1,10,10,networkx,0,2,0,0.060353994369506836,0.0012614727020263672,Random in the list,2025-09-03 18:50:57,"OS: Windows 10 (10.0.19045) AMD64
 User: thieu
 CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
 RAM: Unknown"
-123.0,Redundant3x3Wards.txt,2,200,10,networkx,0,2,0,0.6924874782562256,0.014650487899780273,BIMODAL,2025-09-28 15:09:58,"OS: Windows 10 (10.0.19045) AMD64
+71.0,data/benchmark/simplest1.map,1,10,10,solver,1,1,0,0.0850057601928711,0.0,Random in the list,2025-09-03 18:50:59,"OS: Windows 10 (10.0.19045) AMD64
 User: thieu
 CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
 RAM: Unknown"
-124.0,Redundant3x3Wards.txt,2,200,10,solver,0,2,0,14.659484148025513,2.0,BIMODAL,2025-09-28 15:10:14,"OS: Windows 10 (10.0.19045) AMD64
+72.0,Redundant3x3Wards.txt,2,10,10,networkx,0,2,0,0.49176645278930664,0.0035479068756103516,GAUSSIAN,2025-09-03 18:51:28,"OS: Windows 10 (10.0.19045) AMD64
 User: thieu
 CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
 RAM: Unknown"
-125.0,Redundant3x3Wards.txt,2,200,10,networkx,1,1,212.0,0.6051037311553955,0.021185755729675293,GAUSSIAN,2025-09-28 15:10:15,"OS: Windows 10 (10.0.19045) AMD64
+73.0,Redundant3x3Wards.txt,2,10,10,solver,0,2,0,0.06675291061401367,0.0,BIMODAL,2025-09-03 18:51:29,"OS: Windows 10 (10.0.19045) AMD64
 User: thieu
 CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
 RAM: Unknown"
-126.0,Redundant3x3Wards.txt,2,200,10,networkx,0,2,0,0.824343204498291,0.04049162864685059,BIMODAL,2025-09-28 19:51:10,"OS: Windows 10 (10.0.19045) AMD64
+74.0,Redundant3x3Wards.txt,2,10,10,networkx,0,2,0,0.04190397262573242,0.0010006427764892578,Random in the list,2025-09-03 18:51:29,"OS: Windows 10 (10.0.19045) AMD64
 User: thieu
 CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
 RAM: Unknown"
-127.0,Redundant3x3Wards.txt,2,200,10,solver,0,2,0,27.58117961883545,3.7142857142857144,BIMODAL,2025-09-28 19:51:40,"OS: Windows 10 (10.0.19045) AMD64
+75.0,Redundant3x3Wards.txt,2,10,10,solver,0,2,0,0.09685587882995605,0.0,Random in the list,2025-09-03 18:51:30,"OS: Windows 10 (10.0.19045) AMD64
 User: thieu
 CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
 RAM: Unknown"
-128.0,Redundant3x3Wards.txt,2,200,10,networkx,1,1,212.0,1.2623658180236816,0.047997862100601196,GAUSSIAN,2025-09-28 19:51:43,"OS: Windows 10 (10.0.19045) AMD64
+76.0,data/benchmark/simplest1.map,1,10,10,networkx,0,1,0,0.36386990547180176,0.0010974407196044922,GAUSSIAN,2025-09-08 11:09:49,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+77.0,Redundant3x3Wards.txt,2,10,10,networkx,0,2,0,0.3329739570617676,0.0012006759643554688,GAUSSIAN,2025-09-08 11:11:30,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+78.0,Redundant3x3Wards.txt,2,10,10,solver,0,2,0,0.03526663780212402,0.0,BIMODAL,2025-09-08 11:11:30,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+79.0,Redundant3x3Wards.txt,2,10,10,networkx,0,2,0,0.02201056480407715,0.0004909038543701172,Random in the list,2025-09-08 11:11:31,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+80.0,Redundant3x3Wards.txt,2,10,10,solver,0,2,0,0.06166386604309082,0.0,Random in the list,2025-09-08 11:11:31,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+81.0,simplest.txt,2,10,1,networkx,2,0,0,0.6325356960296631,0.002638578414916992,GAUSSIAN,2025-09-25 09:57:08,"OS: Windows 10 (10.0.19045) AMD64
 User: thieu
 CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
 RAM: Unknown"
-129.0,Redundant3x3Wards.txt,2,200,10,solver,1,1,212.0,28.949405193328857,3.5,GAUSSIAN,2025-09-28 19:52:14,"OS: Windows 10 (10.0.19045) AMD64
+82.0,Redundant3x3Wards.txt,2,200,10,networkx,0,2,0,0.5346145629882812,0.022037792205810546,BIMODAL,2025-09-28 15:00:35,"OS: Windows 10 (10.0.19045) AMD64
 User: thieu
 CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+83.0,Redundant3x3Wards.txt,2,200,10,networkx,0,2,0,3.4022417068481445,0.06185755729675293,BIMODAL,2025-09-28 19:50:54,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+84.0,Redundant3x3Wards.txt,2,200,10,solver,0,2,0,42.39221405982971,4.714285714285714,BIMODAL,2025-09-28 19:51:42,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+85.0,Redundant3x3Wards.txt,2,200,10,networkx,1,1,212.0,33.30364656448364,0.059925198554992676,GAUSSIAN,2025-09-28 19:52:18,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+86.0,Redundant3x3Wards.txt,2,200,10,solver,1,1,212.0,35.11739897727966,4.375,GAUSSIAN,2025-09-28 19:52:55,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+87.0,Redundant3x3Wards.txt,2,200,10,networkx,0,2,0,0.7562389373779297,0.03489542007446289,BIMODAL,2025-09-28 20:11:20,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+88.0,Redundant3x3Wards.txt,2,200,10,solver,0,2,0,24.79970073699951,3.4285714285714284,BIMODAL,2025-09-28 20:11:48,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+89.0,Redundant3x3Wards.txt,2,200,10,networkx,1,1,212.0,0.8847999572753906,0.0330275297164917,GAUSSIAN,2025-09-28 20:11:51,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+90.0,Redundant3x3Wards.txt,2,200,10,solver,1,1,212.0,28.358038663864136,3.5,GAUSSIAN,2025-09-28 20:12:23,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+91.0,Redundant3x3Wards.txt,2,200,10,networkx,0,2,0,0.5419082641601562,0.02546834945678711,BIMODAL,2025-09-28 20:18:58,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+92.0,Redundant3x3Wards.txt,2,200,10,solver,0,2,0,21.406076908111572,3.0,BIMODAL,2025-09-28 20:19:22,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+93.0,Redundant3x3Wards.txt,2,200,10,networkx,1,1,212.0,1.2780156135559082,0.04464027285575867,GAUSSIAN,2025-09-28 20:19:25,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+94.0,Redundant3x3Wards.txt,2,200,10,solver,1,1,212.0,25.010985136032104,3.125,GAUSSIAN,2025-09-28 20:19:52,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+95.0,Redundant3x3Wards.txt,2,200,10,networkx,0,2,0,0.9543445110321045,0.042943048477172854,BIMODAL,2025-09-28 20:53:03,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+96.0,Redundant3x3Wards.txt,2,200,10,solver,0,2,0,30.285345315933228,4.142857142857143,BIMODAL,2025-09-28 20:53:35,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+97.0,Redundant3x3Wards.txt,2,200,10,networkx,1,1,212.0,1.905958890914917,0.08227473497390747,GAUSSIAN,2025-09-28 20:53:40,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+98.0,Redundant3x3Wards.txt,2,200,10,solver,1,1,212.0,30.163647174835205,3.75,GAUSSIAN,2025-09-28 20:54:13,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+99.0,simplest.txt,2,10,1,networkx,2,0,0,0.07307052612304688,0.0024373531341552734,BIMODAL,2025-09-30 08:22:00,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+100.0,simplest.txt,2,10,1,networkx,2,0,0,0.05111122131347656,0.0012385845184326172,BIMODAL,2025-09-30 08:22:41,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
 RAM: Unknown"

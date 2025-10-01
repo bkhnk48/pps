@@ -126,5 +126,3 @@ class StartNodeGenerator:
             config.ID = self.ID.copy()
             config.earliness = self.earliness.copy()
             config.tardiness = self.tardiness.copy()
-        
-    

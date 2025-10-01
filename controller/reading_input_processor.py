@@ -442,5 +442,3 @@ class ReadingInputProcessor(StartNodeGenerator):
         else:
             num_of_agvs = self.generate_time_windows()
         return num_of_agvs
-                
-    

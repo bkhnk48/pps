@@ -4,13 +4,15 @@ class BenchmarkNode(Node):
     def __init__(self, id, label=None):
         super().__init__(id, label)
         
-class TopBulbNode(BenchmarkNode):
-    def __init__(self, id):
-        super().__init__(id, "TopBulb")
+    def __repr__(self):
+        cls = self.__class__.__name__
+        lbl = getattr(self, "label", cls)
+        tmp = getattr(self, "temporary", False)
+        return f"{cls}(id={self.id}, label='{lbl}', temporary={tmp})"
 
-class BottomBulbNode(BenchmarkNode):
+class TopOrBottomBulbNode(BenchmarkNode):
     def __init__(self, id):
-        super().__init__(id, "BottomBulb")
+        super().__init__(id, "TopOrBottomBulb")
 
 class BottleneckNode(BenchmarkNode):
     def __init__(self, id):

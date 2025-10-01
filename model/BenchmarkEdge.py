@@ -7,6 +7,12 @@ class BenchmarkEdge(Edge):
             raise ValueError("edge endpoints must be BenchmarkNode")
         super().__init__(start_node, end_node, lower, upper, weight)
 
+    def __repr__(self):
+        cls = self.__class__.__name__
+        lower = getattr(self, "lower", None)
+        upper = getattr(self, "upper", None)
+        return f"{cls}({self.start_node}, {self.end_node}, lower={lower}, upper={upper}, weight={self.weight})"
+
 class InflowEdge(BenchmarkEdge):
     def __init__(self, u, v, lower, upper, weight=0):
         super().__init__(u, v, lower, upper, weight)

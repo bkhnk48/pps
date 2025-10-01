@@ -1,0 +1,423 @@
+from controller.reading_input_processor import ReadingInputProcessor
+import re
+import config
+import warnings
+from model.Logger import Logger
+import os
+from types import MethodType
+from model.BenchmarkGraph import BenchmarkGraph
+from controller.TimeSpaceGraph4Benchmark import TimeSpaceGraph4Benchmark
+import math
+from model.BenchmarkEdge import InflowEdge, NeckEdge, OutflowEdge, WaitingEdge
+
+ALLOWED_MAP_CHARS = set(".@OTSGW")
+ALLOWED_ROW_RE = re.compile(r'^[.@OTSGW]+$')
+INT_TOKEN_RE = re.compile(r'^[+-]?\d+$')
+HEADER_PREFIX = ('type ', 'height ', 'width ')
+DIMACS_TOKENS = {'a', 'p', 'n', 'c', 'alpha', 'beta', '#'}
+
+class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
+    def _read_lines(self, filepath):
+        with open(filepath, "r", encoding="utf-8-sig", errors="replace") as f:
+            return [line.rstrip("\n").rstrip("\r") for line in f]
+
+    # -------------------- Validation Helpers --------------------
+    def _map_error(self, msg):
+        raise ValueError(f"[BENCHMARK ERROR] {msg}")
+
+    def _map_warn(self, msg):
+        if not hasattr(self, "_map_warnings"):
+            self._map_warnings = []
+        self._map_warnings.append(msg)
+        try:
+            if not hasattr(self, "_logger"):
+                self._logger = Logger()
+            self._logger.log(f"[MAP WARN] {msg}")
+        except Exception:
+            pass
+        warnings.warn(f"[MAP WARN] {msg}", UserWarning, stacklevel=2)
+
+    def get_map_warnings(self):
+        return getattr(self, "_map_warnings", [])
+
+    def _dimacs_error(self, msg):
+        raise ValueError(f"[DIMACS ERROR] {msg}")
+
+    def _is_ignorable_line(self, s: str) -> bool:
+        return not s or s.startswith('```')
+
+    # -------------------- Format detection --------------------
+    def _detect_input_format(self, filepath):
+        bench_hits = dimacs_hits = non_empty = 0
+        try:
+            with open(filepath, 'r', encoding='utf-8-sig', errors='replace') as f:
+                for raw in f:
+                    s = raw.strip()
+                    if self._is_ignorable_line(s): 
+                        continue
+                    non_empty += 1
+                    sl = s.lower()
+                    if sl.startswith(HEADER_PREFIX) or s == 'map':
+                        return 'benchmark'
+                    if ALLOWED_ROW_RE.match(s):
+                        bench_hits += 1
+                        if bench_hits >= 2:
+                            return 'benchmark'
+                        continue
+                    tok = sl.split(' ', 1)[0]
+                    if tok in DIMACS_TOKENS:
+                        if tok == 'a':
+                            return 'dimacs'
+                        dimacs_hits += 1
+                        if dimacs_hits >= 3:
+                            return 'dimacs'
+                    if non_empty >= 64:
+                        break
+            if non_empty == 0:
+                return 'empty'
+            if bench_hits > 0:
+                return 'benchmark'
+            if dimacs_hits > 1:
+                return 'dimacs'
+            return 'unknown'
+        except Exception:
+            return 'unknown'
+
+    # -------------------- Benchmark helpers --------------------
+    def _sanitize_row(self, row, r_index):
+        if ALLOWED_ROW_RE.match(row):
+            return row
+        chars = list(row)
+        changed = False
+        for c, ch in enumerate(chars):
+            if ch not in ALLOWED_MAP_CHARS:
+                changed = True
+                self._map_warn(f"Invalid character '{ch}' at (row={r_index}, col={c}) -> replaced by '@'")
+                chars[c] = '@'
+        return ''.join(chars) if changed else row
+
+    def _validate_parsed_map(self, movement_type, height, width, map_grid):
+        if not isinstance(height, int) or not isinstance(width, int):
+            return self._map_error("height/width must be integers")
+        if height <= 0 or width <= 0:
+            return self._map_error("height and width must be positive")
+        if len(map_grid) != height:
+            return self._map_error(f"Map line count ({len(map_grid)}) does not match height ({height})")
+        if not getattr(self, "_bench_walkable", False):
+            return self._map_error("No walkable cell ('.' or 'S') found")
+        self._last_parsed_map = (movement_type, height, width, map_grid)
+        return True
+
+    def _bench_state(self):
+        return {
+            'movement_type': None, 'height': None, 'width': None,
+            'map_grid': [], 'in_map': False,
+            'seen': {'type': False, 'height': False, 'width': False},
+            'had_non_empty': False,
+            'walkable_found': False,
+        }
+
+    def _bench_process_header(self, s, st, line_no):
+        sl = s.lower()
+        if ALLOWED_ROW_RE.match(s) and not (sl.startswith('type ') or sl.startswith('height ') or sl.startswith('width ') or s == 'map'):
+            self._map_error("Map row encountered before 'map' line")
+        parts = s.split()
+        key = parts[0].lower()
+        seen = st['seen']
+        if key in ('type', 'height', 'width'):
+            if seen[key]:
+                self._map_error(f"Duplicate '{key}' line")
+            if key == 'type':
+                if len(parts) < 2:
+                    self._map_error("Malformed type line")
+                st['movement_type'] = parts[1].lower()
+            else:
+                if len(parts) != 2 or not parts[1].isdigit():
+                    self._map_error(f"Malformed {key} line")
+                st[key] = int(parts[1])
+            seen[key] = True
+        elif s == 'map':
+            st['in_map'] = True
+            missing = [k for k in ('type', 'height', 'width')
+                       if (k == 'type' and st['movement_type'] is None) or
+                          (k != 'type' and st[k] is None)]
+            if missing:
+                self._map_error("Missing header(s): " + ", ".join(missing))
+        else:
+            self._map_error(f"Unexpected line before 'map': '{s}'")
+
+    def _bench_process_map_row(self, s, st):
+        h, w = st['height'], st['width']
+        if len(st['map_grid']) >= h:
+            self._map_error("Extra map row beyond declared height")
+        if len(s) != w:
+            self._map_error(f"Map row {len(st['map_grid'])+1} length {len(s)} != width {w}")
+        sanitized = self._sanitize_row(s, len(st['map_grid']))
+        st['map_grid'].append(sanitized)
+        if not st['walkable_found'] and any(ch in ('.', 'G', 'S', 'W') for ch in sanitized):
+            st['walkable_found'] = True
+
+    def _bench_finalize(self, st):
+        if not st['had_non_empty']:
+            raise ValueError("[MAP ERROR] Empty file")
+        if not st['in_map']:
+            self._map_error("Missing 'map' line")
+        vals = {'type': st['movement_type'], 'height': st['height'], 'width': st['width']}
+        missing = [k for k, v in vals.items() if v is None]
+        if missing:
+            self._map_error("Missing header(s): " + ", ".join(missing))
+        if len(st['map_grid']) != st['height']:
+            self._map_error(f"Map line count ({len(st['map_grid'])}) does not match height ({st['height']})")
+        self._bench_walkable = st['walkable_found']
+        return self._validate_parsed_map(vals['type'], vals['height'], vals['width'], st['map_grid'])
+
+    # -------------------- Benchmark parser (streaming) --------------------
+    def _parse_validate_map_stream(self, filepath):
+        st = self._bench_state()
+        map_error = self._map_error
+        proc_header = self._bench_process_header
+        proc_row = self._bench_process_map_row
+        with open(filepath, 'r', encoding='utf-8-sig', errors='replace') as f:
+            for line_no, raw in enumerate(f, 1):
+                s = raw.rstrip('\n').rstrip('\r').strip()
+                if self._is_ignorable_line(s):
+                    if s and st['in_map']:
+                        map_error(f"Empty line inside map at line {line_no}")
+                    continue
+                st['had_non_empty'] = True
+                if not st['in_map']:
+                    proc_header(s, st, line_no)
+                else:
+                    proc_row(s, st)
+        return self._bench_finalize(st)
+
+    # -------------------- DIMACS helpers --------------------
+    def _dimacs_int(self, token: str, field_name: str, line_no: int) -> int:
+        if not INT_TOKEN_RE.match(token):
+            self._dimacs_error(f"Line {line_no}: invalid character in field '{field_name}': '{token}' (must be integer)")
+        try:
+            return int(token)
+        except Exception:
+            self._dimacs_error(f"Line {line_no}: field '{field_name}' must be integer, got '{token}'")
+
+    def _dimacs_state(self):
+        return {'edge_count': 0, 'max_node_id': 0, 'declared_nodes': None, 'declared_edges': None}
+
+    def _dimacs_handle_a(self, parts, line_no, st):
+        if len(parts) < 6:
+            self._dimacs_error("Line {0}: 'a' line must have at least 6 fields: a source target lower upper cost".format(line_no))
+        src = self._dimacs_int(parts[1], 'source', line_no)
+        tgt = self._dimacs_int(parts[2], 'target', line_no)
+        low = self._dimacs_int(parts[3], 'lower', line_no)
+        upp = self._dimacs_int(parts[4], 'upper', line_no)
+        cost = self._dimacs_int(parts[5], 'cost', line_no)
+        if src <= 0 or tgt <= 0:
+            self._dimacs_error(f"Line {line_no}: source/target must be positive integers (> 0)")
+        if low < 0:
+            self._dimacs_error(f"Line {line_no}: lower must be >= 0")
+        if upp <= 0:
+            self._dimacs_error(f"Line {line_no}: upper must be > 0")
+        if upp < low:
+            self._dimacs_error(f"Line {line_no}: upper ({upp}) < lower ({low})")
+        st['edge_count'] += 1
+        st['max_node_id'] = max(st['max_node_id'], src, tgt)
+
+    def _dimacs_handle_p(self, parts, line_no, st):
+        if len(parts) < 4:
+            self._dimacs_error(f"Line {line_no}: malformed 'p' line. Expect: p <type> <nodes> <edges>")
+        st['declared_nodes'] = self._dimacs_int(parts[2], 'nodes', line_no)
+        st['declared_edges'] = self._dimacs_int(parts[3], 'edges', line_no)
+        if st['declared_nodes'] <= 0:
+            self._dimacs_error(f"Line {line_no}: declared nodes must be > 0")
+        if st['declared_edges'] < 0:
+            self._dimacs_error(f"Line {line_no}: declared edges must be >= 0")
+
+    def _dimacs_handle_n(self, parts, line_no, st):
+        if len(parts) < 3:
+            self._dimacs_error(f"Line {line_no}: malformed 'n' line. Expect: n <id> <value>")
+        nid = self._dimacs_int(parts[1], 'id', line_no)
+        _ = self._dimacs_int(parts[2], 'value', line_no)
+        if nid <= 0:
+            self._dimacs_error(f"Line {line_no}: node id must be > 0")
+        st['max_node_id'] = max(st['max_node_id'], nid)
+
+    def _dimacs_handle_comment(self, tag, parts, line_no):
+        if tag == 'c' and len(parts) >= 2 and parts[1].lower() == 'n':
+            for i, tok in enumerate(parts[2:], start=1):
+                _ = self._dimacs_int(tok, f"c n param[{i}]", line_no)
+        if tag in ('alpha', 'beta') and len(parts) >= 2:
+            _ = self._dimacs_int(parts[1], tag, line_no)
+
+    def _dimacs_finalize(self, st):
+        if st['edge_count'] == 0:
+            self._dimacs_error("No 'a' arc lines found")
+        if st['declared_edges'] is not None and st['edge_count'] != st['declared_edges']:
+            self._dimacs_error(
+                f"Edge count mismatch: file has {st['edge_count']} 'a' lines but 'p' declares {st['declared_edges']}"
+            )
+        if st['declared_nodes'] is not None and st['max_node_id'] > st['declared_nodes']:
+            self._dimacs_error(f"Node id {st['max_node_id']} exceeds declared nodes {st['declared_nodes']}")
+        return True
+
+    # -------------------- DIMACS validator --------------------
+    def _is_valid_dimacs_file(self, filepath):
+        st = self._dimacs_state()
+        handlers = {'a': self._dimacs_handle_a, 'p': self._dimacs_handle_p, 'n': self._dimacs_handle_n}
+        with open(filepath, 'r', encoding='utf-8-sig', errors='replace') as f:
+            for line_no, raw in enumerate(f, 1):
+                s = raw.strip()
+                if self._is_ignorable_line(s):
+                    continue
+                parts = s.split()
+                tag = parts[0].lower()
+                if tag in handlers:
+                    handlers[tag](parts, line_no, st)
+                elif tag in DIMACS_TOKENS:
+                    self._dimacs_handle_comment(tag, parts, line_no)
+                else:
+                    self._dimacs_error(f"Line {line_no}: unexpected token '{parts[0]}'. Expected one of: a, p, n, c, alpha, beta")
+        return self._dimacs_finalize(st)
+
+    def _try_benchmark(self, filepath):
+        if self._parse_validate_map_stream(filepath):
+            result = self.read_map_file(filepath, parsed=self._last_parsed_map)
+            if getattr(self, 'print_out', False):
+                print(f"Parsed benchmark map successfully, M = {self.M}")
+            return result
+
+    def _try_dimacs(self, filepath):
+        if self._is_valid_dimacs_file(filepath):
+            return super().process_input_file(filepath)
+
+    def _is_tagged(self, msg: str) -> bool:
+        return isinstance(msg, str) and (
+            msg.startswith("[BENCHMARK ERROR]") or msg.startswith("[DIMACS ERROR]") or msg.startswith("[MAP ERROR]")
+        )
+
+    # ---- MovingAI cell rules ----
+    def _is_passable_char(self, ch: str) -> bool:
+        return ch in ('.', 'G', 'S', 'W')
+
+    def _is_blocked_char(self, ch: str) -> bool:
+        return ch in ('@', 'O', 'T')
+
+    def _can_transition(self, ch_from: str, ch_to: str) -> bool:
+        if self._is_blocked_char(ch_from) or self._is_blocked_char(ch_to):
+            return False
+        # Water: traversable but not passable from terrain
+        if (ch_from == 'W') != (ch_to == 'W'):
+            return False
+        return True
+
+    def build_node_ids(self, map_grid):
+        node_id, cur = {}, 1
+        for r, row in enumerate(map_grid):
+            for c, ch in enumerate(row):
+                if self._is_passable_char(ch):
+                    node_id[(r, c)] = cur
+                    cur += 1
+        return node_id
+
+    def _edge_cost(self, dr, dc, unit_len):
+        return unit_len if (dr == 0 or dc == 0) else math.ceil(unit_len * math.sqrt(2))
+
+    def _generate_dimacs_edges_with_node_id(self, map_grid, movement_type, unit_len, node_id):
+        rows = len(map_grid); cols = len(map_grid[0]) if rows else 0
+        d4 = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        d8 = d4 + [(-1, -1), (-1, 1), (1, -1), (1, 1)]
+        dirs = d8 if movement_type == "octile" else d4
+        edges = []
+        for (r, c), u in node_id.items():
+            ch_from = map_grid[r][c]
+            for dr, dc in dirs:
+                nr, nc = r + dr, c + dc
+                if not (0 <= nr < rows and 0 <= nc < cols):
+                    continue
+                if (nr, nc) not in node_id:
+                    continue
+                ch_to = map_grid[nr][nc]
+                if not self._can_transition(ch_from, ch_to):
+                    continue
+                if dr != 0 and dc != 0:
+                    # no-corner-cutting
+                    if not (self._is_passable_char(map_grid[r][nc]) or self._is_passable_char(map_grid[nr][c])):
+                        continue
+                v = node_id[(nr, nc)]
+                if u < v:
+                    edges.append((u, v, 0, 1, self._edge_cost(dr, dc, unit_len)))
+        return edges
+
+    def generate_dimacs_edges(self, map_grid, movement_type, unit_length=1):
+        node_id = self.build_node_ids(map_grid)
+        return self._generate_dimacs_edges_with_node_id(map_grid, movement_type, unit_length, node_id)
+
+    def read_map_file(self, filepath, parsed=None):
+        if parsed is None:
+            if getattr(self, '_last_parsed_map', None) is None:
+                if not self._parse_validate_map_stream(filepath):
+                    return []
+            parsed = self._last_parsed_map
+        movement_type, height, width, map_grid = parsed
+        unit_length = self.extract_unit_length(filepath)
+        node_id = self.build_node_ids(map_grid)
+        edges = self._generate_dimacs_edges_with_node_id(map_grid, movement_type, unit_length, node_id)
+        self.M = height * width
+        self.space_edges = [['a', str(u), str(v), str(lo), str(up), str(w)] for (u, v, lo, up, w) in edges]
+        config.M = self.M
+        return self.space_edges
+
+    def _bm_create_tsg_file(self):
+        if not getattr(self, "space_edges", None):
+            raise ValueError("space_edges is empty; run process_input_file() first")
+        if not hasattr(self, "M") or not hasattr(self, "H") or not hasattr(self, "d"):
+            raise ValueError("Missing M/H/d; ensure they are set before creating TSG")
+        M, H, d = self.M, self.H, self.d
+        tsg = TimeSpaceGraph4Benchmark(H, d); tsg.M = M
+        self.ts_edges = []; written = set()
+        def write(e):
+            k = (e.start_node.id, e.end_node.id, e.lower, e.upper, e.weight)
+            if k in written: return
+            written.add(k); tsg.add_edge(e); self.ts_edges.append(e)
+        max_id = M * (H + 1)
+        for parts in self.space_edges:
+            parts = parts.split() if isinstance(parts, str) else parts
+            if len(parts) < 6: continue
+            u, v, lower, upper, weight = map(int, parts[1:6])
+            for i in range(0, H, d):
+                a1 = M * i + u; a2 = M * (i + 1) + v
+                a3 = M * i + v; a4 = M * (i + 1) + u
+                v1 = max_id + 1; v2 = max_id + 2; max_id += 2
+                tsg.create_nodes(a1, a2, a3, a4, v1, v2)
+                for e in (
+                    InflowEdge(tsg.V[a1], tsg.V[v1], lower, upper, 0),
+                    InflowEdge(tsg.V[a3], tsg.V[v1], lower, upper, 0),
+                    NeckEdge(tsg.V[v1], tsg.V[v2], lower, upper, weight),
+                    OutflowEdge(tsg.V[v2], tsg.V[a2], lower, upper, 0),
+                    OutflowEdge(tsg.V[v2], tsg.V[a4], lower, upper, 0),
+                    WaitingEdge(tsg.V[a1], tsg.V[a4], lower, upper, 0),
+                    WaitingEdge(tsg.V[a3], tsg.V[a2], lower, upper, 0),
+                ):
+                    write(e)
+        self.tsg_nodes = tsg.V; self.tsg_edges = tsg.E
+        if getattr(self, "print_out", False):
+            print(f"TSG built in memory with {len(self.ts_edges)} edges.")
+
+    def process_input_file(self, filepath):
+        fmt = self._detect_input_format(filepath)
+        self._input_format = fmt  
+        if fmt == 'benchmark':
+            result = self._try_benchmark(filepath)
+            self.create_tsg_file = self._bm_create_tsg_file
+            return result
+        if fmt == 'dimacs':
+            return super().process_input_file(filepath)
+        if fmt == 'empty':
+            raise ValueError("[MAP ERROR] Empty file")
+        raise ValueError(f"Unknown input format: {filepath}")
+
+    # --- Override: nếu là benchmark thì không làm gì ở generate_time_windows ---
+    def generate_time_windows(self):
+        fmt = getattr(self, "_input_format", None)
+        if fmt == 'benchmark':
+            return 0
+        return super().generate_time_windows()

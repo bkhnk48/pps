@@ -2,9 +2,11 @@ discrevpy==1.0.3
 joblib==1.4.2
 networkx==3.3
 numpy==2.1.1
-PySCIPOpt==5.1.1
+PySCIPOpt==5.1.1 #pyscipopt if windows
 scikit-learn==1.5.2
 scipy==1.14.1
 sortedcontainers==2.4.0
 threadpoolctl==3.5.0
 plotly
+openpyxl
+typing-extensions
