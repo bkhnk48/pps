@@ -451,5 +451,5 @@ class StartEvent(Event):
         now = datetime.now()
         formatted_time = now.strftime("%j-%m-%y:%H-%M-%S")
         print(f"\t . Now: {formatted_time}. StartEvent for {self.agv.id} to move from \
-            {self.agv.current_node}({space_start_node}) at {self.start_time} and agv reaches \
-                {space_end_node} at {self.end_time}")
+            {self.agv.current_node}({space_start_node}) at t={self.start_time} and agv reaches \
+                {space_end_node} at t={self.end_time}")
