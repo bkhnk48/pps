@@ -103,7 +103,7 @@ class TimeWindowGenerator4Benchmark(TimeWindowGenerator):
         fmt = getattr(self, "_input_format", None)
         if fmt == "dimacs":
             return super().add_time_window_first_time(num_of_agvs)
-        if fmt != "benchmark":
+        if fmt == "benchmark":
             return super().add_time_window_first_time(num_of_agvs)
 
         parsed = getattr(self, "_last_parsed_map", None)
