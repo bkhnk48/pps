@@ -41,12 +41,12 @@ class HaltingEvent(Event):
             if(i != P -1):
                 cost = cost + delta_cost
                 if(i > 0):
-                    print(f'({delta_cost})===', end='')
-                print(f'{node}===', end='')
+                    print(f'(cost: {delta_cost})===', end='')
+                print(f'node: {node}===', end='')
             else:
                 delta_cost = (float('inf') if(self.end_node != self.agv.target_node.id) else self.end_time - self.start_time)
                 cost = cost + delta_cost
-                print(f'({self.delta_t})/({delta_cost})==={node}===END. ', end='')
+                print(f'(cost: {self.delta_t})/({delta_cost})===node: {node}===END. ', end='')
             i = i + 1
         print(f'Total cost: {cost}. The {self.agv.id} reaches its destination at t >= {self.end_time}')
         #print(self.agv.history_of_events)
@@ -314,12 +314,12 @@ class ReachingTargetEvent(Event):
             if(i != P -1):
                 cost = cost + delta_cost
                 if(i > 0):
-                    print(f'({delta_cost})===', end='')
-                print(f'{node}===', end='')
+                    print(f'(cost: {delta_cost})===', end='')
+                print(f'node: {node}===', end='')
             else:
                 cost = cost + self.last_cost + delta_cost
                 #delta_cost = self.last_cost #+ delta_cost
-                print(f'({delta_cost})==={node}===({self.last_cost})===END. ', end='')
+                print(f'(cost: {delta_cost})===node: {node}===(cost: {self.last_cost})===END. ', end='')
             i = i + 1
         #real_dest = M if dest % M == 0 else dest % M
         print(f'Total cost: {cost}. The {self.agv.id} reaches its destination: {self.real_dest} at {self.end_time} along with earliness = {self.earliness} and tardiness = {self.tardiness}')
