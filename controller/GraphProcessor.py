@@ -92,7 +92,7 @@ class GraphProcessor(KickOffGenerator):
     def getReal(self, start_id, next_id, agv):
         M = self.graph.number_of_nodes_in_space_graph
         if(start_id % M == next_id % M):
-            return (next_id - start_id) // M
+            return (next_id - start_id) // M if next_id >= start_id else config.d
         result = self._time_determinator.getReal(start_id, next_id, agv)
         return result
     
