@@ -7,25 +7,35 @@ import os
 import time
 import sys
 import platform
+import glob
+import shutil
+
+def _remove_globs(patterns):
+    if isinstance(patterns, str):
+        patterns = [patterns]
+    for pat in patterns:
+        for path in glob.glob(pat, recursive=True):
+            try:
+                if os.path.isdir(path):
+                    shutil.rmtree(path, ignore_errors=True)
+                else:
+                    os.remove(path)
+            except FileNotFoundError:
+                pass
+
+def _ensure_dirs():
+    for d in ("data/input", "data/output", "data/timeline", "data/tmp"):
+        os.makedirs(d, exist_ok=True)
 
 class DirectoryManager: # just use to manage the directory(like create, remove, check if exists)
     def full_cleanup(self):
         # check if the directory exists
-        if not os.path.exists("data/input"):
-            os.makedirs("data/input")
-        if not os.path.exists("data/output"):
-            os.makedirs("data/output")
-        if not os.path.exists("data/timeline"):
-            os.makedirs("data/timeline")
-        if not os.path.exists("data/tmp"):
-            os.makedirs("data/tmp")
-        os.system("rm -rf data/input/*")
-        os.system("rm -rf data/output/*")
-        os.system("rm -rf data/timeline/*")
-        os.system("rm -rf data/tmp/*")
+        _ensure_dirs()
+        _remove_globs(["data/input/*", "data/output/*", "data/timeline/*", "data/tmp/*"])
+
     def half_cleanup(self):
-        os.system("rm -rf data/input/*")
-        os.system("rm -rf data/output/*")
+        _ensure_dirs()
+        _remove_globs(["data/input/*", "data/output/*"])
         files = os.listdir("data/tmp")
         for file in files:
             with open(f"data/tmp/{file}", "r") as f:
@@ -301,7 +311,7 @@ class HallwaySimulator:
                 print(f"json file {json_file} not found")
             if not os.path.exists(map_file):
                 print(f"map file {map_file} not found")
-            if not os.path.exists(f"data/tmp/{tmp_file}"):
+            if not os.path.exists(tmp_file):  # was: f"data/tmp/{tmp_file}"
                 print(f"tmp file {tmp_file} not found")
             #print("event_type 0")
             os.system(f"model/hallway_simulator_module/sim/{str(self.machine_arch)}/app {json_file} {map_file} 0")
@@ -328,8 +338,8 @@ class HallwaySimulator:
         return self.run_time
 
     def clean(self):
-        os.system("rm -rf data/input/*")
-        os.system("rm -rf data/output/*")
+        _ensure_dirs()
+        _remove_globs(["data/input/*", "data/output/*"])
         # reset all variables
         self.hallway_id = 0
         self.hallway_length = 0
@@ -342,10 +352,8 @@ class HallwaySimulator:
         self.event_type = 0
 
     def full_clean(self):
-        os.system("rm -rf data/input/*")
-        os.system("rm -rf data/output/*")
-        os.system("rm -rf data/timeline/*")
-        os.system("rm -rf data/tmp/*")
+        _ensure_dirs()
+        _remove_globs(["data/input/*", "data/output/*", "data/timeline/*", "data/tmp/*"])
         # reset all variables
         self.hallway_id = 0
         self.hallway_length = 0
