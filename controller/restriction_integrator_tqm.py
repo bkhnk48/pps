@@ -12,28 +12,49 @@ import pdb
 class RestrictionIntegratorTQM(RestrictionController):
     def __init__(self, graph_processor):
         super().__init__(graph_processor)
+
     def get_max_flow_conditions(self, use_config_data=False):
-        if config.max_flow_conditions is not None or use_config_data:
-            return config.max_flow_conditions or [(1, 2, 3, 4)]
+        if use_config_data or getattr(config, "max_flow_conditions", None) is not None:
+            return config.max_flow_conditions
+
         conditions = []
+        H = getattr(self.graph_processor, "H", getattr(config, "H", None))
+
         while True:
-            line = input("Nhập các bộ điều kiện x y a b (default: '1 2 3 4') - Enter để dừng nhập: ").strip()
+            line = input("Nhập các bộ điều kiện x y a b (default: none,  hint: '1 2 3 4') - Enter để dừng nhập: ").strip()
             if not line:
                 break
             try:
                 x, y, a, b = map(int, line.split())
+                is_valid = (x != y) and (a < b) and (H is None or b <= H)
+                if not is_valid:    
+                    print("⚠️  Điều kiện không hợp lệ. Yêu cầu: x != y và a < b" + (f" và b <= H({H})" if H is not None else "") + ".")
+                    conditions = None
+                    break
                 conditions.append((x, y, a, b))
-            except:
-                print("⚠️  Nhập không hợp lệ. Nhập lại theo định dạng: x y a b")
-        if not conditions:
-            conditions = [(1, 2, 3, 4)]
+            except Exception:
+                print("⚠️  Nhập không hợp lệ. Định dạng đúng: x y a b")
+                conditions = None
+                break
+
+        if conditions is not None and len(conditions) == 0:
+            conditions = None
+
         config.max_flow_conditions = conditions
+        if hasattr(config, "invalid_conditions"):
+            config.invalid_conditions = (conditions is None)
         return conditions
 
     def compute_max_flow(self, use_config_data=False):
         """Chạy MaxFlow và trả về giá trị F."""
         self.graph_processor.pipeline = MaxFlowPipeline(self.graph_processor)
         conditions = self.get_max_flow_conditions(use_config_data)
+        if not conditions:
+            # Không có điều kiện hoặc điều kiện không hợp lệ: F = U (maxflow bằng ngưỡng trên)
+            U = self.get_artificial_upper_bound(use_config_data)
+            if getattr(config, "print_out", False):
+                print(f"Không có bộ điều kiện MaxFlow. Gán F = U = {U}.")
+            return U
         F = self.graph_processor.pipeline.run_all(conditions)
         return F
     
