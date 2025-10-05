@@ -421,3 +421,94 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
         if fmt == 'benchmark':
             return 0
         return super().generate_time_windows()
+
+    def ask_spatial_map(self, use_config_data=False):
+        if use_config_data:
+            return getattr(config, "filepath", None)
+
+        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        search_dirs = [
+            project_root,
+            os.path.join(project_root, "data", "benchmark"),
+        ]
+
+        benchmark_files = []
+        dimacs_files = []
+
+        def rel(p):
+            try:
+                return os.path.relpath(p, project_root)
+            except Exception:
+                return p
+
+        scanned = set()
+        for d in search_dirs:
+            if not os.path.isdir(d):
+                continue
+            try:
+                for name in os.listdir(d):
+                    lower = name.lower()
+                    if not (lower.endswith(".txt") or lower.endswith(".map")):
+                        continue
+                    full_path = os.path.join(d, name)
+                    if not os.path.isfile(full_path):
+                        continue
+                    if full_path in scanned:
+                        continue
+                    scanned.add(full_path)
+                    try:
+                        fmt = self._detect_input_format(full_path)
+                    except Exception:
+                        continue
+                    if fmt == 'benchmark':
+                        benchmark_files.append(full_path)
+                    elif fmt == 'dimacs':
+                        dimacs_files.append(full_path)
+            except Exception:
+                pass  # bỏ qua lỗi thư mục
+
+        if not benchmark_files and not dimacs_files:
+            print("Không tìm thấy file map hợp lệ (benchmark hoặc dimacs).")
+            return None
+
+        ordered = []
+        for f in sorted(benchmark_files):
+            ordered.append((f, 'benchmark'))
+        for f in sorted(dimacs_files):
+            ordered.append((f, 'dimacs'))
+
+        print("\n================= DANH SÁCH MAP =================")
+        cur = 1
+        if benchmark_files:
+            print("---- Benchmark Maps ----")
+            for f in sorted(benchmark_files):
+                print(f"  [{cur}] {rel(f)}")
+                cur += 1
+        else:
+            print("---- Benchmark Maps ---- (Không có)")
+        if dimacs_files:
+            print("---- DIMACS Maps ----")
+            for f in sorted(dimacs_files):
+                print(f"  [{cur}] {rel(f)}")
+                cur += 1
+        else:
+            print("---- DIMACS Maps ---- (Không có)")
+        print("=================================================\n")
+
+        total = len(ordered)
+        while True:
+            raw = input(f"Chọn số map (1..{total}, Enter = 1): ").strip()
+            if raw == '':
+                idx = 1
+                break
+            if raw.isdigit():
+                idx = int(raw)
+                if 1 <= idx <= total:
+                    break
+            print("Số không hợp lệ.")
+
+        selected_path, selected_format = ordered[idx - 1]
+        config.filepath = selected_path
+        self._input_format = selected_format
+        print(f"Đã chọn: {rel(selected_path)} (format: {selected_format})")
+        return selected_path
