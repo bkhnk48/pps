@@ -29,6 +29,7 @@ M = 0
 print_output = False
 numOfRestrictedRegions = 0
 max_flow_conditions = None
+max_flow_conditions_initialized = False
 artificial_upper_bound = None
 artificial_gamma = None
 BIMODAL = -1
