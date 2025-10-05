@@ -44,6 +44,7 @@ class RestrictionIntegratorTQM(RestrictionController):
             conditions = None
 
         config.max_flow_conditions = conditions
+        config.max_flow_conditions_initialized = True
         if hasattr(config, "invalid_conditions"):
             config.invalid_conditions = (conditions is None)
         return conditions
