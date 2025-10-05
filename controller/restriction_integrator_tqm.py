@@ -14,7 +14,10 @@ class RestrictionIntegratorTQM(RestrictionController):
         super().__init__(graph_processor)
 
     def get_max_flow_conditions(self, use_config_data=False):
-        if use_config_data or getattr(config, "max_flow_conditions", None) is not None:
+        if use_config_data or getattr(config, "max_flow_conditions_initialized", False):
+            return config.max_flow_conditions
+        if getattr(config, "max_flow_conditions", None) is not None:
+            config.max_flow_conditions_initialized = True
             return config.max_flow_conditions
 
         conditions = []
