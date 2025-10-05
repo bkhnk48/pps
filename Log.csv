@@ -336,3 +336,35 @@ RAM: Unknown"
 User: admin
 CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
 RAM: Unknown"
+107.0,data/benchmark/simplest1.map,1,10,10,networkx,0,1,0,0.043474435806274414,0.0007917881011962891,BIMODAL,2025-10-05 15:41:05,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+108.0,data/benchmark/simplest1.map,1,10,10,solver,0,1,0,0.04268598556518555,0.0,BIMODAL,2025-10-05 15:41:36,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+109.0,data/benchmark/simplest1.map,1,200,10,networkx,0,1,0,0.07515907287597656,0.005287885665893555,BIMODAL,2025-10-05 15:42:02,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+110.0,data/benchmark/simplest1.map,1,200,10,solver,0,1,0,0.11945390701293945,0.0,BIMODAL,2025-10-05 15:42:04,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+111.0,data/benchmark/simplest1.map,1,200,10,networkx,0,1,0,0.03788495063781738,0.004884481430053711,GAUSSIAN,2025-10-05 15:42:09,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+112.0,data/benchmark/simplest1.map,1,200,10,solver,0,1,0,0.22647380828857422,0.0,GAUSSIAN,2025-10-05 15:42:15,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+113.0,data/benchmark/simplest1.map,1,200,10,networkx,0,1,0,0.04579424858093262,0.012433528900146484,Random in the list,2025-10-05 15:42:19,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+114.0,data/benchmark/simplest1.map,1,200,10,solver,0,1,0,0.11368989944458008,0.0,Random in the list,2025-10-05 15:42:21,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
