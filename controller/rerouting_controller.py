@@ -5,32 +5,23 @@ class ReroutingController:
     def __init__(self, graph_processor):
         super().__init__() 
         self.graph_processor = graph_processor
-        # Cần khởi tạo ban đầu này
         self._started_nodes = graph_processor.started_nodes
         self._ts_edges = graph_processor.ts_edges
 
     def get_ts_edges(self):
-        # Trả về danh sách cạnh "sống" từ graph_processor để tránh bị lụt
         return getattr(self.graph_processor, 'ts_edges', [])
 
     def set_started_nodes(self, started_nodes):
         self._started_nodes = started_nodes
 
     def get_printable_edges(self, agv_id = None):
-        # Luôn dùng ts_edges hiện tại
         return self.get_ts_edges()
 
     def _iter_edges_for_file(self):
-        """
-        Chuẩn hóa nguồn cạnh để ghi file:
-        - Ưu tiên ts_edges (Edge objects) nếu có
-        - Nếu không, đọc từ graph.adjacency_list (graph tự định nghĩa)
-        - Nếu là NetworkX, đọc từ G.edges(data=True)
-        """
         ts = getattr(self.graph_processor, 'ts_edges', None)
         if ts is not None and len(ts) > 0:
             for e in ts:
-                yield e  # Edge object, dùng _write_edge_lines
+                yield e  
             return
 
         G = getattr(self.graph_processor, 'graph', None)
@@ -51,7 +42,6 @@ class ReroutingController:
               supply=None, vs_id=None, vt_id=None, filename="TSG.txt"):
         targets = self.graph_processor.get_targets()
 
-        # Tính M và num_edges tương thích với dữ liệu thực sự được ghi
         M = max(target.id for target in targets)
         if new_halting_edges:
             M = max(M, max(e[1] for e in new_halting_edges))
@@ -65,16 +55,12 @@ class ReroutingController:
             starts = self._started_nodes if len(self._started_nodes) > 0 else self.graph_processor.started_nodes
             self._write_node_lines(f, starts, targets, supply, vs_id, vt_id)
 
-            # Ghi cạnh chính
             for e in edges_main:
                 if hasattr(e, 'start_node'):
-                    # Edge object
                     self._write_edge_lines(f, e)
                 else:
-                    # Tuple (u, v, lower, upper, weight)
                     f.write(f"a {e[0]} {e[1]} {e[2]} {e[3]} {e[4]}\n")
 
-            # Ghi các cạnh phát sinh (halting/new edges)
             if new_halting_edges:
                 for e in new_halting_edges:
                     f.write(f"a {e[0]} {e[1]} {e[2]} {e[3]} {e[4]}\n")
@@ -83,7 +69,6 @@ class ReroutingController:
             print("Đã cập nhật các cung mới vào file TSG.txt.")
 
     def _write_node_lines(self, f, starts, targets, supply, vs_id, vt_id):
-        # Import đúng nơi định nghĩa TimeWindowNode
         from controller.NodeGenerator import TimeWindowNode
         for t in targets:
             if isinstance(t, TimeWindowNode):
