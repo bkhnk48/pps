@@ -3,10 +3,12 @@ from abc import ABC
 import config
 class ReroutingController:
     def __init__(self, graph_processor):
-        super().__init__() 
+        super().__init__()
         self.graph_processor = graph_processor
         self._started_nodes = graph_processor.started_nodes
         self._ts_edges = graph_processor.ts_edges
+        # Lưu định dạng đầu vào nếu có
+        self.fmt = getattr(graph_processor, '_input_format', None)
 
     def get_ts_edges(self):
         return getattr(self.graph_processor, 'ts_edges', [])
@@ -21,7 +23,7 @@ class ReroutingController:
         ts = getattr(self.graph_processor, 'ts_edges', None)
         if ts is not None and len(ts) > 0:
             for e in ts:
-                yield e  
+                yield e
             return
 
         G = getattr(self.graph_processor, 'graph', None)
@@ -38,10 +40,48 @@ class ReroutingController:
                 weight = data.get('weight', data.get('cost', 0))
                 yield (u, v, lower, upper, weight)
 
-    def write_to_file(self, agv_id_and_new_start=None, new_halting_edges=None,
+    # --- Logic ghi file theo kiểu dimacs (từ pps single) ---
+    def _write_to_file_dimacs(self, agv_id_and_new_start=None, new_halting_edges=None,
               supply=None, vs_id=None, vt_id=None, filename="TSG.txt"):
         targets = self.graph_processor.get_targets()
+        M = max(target.id for target in targets)
+        if new_halting_edges:
+            M = max(M, max(e[1] for e in new_halting_edges))
+        num_edges = len(self.get_printable_edges(None if agv_id_and_new_start is None else agv_id_and_new_start[0])) + \
+            (len(new_halting_edges) if new_halting_edges else 0)
 
+        with open(filename, 'w') as f:
+            f.write(f"p min {M} {num_edges}\n")
+            f.write(f"c number of spaces nodes is: {M}\n")
+            starts = self._started_nodes if len(self._started_nodes) > 0 else self.graph_processor.started_nodes
+            self._write_node_lines(f, starts, targets, supply, vs_id, vt_id)
+
+            if self.graph_processor.graph is None:
+                for e in self._ts_edges:
+                    self._write_edge_lines(f, e)
+            elif hasattr(self.graph_processor.graph, 'adjacency_list'):
+                for sid, edges in sorted(self.graph_processor.graph.adjacency_list.items()):
+                    for eid, data in edges:
+                        f.write(f"a {sid} {eid} {data.lower} {data.upper} {data.weight}\n")
+
+            if new_halting_edges:
+                for e in new_halting_edges:
+                    f.write(f"a {e[0]} {e[1]} {e[2]} {e[3]} {e[4]}\n")
+        if getattr(self, "print_out", False):
+            print("Đã cập nhật các cung mới vào file TSG.txt.")
+
+    def write_to_file(self, agv_id_and_new_start=None, new_halting_edges=None,
+              supply=None, vs_id=None, vt_id=None, filename="TSG.txt"):
+        # Lấy định dạng đầu vào
+        fmt = getattr(self.graph_processor, '_input_format', None)
+        if fmt is None:
+            fmt = getattr(self, 'fmt', None)
+        # Nếu là dimacs thì dùng logic của pps single
+        if fmt == 'dimacs':
+            self._write_to_file_dimacs(agv_id_and_new_start, new_halting_edges, supply, vs_id, vt_id, filename)
+            return
+        # Ngược lại (benchmark hoặc unknown) thì dùng logic cũ của draft
+        targets = self.graph_processor.get_targets()
         M = max(target.id for target in targets)
         if new_halting_edges:
             M = max(M, max(e[1] for e in new_halting_edges))
