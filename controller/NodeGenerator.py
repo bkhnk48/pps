@@ -69,8 +69,8 @@ class TimeoutNode(Node):
 class TimeWindowNode(Node):
     def __init__(self, ID, time_window, real_node_id = None, earliness=float('-inf'), tardiness=float('inf')):
         super().__init__(ID)
-        if(real_node_id is None):
-            pdb.set_trace()
+        # if(real_node_id is None):
+        #     pdb.set_trace()
         self._real_node_id = real_node_id
         self.time_window = time_window  # Time window in which the node can be accessed
         self._earliness = earliness

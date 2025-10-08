@@ -312,3 +312,191 @@ RAM: Unknown"
 User: admin
 CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
 RAM: Unknown"
+101.0,Redundant3x3Wards.txt,2,200,10,networkx,0,2,0,0.4096040725708008,0.02736186981201172,BIMODAL,2025-10-02 15:36:05,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+102.0,Redundant3x3Wards.txt,2,200,10,solver,0,2,0,18.06171417236328,2.5714285714285716,BIMODAL,2025-10-02 15:36:24,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+103.0,Redundant3x3Wards.txt,2,200,10,networkx,1,1,212.0,0.41831469535827637,0.012174159288406372,GAUSSIAN,2025-10-02 15:36:25,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+104.0,Redundant3x3Wards.txt,2,200,10,solver,1,1,212.0,19.77029037475586,2.5,GAUSSIAN,2025-10-02 15:36:46,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+105.0,Redundant3x3Wards.txt,2,200,10,networkx,0,2,0,0.278597354888916,0.013455669085184732,Random in the list,2025-10-02 15:36:47,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+106.0,Redundant3x3Wards.txt,2,200,10,solver,1,1,188.0,18.147700309753418,2.25,Random in the list,2025-10-02 15:37:06,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+107.0,data/benchmark/simplest1.map,1,10,10,networkx,0,1,0,0.043474435806274414,0.0007917881011962891,BIMODAL,2025-10-05 15:41:05,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+108.0,data/benchmark/simplest1.map,1,10,10,solver,0,1,0,0.04268598556518555,0.0,BIMODAL,2025-10-05 15:41:36,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+109.0,data/benchmark/simplest1.map,1,200,10,networkx,0,1,0,0.07515907287597656,0.005287885665893555,BIMODAL,2025-10-05 15:42:02,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+110.0,data/benchmark/simplest1.map,1,200,10,solver,0,1,0,0.11945390701293945,0.0,BIMODAL,2025-10-05 15:42:04,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+111.0,data/benchmark/simplest1.map,1,200,10,networkx,0,1,0,0.03788495063781738,0.004884481430053711,GAUSSIAN,2025-10-05 15:42:09,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+112.0,data/benchmark/simplest1.map,1,200,10,solver,0,1,0,0.22647380828857422,0.0,GAUSSIAN,2025-10-05 15:42:15,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+113.0,data/benchmark/simplest1.map,1,200,10,networkx,0,1,0,0.04579424858093262,0.012433528900146484,Random in the list,2025-10-05 15:42:19,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+114.0,data/benchmark/simplest1.map,1,200,10,solver,0,1,0,0.11368989944458008,0.0,Random in the list,2025-10-05 15:42:21,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+115.0,data/benchmark/simplest1.map,1,10,10,networkx,0,1,0,0.04084658622741699,0.0008585453033447266,BIMODAL,2025-10-05 15:54:33,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+116.0,data/benchmark/simplest1.map,1,10,10,solver,0,1,0,0.0319676399230957,0.0,BIMODAL,2025-10-05 15:54:37,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+117.0,data/benchmark/simplest1.map,1,10,10,networkx,0,1,0,0.01770496368408203,0.0004127025604248047,GAUSSIAN,2025-10-05 15:54:38,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+118.0,data/benchmark/simplest1.map,1,10,10,solver,0,1,0,0.027289867401123047,0.0,GAUSSIAN,2025-10-05 15:54:39,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+119.0,data/benchmark/simplest1.map,1,10,10,networkx,0,1,0,0.01879286766052246,0.00038051605224609375,Random in the list,2025-10-05 15:54:40,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+120.0,data/benchmark/simplest1.map,1,10,10,solver,0,1,0,0.02720046043395996,0.0,Random in the list,2025-10-05 15:54:41,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+121.0,data/benchmark/simplest1.map,1,10,10,networkx,0,1,0,0.07087111473083496,0.0008487701416015625,BIMODAL,2025-10-05 15:55:31,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+122.0,data/benchmark/simplest1.map,1,10,10,networkx,0,1,0,0.04051542282104492,0.0007786750793457031,BIMODAL,2025-10-05 15:58:33,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+123.0,data/benchmark/simplest1.map,1,10,10,solver,0,1,0,0.03673148155212402,0.0,BIMODAL,2025-10-05 15:58:33,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+124.0,data/benchmark/simplest1.map,1,10,10,networkx,0,1,0,0.021140098571777344,0.0005087852478027344,GAUSSIAN,2025-10-05 15:58:33,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+125.0,data/benchmark/simplest1.map,1,10,10,solver,0,1,0,0.02777862548828125,0.0,GAUSSIAN,2025-10-05 15:58:34,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+126.0,data/benchmark/simplest1.map,1,10,10,networkx,0,1,0,0.01728224754333496,0.0003695487976074219,Random in the list,2025-10-05 15:58:34,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+127.0,data/benchmark/simplest1.map,1,10,10,solver,0,1,0,0.02889227867126465,0.0,Random in the list,2025-10-05 15:58:34,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+128.0,E:\Minh\pps\data\benchmark\simplest1.map,1,10,10,networkx,0,1,0,0.049277544021606445,0.0008785724639892578,BIMODAL,2025-10-05 16:09:27,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+129.0,E:\Minh\pps\data\benchmark\simplest1.map,1,10,10,solver,0,1,0,0.03201436996459961,0.0,BIMODAL,2025-10-05 16:09:27,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+130.0,E:\Minh\pps\data\benchmark\simplest1.map,1,10,10,networkx,0,1,0,0.0176088809967041,0.0004093647003173828,GAUSSIAN,2025-10-05 16:09:27,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+131.0,E:\Minh\pps\data\benchmark\simplest1.map,1,10,10,solver,0,1,0,0.0547637939453125,0.0,GAUSSIAN,2025-10-05 16:09:28,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+132.0,E:\Minh\pps\data\benchmark\simplest1.map,1,10,10,networkx,0,1,0,0.0188443660736084,0.0003905296325683594,Random in the list,2025-10-05 16:09:28,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+133.0,E:\Minh\pps\data\benchmark\simplest1.map,1,10,10,solver,0,1,0,0.024092674255371094,0.0,Random in the list,2025-10-05 16:09:28,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+134.0,E:\Minh\pps\data\benchmark\simplest1.map,1,10,10,networkx,0,1,0,0.06174492835998535,0.0014657974243164062,BIMODAL,2025-10-05 16:11:43,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+135.0,E:\Minh\pps\data\benchmark\simplest1.map,1,10,10,solver,0,1,0,0.03408336639404297,0.0,BIMODAL,2025-10-05 16:11:43,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+136.0,E:\Minh\pps\data\benchmark\simplest1.map,1,10,10,networkx,0,1,0,0.017717599868774414,0.00044655799865722656,GAUSSIAN,2025-10-05 16:11:43,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+137.0,E:\Minh\pps\data\benchmark\simplest1.map,1,10,10,solver,0,1,0,0.02956104278564453,0.0,GAUSSIAN,2025-10-05 16:11:44,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+138.0,E:\Minh\pps\data\benchmark\simplest1.map,1,10,10,networkx,0,1,0,0.019627094268798828,0.0004074573516845703,Random in the list,2025-10-05 16:11:44,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+139.0,E:\Minh\pps\data\benchmark\simplest1.map,1,10,10,solver,0,1,0,0.02413797378540039,0.0,Random in the list,2025-10-05 16:11:44,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+140.0,E:\Minh\pps\Redundant3x3Wards.txt,2,10,10,networkx,0,2,0,0.06403923034667969,0.0009126663208007812,BIMODAL,2025-10-05 16:12:02,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+141.0,E:\Minh\pps\Redundant3x3Wards.txt,2,10,10,solver,0,2,0,0.5955111980438232,0.5,BIMODAL,2025-10-05 16:12:03,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+142.0,E:\Minh\pps\Redundant3x3Wards.txt,2,10,10,networkx,0,2,0,0.03955197334289551,0.00042808055877685547,GAUSSIAN,2025-10-05 16:12:03,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+143.0,E:\Minh\pps\Redundant3x3Wards.txt,2,10,10,solver,0,2,0,0.6379332542419434,0.0,GAUSSIAN,2025-10-05 16:12:04,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+144.0,E:\Minh\pps\Redundant3x3Wards.txt,2,10,10,networkx,0,2,0,0.03098773956298828,0.0003457069396972656,Random in the list,2025-10-05 16:12:04,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+145.0,E:\Minh\pps\Redundant3x3Wards.txt,2,10,10,solver,0,2,0,0.5747041702270508,0.0,Random in the list,2025-10-05 16:12:05,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+146.0,E:\Minh\pps\Redundant3x3Wards.txt,2,200,10,networkx,0,2,0,0.3191084861755371,0.013029336929321289,BIMODAL,2025-10-05 16:12:21,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
+147.0,E:\Minh\pps\Redundant3x3Wards.txt,2,200,10,solver,0,2,0,12.469486713409424,1.7142857142857142,BIMODAL,2025-10-05 16:12:34,"OS: Windows 11 (10.0.22631) AMD64
+User: admin
+CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 logical)
+RAM: Unknown"
