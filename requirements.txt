@@ -10,3 +10,4 @@ threadpoolctl==3.5.0
 plotly
 openpyxl
 typing-extensions
+colorama
