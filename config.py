@@ -196,6 +196,9 @@ def describe_system():
     }
     return description, info
 
+import colorama
+colorama.init()
+
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
