@@ -2,7 +2,8 @@ discrevpy==1.0.3
 joblib==1.4.2
 networkx==3.3
 numpy==2.1.1
-PySCIPOpt==5.1.1 #pyscipopt if windows
+PySCIPOpt==5.1.1; platform_system != "Windows"
+pyscipopt; platform_system == "Windows"
 scikit-learn==1.5.2
 scipy==1.14.1
 sortedcontainers==2.4.0
