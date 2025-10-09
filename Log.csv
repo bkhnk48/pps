@@ -572,3 +572,27 @@ RAM: Unknown"
 User: thieu
 CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
 RAM: Unknown"
+166.0,C:\Users\thieu\Desktop\Code\pps\Redundant3x3Wards.txt,2,200,10,networkx,0,2,0,0.27425312995910645,0.012078094482421874,BIMODAL,2025-10-10 04:40:28,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+167.0,C:\Users\thieu\Desktop\Code\pps\Redundant3x3Wards.txt,2,200,10,solver,0,2,0,18.931678533554077,2.7142857142857144,BIMODAL,2025-10-10 04:40:48,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+168.0,C:\Users\thieu\Desktop\Code\pps\Redundant3x3Wards.txt,2,200,10,networkx,1,1,212.0,0.5266034603118896,0.017666161060333252,GAUSSIAN,2025-10-10 04:40:49,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+169.0,C:\Users\thieu\Desktop\Code\pps\Redundant3x3Wards.txt,2,200,10,solver,1,1,212.0,15.738575458526611,2.0,GAUSSIAN,2025-10-10 04:41:06,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+170.0,C:\Users\thieu\Desktop\Code\pps\Redundant3x3Wards.txt,2,200,10,networkx,1,1,206.0,0.7387471199035645,0.01854395866394043,Random in the list,2025-10-10 04:41:08,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+171.0,C:\Users\thieu\Desktop\Code\pps\Redundant3x3Wards.txt,2,200,10,solver,1,1,202.0,16.423837423324585,2.125,Random in the list,2025-10-10 04:41:26,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
