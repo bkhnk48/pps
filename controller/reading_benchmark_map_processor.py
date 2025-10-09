@@ -13,8 +13,10 @@ from model.BenchmarkEdge import InflowEdge, NeckEdge, OutflowEdge, WaitingEdge
 ALLOWED_MAP_CHARS = set(".@OTSGW")
 ALLOWED_ROW_RE = re.compile(r'^[.@OTSGW]+$')
 INT_TOKEN_RE = re.compile(r'^[+-]?\d+$')
-HEADER_PREFIX = ('type ', 'height ', 'width ')
-DIMACS_TOKENS = {'a', 'p', 'n', 'c', 'alpha', 'beta', '#'}
+# Include both 'map' (exact) and 'map ' (defensive) to detect benchmark headers robustly
+HEADER_PREFIX = ('type ', 'height ', 'width ', 'map', 'map ')
+# str.startswith requires a string or a tuple of strings; using a tuple here fixes detection
+DIMACS_TOKENS = ('a', 'n', 'c', 'alpha', 'beta')
 
 class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
     def _read_lines(self, filepath):
@@ -48,38 +50,26 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
 
     # -------------------- Format detection --------------------
     def _detect_input_format(self, filepath):
-        bench_hits = dimacs_hits = non_empty = 0
+        bench_hits = dimacs_hits = invalid = 0
         try:
             with open(filepath, 'r', encoding='utf-8-sig', errors='replace') as f:
                 for raw in f:
                     s = raw.strip()
                     if self._is_ignorable_line(s): 
                         continue
-                    non_empty += 1
                     sl = s.lower()
-                    if sl.startswith(HEADER_PREFIX) or s == 'map':
-                        return 'benchmark'
-                    if ALLOWED_ROW_RE.match(s):
+                    if sl.startswith(HEADER_PREFIX):
                         bench_hits += 1
-                        if bench_hits >= 2:
-                            return 'benchmark'
-                        continue
-                    tok = sl.split(' ', 1)[0]
-                    if tok in DIMACS_TOKENS:
-                        if tok == 'a':
-                            return 'dimacs'
+                    if sl.startswith(DIMACS_TOKENS):
                         dimacs_hits += 1
-                        if dimacs_hits >= 3:
-                            return 'dimacs'
-                    if non_empty >= 64:
-                        break
-            if non_empty == 0:
-                return 'empty'
-            if bench_hits > 0:
-                return 'benchmark'
-            if dimacs_hits > 1:
-                return 'dimacs'
-            return 'unknown'
+                    else:
+                        invalid += 1
+                if(bench_hits>0 and dimacs_hits==0):
+                    return 'benchmark'
+                elif(invalid == 0 and dimacs_hits>0 and bench_hits==0):
+                    return 'dimacs'
+                else:
+                    return 'unknown'
         except Exception:
             return 'unknown'
 
