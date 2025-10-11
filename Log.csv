@@ -640,3 +640,35 @@ RAM: Unknown"
 User: thieu
 CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
 RAM: Unknown"
+183.0,C:\Users\thieu\Desktop\Code\pps\data\benchmark\simplest2.map,1,10,10,networkx,0,1,0,0.053235530853271484,0.0008597373962402344,BIMODAL,2025-10-11 12:43:25,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+184.0,C:\Users\thieu\Desktop\Code\pps\data\benchmark\simplest2.map,1,10,10,solver,0,1,0,0.03384208679199219,0.0,BIMODAL,2025-10-11 12:43:29,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+185.0,C:\Users\thieu\Desktop\Code\pps\data\benchmark\simplest2.map,1,10,10,networkx,0,1,0,0.016730070114135742,0.0004794597625732422,GAUSSIAN,2025-10-11 12:43:30,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+186.0,C:\Users\thieu\Desktop\Code\pps\data\benchmark\simplest2.map,1,10,10,solver,0,1,0,0.026816368103027344,0.0,GAUSSIAN,2025-10-11 12:43:31,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+187.0,C:\Users\thieu\Desktop\Code\pps\data\benchmark\simplest2.map,1,10,10,networkx,0,1,0,0.018042802810668945,0.00046539306640625,Random in the list,2025-10-11 12:43:32,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+188.0,C:\Users\thieu\Desktop\Code\pps\data\benchmark\simplest2.map,1,10,10,solver,0,1,0,0.027276992797851562,0.0,Random in the list,2025-10-11 12:44:54,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+189.0,C:\Users\thieu\Desktop\Code\pps\data\benchmark\simplest2.map,1,10,10,networkx,0,1,0,0.054969072341918945,0.0008680820465087891,BIMODAL,2025-10-11 12:47:48,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
+190.0,C:\Users\thieu\Desktop\Code\pps\data\benchmark\simplest2.map,1,10,10,solver,0,1,0,0.07505631446838379,0.0,BIMODAL,2025-10-11 12:47:52,"OS: Windows 10 (10.0.19045) AMD64
+User: thieu
+CPU: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel (4 logical)
+RAM: Unknown"
