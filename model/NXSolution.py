@@ -125,6 +125,18 @@ class NetworkXSolution:
                         s = int(key) // self.M + (self.M if int(key) // self.M == 0 else 0)
                         t = int(inner_key) // self.M + (self.M if int(inner_key) // self.M == 0 else 0)
                         cost = self.edges_with_costs.get((s, t), [-1, -1])[1]
+                        if(cost == -1):
+                            #gọi hàm của graph_processor để tìm cung có nguồn là s
+                            #và đích là inner_key. Chú ý là tìm trên TSG 
+                            #nếu không tìm thấy thì cost bắt buộc là -1
+                            #nếu tìm thấy và node có id = inner_key thuộc loại BottleNeckNode
+                            # thì: (i) nếu s là Node thật (có tồn tại node trong KG) cost = 0
+                            #      (ii) nếu s cũng là BottleNeckNode thì cost = chi phí di chuyển bình thường
+                            # ngược lại cost = -1
+                            #chú ý rằng đối tượng NXSolution chưa có thuộc tính
+                            #graph_processor đâu. Mà lớp Graph_Processor là lớp chứa các phương thức
+                            #thêm/sửa/xoá/tìm kiếm trên TSG
+                            pass
                         result = inner_value*cost
                         #print(f"a {key} {inner_key} 0 + {result} = {result}")
                         file.write(f"a {key} {inner_key} 0 + {result} = {result}\n")
