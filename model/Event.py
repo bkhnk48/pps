@@ -175,6 +175,8 @@ class Event:
             if edge[3] == '0' and int(edge[4]) >= 1
         }
         nx.M = self.graph.graph_processor.M
+        #Di chuyển phương thức write_trace sang lớp Graph_Processor 
+        #write_trace sẽ nhận tham số là nx.flowDict để ghi ra file traces.txt
         nx.write_trace()
 
     def finalize_solution(self):
