@@ -1,4 +1,4 @@
-from model.BenchmarkNode import BenchmarkNode, BottleneckNode, TopOrBottomBulbNode
+from model.BenchmarkNode import BenchmarkNode, BottleneckNode, TopBulbNode, BottomBulbNode, WaitingNode
 from model.BenchmarkEdge import BenchmarkEdge, InflowEdge, NeckEdge, OutflowEdge, WaitingEdge
 import os
 
@@ -49,11 +49,25 @@ class TimeSpaceGraph4Benchmark:
         return None
 
     def create_nodes(self, a1, a2, a3, a4, v1, v2):
-        nodes = [
-            TopOrBottomBulbNode(a1), TopOrBottomBulbNode(a3),
-            TopOrBottomBulbNode(a2), TopOrBottomBulbNode(a4),
-            BottleneckNode(v1), BottleneckNode(v2)
-        ]
+        t1, t2, t3, t4 = map(self.get_time, [a1, a2, a3, a4])
+        if t1 == 0 and t2 == 0 :
+            nodes = [
+                TopBulbNode(a1), TopBulbNode(a2),
+                WaitingNode(a3), WaitingNode(a4),
+                BottleneckNode(v1), BottleneckNode(v2)
+            ]
+        elif t3 == self.H and t4 == self.H:
+            nodes = [
+                WaitingNode(a1), WaitingNode(a2), 
+                BottomBulbNode(a3), BottomBulbNode(a4),
+                BottleneckNode(v1), BottleneckNode(v2)
+            ]
+        else:
+            nodes = [
+                WaitingNode(a1), WaitingNode(a2),
+                WaitingNode(a3), WaitingNode(a4),
+                BottleneckNode(v1), BottleneckNode(v2)
+            ]
         for node in nodes:
             self.add_node(node)
 
