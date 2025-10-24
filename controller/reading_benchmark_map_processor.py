@@ -50,6 +50,13 @@ class ReadingBenchmarkMapProcessor(ReadingInputProcessor):
 
     # -------------------- Format detection --------------------
     def _detect_input_format(self, filepath):
+        # If the file name contains "TSG" or "trace" then return "unknown"
+        try:
+            fname = os.path.basename(filepath).lower()
+            if 'tsg' in fname or 'trace' in fname:
+                return 'unknown'
+        except Exception:
+            pass
         bench_hits = dimacs_hits = invalid = 0
         try:
             with open(filepath, 'r', encoding='utf-8-sig', errors='replace') as f:
