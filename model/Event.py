@@ -175,7 +175,7 @@ class Event:
             if edge[3] == '0' and int(edge[4]) >= 1
         }
         nx.M = self.graph.graph_processor.M
-        nx.write_trace()
+        # nx.write_trace()
         #Di chuyển phương thức write_trace sang lớp EdgeModifier4Benchmark của file edge_modifier_4_benchmark.py
         #write_trace sẽ nhận tham số là nx.flowDict để ghi ra file traces.txt
         # Gọi write_trace từ graph_processor như ghi chú mô tả, truyền vào nx.flowDict để ghi ra traces.txt

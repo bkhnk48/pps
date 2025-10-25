@@ -39,17 +39,24 @@ class EdgeModifier4Benchmark(EdgeModifier):
 								c_ts = self._get_ts_edge_cost(int(key), int(inner_key))
 								if c_ts is not None:
 									cost_override = c_ts
+								else:
+									cost_override = -1
 						except Exception:
 							pass
 
-						u = int(key) % M
-						u = (M if (u == 0 and int(key) != 0) else u)
-						v = int(inner_key) % M
-						v = (M if (v == 0 and int(inner_key) != 0) else v)
+						# Chỉ tra cost theo SpaceGraph khi cả hai node KHÔNG thuộc các loại BenchmarkNode đặc biệt
+						space_cost = -1
+						if not isinstance(s_node, (WaitingNode, TopBulbNode, BottomBulbNode, BottleneckNode)) \
+							and not isinstance(t_node, (WaitingNode, TopBulbNode, BottomBulbNode, BottleneckNode)):
+							u = int(key) % M
+							u = (M if (u == 0 and int(key) != 0) else u)
+							v = int(inner_key) % M
+							v = (M if (v == 0 and int(inner_key) != 0) else v)
 
-						space_cost = edges_with_costs.get((u, v), [-1, -1])[1]
-						cost = cost_override if cost_override is not None else space_cost
-						result = inner_value * cost
+							space_cost = edges_with_costs.get((u, v), [-1, -1])[1]
+							result = inner_value * space_cost
+						else:
+							result = inner_value * cost_override
 						f.write(f"a {key} {inner_key} 0 + {result} = {result}\n")
 
 	# -------- Helpers --------
